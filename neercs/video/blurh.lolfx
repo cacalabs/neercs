@@ -1,0 +1,36 @@
+-- GLSL.Vert --
+
+#version 120
+
+void main()
+	{
+	gl_Position=gl_Vertex;
+	gl_TexCoord[0]=gl_MultiTexCoord0;
+	}
+
+-- GLSL.Frag --
+
+#version 120
+
+uniform sampler2D texture;
+uniform vec2 screen_size;
+uniform float time;
+uniform float value;
+
+float blur=value;
+
+void main(void)
+	{
+	vec4 total=vec4(0.0);
+	vec2 p=gl_TexCoord[0].xy/screen_size;
+	total+=texture2D(texture,vec2(p.x-blur*4.0,p.y))*0.04;
+	total+=texture2D(texture,vec2(p.x-blur*3.0,p.y))*0.08;
+	total+=texture2D(texture,vec2(p.x-blur*2.0,p.y))*0.12;
+	total+=texture2D(texture,vec2(p.x-blur    ,p.y))*0.16;
+	total+=texture2D(texture,vec2(p.x         ,p.y))*0.20;
+	total+=texture2D(texture,vec2(p.x+blur    ,p.y))*0.16;
+	total+=texture2D(texture,vec2(p.x+blur*2.0,p.y))*0.12;
+	total+=texture2D(texture,vec2(p.x+blur*3.0,p.y))*0.08;
+	total+=texture2D(texture,vec2(p.x+blur*4.0,p.y))*0.04;
+	gl_FragColor=total;
+	}

@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="neercs.cpp" />
+    <ClCompile Include="video\render.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="video\text-render.cpp">
+      <Filter>video</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="neercs.h" />
+    <ClInclude Include="video\render.h">
+      <Filter>video</Filter>
+    </ClInclude>
+    <ClInclude Include="video\text-render.h">
+      <Filter>video</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="video">
+      <UniqueIdentifier>{8598edd6-ce35-4250-b16e-4237b34ebd2a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <LolFxCompile Include="video\blurh.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+    <LolFxCompile Include="video\blurv.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+    <LolFxCompile Include="video\glow.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+    <LolFxCompile Include="video\postfx.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+    <LolFxCompile Include="video\radial.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+    <LolFxCompile Include="video\simple.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+    <LolFxCompile Include="video\text.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+  </ItemGroup>
+</Project>

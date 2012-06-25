@@ -1,0 +1,55 @@
+-- GLSL.Vert --
+
+#version 130
+
+attribute vec2 in_Position;
+attribute uint in_Char, in_Attr;
+
+varying vec4 pass_Foreground;
+varying vec4 pass_Background;
+varying vec2 pass_UV;
+
+uniform mat4 in_Transform;
+
+void main()
+{
+    float u = float(in_Char & 0xfu) / 32.0 + 0.0;
+    float v = float((in_Char >> 4u) & 0xfu) / 32.0 + 0.5;
+    pass_UV = vec2(u, v);
+
+    float A = float(in_Attr >> 29u) / 7.0;
+    float B = float((in_Attr >> 25u) & 0xfu) / 15.0;
+    float C = float((in_Attr >> 21u) & 0xfu) / 15.0;
+    float D = float((in_Attr >> 18u) & 0x7u) / 7.0;
+
+	float E = float((in_Attr >> 15u) & 0x7u) / 7.0;
+	float F = float((in_Attr >> 11u) & 0xfu) / 15.0;
+	float G = float((in_Attr >> 7u) & 0xfu) / 15.0;
+	float H = float((in_Attr >> 4u) & 0x7u) / 7.0;
+
+    pass_Background = vec4(B, C, D, 1.0 - A);
+    pass_Foreground = vec4(F, G, H, 1.0 - E);
+
+    // This only works with glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    //gl_PointSize = 40;
+
+    gl_Position = in_Transform * vec4(in_Position, 0.0, 1.0);
+}
+
+-- GLSL.Frag --
+
+#version 130
+
+varying vec4 pass_Foreground;
+varying vec4 pass_Background;
+varying vec2 pass_UV;
+
+uniform sampler2D in_Texture;
+
+void main(void)
+{
+    vec2 c = gl_PointCoord * (1.0 / 32.0) + pass_UV;
+    float t = texture2D(in_Texture, c).x;
+    gl_FragColor = mix(pass_Background, pass_Foreground, t);
+}
+

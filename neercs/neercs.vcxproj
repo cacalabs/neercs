@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Xbox 360">
+      <Configuration>Debug</Configuration>
+      <Platform>Xbox 360</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Xbox 360">
+      <Configuration>Release</Configuration>
+      <Platform>Xbox 360</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="neercs.h" />
+    <ClInclude Include="video\render.h" />
+    <ClInclude Include="video\text-render.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="neercs.cpp" />
+    <ClCompile Include="video\render.cpp" />
+    <ClCompile Include="video\text-render.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(SolutionDir)\..\..\src\lolcore.vcxproj">
+      <Project>{9e62f2fe-3408-4eae-8238-fd84238ceeda}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <LolFxCompile Include="video\blurh.lolfx" />
+    <LolFxCompile Include="video\blurv.lolfx" />
+    <LolFxCompile Include="video\glow.lolfx" />
+    <LolFxCompile Include="video\postfx.lolfx" />
+    <LolFxCompile Include="video\radial.lolfx" />
+    <LolFxCompile Include="video\simple.lolfx" />
+    <LolFxCompile Include="video\text.lolfx" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{587FCCE9-1D8D-4398-B8B6-E8F4E9A92233}</ProjectGuid>
+    <ConfigurationType>Application</ConfigurationType>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\Lol.Core.Config.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(SolutionDir)\Lol.Fx.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)\Lol.Core.Vars.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <Import Project="$(SolutionDir)\Lol.Core.Rules.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(CacaIncludes);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(CacaDeps);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CacaLibs);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(SolutionDir)\Lol.Fx.targets" />
+  </ImportGroup>
+</Project>
