@@ -43,7 +43,7 @@ TextRender::TextRender(caca_canvas_t *caca, ivec2 font_size)
 
 void TextRender::Init()
 {
-    m_font = new TileSet("neercs/video/resource/map.png",
+    m_font = new TileSet("tools/neercs/video/resource/map.png",
                          ivec2(256, 256), ivec2(1));
 
     m_shader = Shader::Create(lolfx_text);
