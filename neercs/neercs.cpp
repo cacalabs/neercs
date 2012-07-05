@@ -59,13 +59,13 @@ void Neercs::TickGame(float seconds)
 
     m_time += seconds;
 
-    caca_set_color_ansi(m_caca, CACA_DEFAULT, CACA_DEFAULT);
+    caca_set_color_argb(m_caca, 0xfff, 0x222);
     caca_clear_canvas(m_caca);
 
     caca_fill_ellipse(m_caca, 20+10 * lol::cos(m_time * 1.f), 10+10 * lol::sin(m_time * 1.f), 16+8 * lol::sin(m_time * 6.f), 12+6 * lol::cos(m_time * 5.f), '|');
     caca_fill_ellipse(m_caca, 20+10 * lol::cos(m_time * 1.f), 10+10 * lol::sin(m_time * 1.f), 12+8 * lol::sin(m_time * 6.f), 8+6 * lol::cos(m_time * 5.f), ' ');
 
-    caca_set_color_ansi(m_caca, 2, CACA_DEFAULT);
+    caca_set_color_argb(m_caca, 0xcef, 0x222);
     int x1 = 12 + 10 * lol::cos(m_time * 5.f);
     int y1 = 6 + 5 * lol::sin(m_time * 5.f);
     int x2 = 30 + 5 * lol::cos(m_time * 8.f);
