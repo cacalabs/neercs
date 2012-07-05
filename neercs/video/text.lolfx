@@ -22,10 +22,10 @@ void main()
     float C = float((in_Attr >> 21u) & 0xfu) / 15.0;
     float D = float((in_Attr >> 18u) & 0x7u) / 7.0;
 
-	float E = float((in_Attr >> 15u) & 0x7u) / 7.0;
-	float F = float((in_Attr >> 11u) & 0xfu) / 15.0;
-	float G = float((in_Attr >> 7u) & 0xfu) / 15.0;
-	float H = float((in_Attr >> 4u) & 0x7u) / 7.0;
+    float E = float((in_Attr >> 15u) & 0x7u) / 7.0;
+    float F = float((in_Attr >> 11u) & 0xfu) / 15.0;
+    float G = float((in_Attr >> 7u) & 0xfu) / 15.0;
+    float H = float((in_Attr >> 4u) & 0x7u) / 7.0;
 
     pass_Background = vec4(B, C, D, 1.0 - A);
     pass_Foreground = vec4(F, G, H, 1.0 - E);

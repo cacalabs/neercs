@@ -46,10 +46,9 @@ extern char const *lolfx_simple;
  * Various variables
  */
 
-int keys[256];             // keyboard array
 int active = true;         // window active flag
 bool fullscreen = DEBUG?false:true; // fullscreen flag
-bool paused = false;       // pause flag
+bool m_paused = false;       // pause flag
 float nearplane = 0.1f;    // nearplane
 float farplane = 1000.0f;  // farplane
 bool polygon = true;       // polygon mode
@@ -107,7 +106,7 @@ int key_code = 0;          // keyboard code
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
-bool shader_flag = true;
+bool m_shader = true;      /* TO DELETE */
 bool shader_blur_flag = true;
 bool shader_glow_flag = true;
 bool shader_effect_flag = true;
@@ -221,7 +220,7 @@ int InitGL(void)
     glEnable(GL_CULL_FACE);   // disable cull face
     glCullFace(GL_BACK);      // don't draw front face
 
-    if (shader_flag)
+    if (m_shader)
     {
         /* Initialise framebuffer objects */
         fbo_back = new FrameBuffer(screen_size);
@@ -278,7 +277,7 @@ int InitGL(void)
     return true;
 }
 
-int CreateGLWindow(char const *title)
+int CreateGLWindow()
 {
     screen_size = Video::GetSize();
     corner_w = 16*ratio_2d.x;
@@ -306,7 +305,8 @@ int CreateGLWindow(char const *title)
 
 Render::Render(caca_canvas_t *caca)
   : m_caca(caca),
-    m_ready(false)
+    m_ready(false),
+    m_shader(true)
 {
     text_render = new TextRender(m_caca, font_size);
 }
@@ -318,18 +318,26 @@ void Render::TickGame(float seconds)
 
 void Render::TickDraw(float seconds)
 {
+    /* keyboard manager */
+    if (Input::GetButtonState(27/*SDLK_ESCAPE*/))
+        Ticker::Shutdown();
+    if (Input::GetButtonState(8 /*SDLK_BACKSPACE*/))
+        m_paused=!m_paused;
+    if (Input::GetButtonState(112 /*SDLK_F1*/))
+        m_shader=!m_shader;
+
     Entity::TickDraw(seconds);
 
     if (!m_ready)
     {
-        CreateGLWindow("LOL");
+        CreateGLWindow();
         text_render->Init();
 
         m_ready = true;
     }
 
     // timer
-    if(!paused)
+    if(!m_paused)
         main_angle += seconds * 100.0f * PID;
     if(sync_flag)
     {
@@ -381,7 +389,7 @@ void Render::Draw2D()
     /* Draw text in an offline buffer */
     text_render->Render();
 
-    if(shader_flag)
+    if(m_shader)
         fbo_back->Bind();
 
     glViewport(0, 0, screen_size.x, screen_size.y);
@@ -453,6 +461,7 @@ void Render::Draw2D()
     // draw corner
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
+    glColor3f(0, 1.0f, 0);
     glVertexPointer(2, GL_INT, 0, corner_vtx);
     glLoadIdentity();
     glColor3f(0, 0, 0);
@@ -471,7 +480,7 @@ void Render::Draw2D()
 
 void Render::Draw3D()
 {
-    if (!shader_flag)
+    if (!m_shader)
         return;
 
     glDisable(GL_DEPTH_TEST);

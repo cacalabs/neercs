@@ -22,6 +22,7 @@ protected:
 private:
     caca_canvas_t *m_caca;
     bool m_ready;
+    bool m_shader;
 };
 
 #endif // __VIDEO_RENDER_H__

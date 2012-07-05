@@ -59,6 +59,7 @@ void Neercs::TickGame(float seconds)
 
     m_time += seconds;
 
+    /* draw something */
     caca_set_color_argb(m_caca, 0xfff, 0x222);
     caca_clear_canvas(m_caca);
 
@@ -85,10 +86,6 @@ void Neercs::TickGame(float seconds)
 
     caca_put_str(m_caca, 0, 0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     caca_put_str(m_caca, 0, 1, " !\"#$%&'()*+,-./0123456789");
-
-    if (Input::GetButtonState(27 /*SDLK_ESCAPE*/))
-        Ticker::Shutdown();
-
 }
 
 void Neercs::TickDraw(float seconds)
