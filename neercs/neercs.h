@@ -19,6 +19,8 @@ public:
 
     char const *GetName() { return "<neercs>"; }
 
+    int hex_color(float r, float g, float b);
+
 protected:
     virtual void TickGame(float seconds);
     virtual void TickDraw(float seconds);

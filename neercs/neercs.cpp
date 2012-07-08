@@ -53,6 +53,11 @@ Neercs::Neercs()
     Ticker::Ref(m_render);
 }
 
+int Neercs::hex_color(float r, float g, float b)
+{
+return ((int)(r * 15.99f) << 8) | ((int)(g * 15.99f) << 4) | (int)(b * 15.99f);
+}
+
 void Neercs::TickGame(float seconds)
 {
     WorldEntity::TickGame(seconds);
@@ -60,33 +65,79 @@ void Neercs::TickGame(float seconds)
     m_time += seconds;
 
     /* draw something */
-    caca_set_color_argb(m_caca, 0xfff, 0x222);
+    int bg_color = 0x222;
+    int w = caca_get_canvas_width(m_caca);
+    int h = caca_get_canvas_height(m_caca);
+
+    caca_set_color_argb(m_caca, 0xfff, bg_color);
     caca_clear_canvas(m_caca);
 
-    caca_fill_ellipse(m_caca, 20+10 * lol::cos(m_time * 1.f), 10+10 * lol::sin(m_time * 1.f), 16+8 * lol::sin(m_time * 6.f), 12+6 * lol::cos(m_time * 5.f), '|');
-    caca_fill_ellipse(m_caca, 20+10 * lol::cos(m_time * 1.f), 10+10 * lol::sin(m_time * 1.f), 12+8 * lol::sin(m_time * 6.f), 8+6 * lol::cos(m_time * 5.f), ' ');
+    caca_set_color_argb(m_caca, 0x444, bg_color);
 
-    caca_set_color_argb(m_caca, 0xcef, 0x222);
-    int x1 = 12 + 10 * lol::cos(m_time * 5.f);
-    int y1 = 6 + 5 * lol::sin(m_time * 5.f);
-    int x2 = 30 + 5 * lol::cos(m_time * 8.f);
-    int y2 = 8 + 5 * lol::sin(m_time * 8.f);
-    int y3 = 8 + 5 * lol::cos(m_time * 5.f);
+    int n1 = 8;
+    int n2 = 6;//w / n1 * h;
+
+    for(int i = 0; i < n1; i++)
+    {
+        for(int j = 0; j < n2; j++)
+        {
+            int p_x = i * w / n1 + w / (n1 * 2);
+            int p_y = j * h / n2 + h / (n2 * 2);
+            int r_w = w / (n1 * 2) + w / (n1 * 4) * lol::cos(m_time * 3 + M_PI / n1 * i) + h / (n2 * 4) * lol::sin(m_time * 2 + M_PI / n2 * j);
+            caca_fill_ellipse(m_caca, p_x, p_y, r_w, r_w, '%');
+        }
+    }
+
+    int radius = 12;
+
+    int x1 = w / 2 + radius * lol::cos(m_time * 2 - M_PI / 20);
+    int y1 = h / 2 + radius * lol::sin(m_time * 2 - M_PI / 20);
+    int x2 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
+    int y2 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
+    int x3 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
+    int y3 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
+    caca_set_color_argb(m_caca, 0x642, bg_color);
     caca_draw_thin_line(m_caca, x1, y1, x2, y2);
-    caca_draw_thin_line(m_caca, 40, y3, x2, y2);
-    caca_draw_thin_line(m_caca, x1, y1, 40, y3);
+    caca_draw_thin_line(m_caca, x2, y2, x3, y3);
+    caca_draw_thin_line(m_caca, x3, y3, x1, y1);
 
-    int x3 = 13 + 7 * lol::cos(m_time * 3.f);
-    caca_set_color_ansi(m_caca, CACA_CYAN, CACA_BLUE);
-    caca_put_str(m_caca, x3, 3, " LOL WUT ");
+    x1 = w / 2 + radius * lol::cos(m_time * 2);
+    y1 = h / 2 + radius * lol::sin(m_time * 2);
+    x2 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3);
+    y2 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3);
+    x3 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3 * 2);
+    y3 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3 * 2);
+    caca_set_color_argb(m_caca, 0xea6, bg_color);
+    caca_draw_thin_line(m_caca, x1, y1, x2, y2);
+    caca_draw_thin_line(m_caca, x2, y2, x3, y3);
+    caca_draw_thin_line(m_caca, x3, y3, x1, y1);
 
-    int x4 = 6 + 5 * lol::cos(m_time * 2.f);
+    int logo_x = -1;
+    int logo_y = h / 2 - 3;
+
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3               ),0.5f,0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
+    caca_put_str(m_caca, logo_x, logo_y    ," ___  __ _______ _______ _______  ._____ _______. ");
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 1),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
+    caca_put_str(m_caca, logo_x, logo_y + 1, "|   \\|  Y   ____Y   ____Y  ___  \\/  .___Y   ___/  ");
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 2),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
+    caca_put_str(m_caca, logo_x, logo_y + 2, "|  . °  >   ____>   ____>  .__  /  <_____\\____  \\ ");
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 3),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);
+    caca_put_str(m_caca, logo_x, logo_y + 3, "|__|\\___\\_______\\_______\\__|  \\_\\________________\\");
+    caca_set_color_argb(m_caca, 0xdef, bg_color);
+    caca_put_str(m_caca, logo_x + 7, logo_y + 5, "ALL YOUR TERMINALS ARE BELONG TO US!");
+
+    caca_set_color_ansi(m_caca, 0x666, bg_color);
+    caca_printf(m_caca, 1, h - 2, "W=%i H=%i", w, h);
+    caca_put_str(m_caca, w - 13, h - 2, "CACA RULEZ");
+
+    /*
+
+    int x4 = 6 + 5 * lol::cos(m_time * 2.f)
     caca_set_color_ansi(m_caca, CACA_YELLOW, CACA_RED);
     caca_put_str(m_caca, x4, 25, "Le Caca C'Est Surpuissant \\:D/");
-
-    caca_put_str(m_caca, 0, 0, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    caca_put_str(m_caca, 0, 1, " !\"#$%&'()*+,-./0123456789");
+    */
 }
+
 
 void Neercs::TickDraw(float seconds)
 {
