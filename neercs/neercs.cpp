@@ -129,13 +129,6 @@ void Neercs::TickGame(float seconds)
     caca_set_color_ansi(m_caca, 0x666, bg_color);
     caca_printf(m_caca, 1, h - 2, "W=%i H=%i", w, h);
     caca_put_str(m_caca, w - 13, h - 2, "CACA RULEZ");
-
-    /*
-
-    int x4 = 6 + 5 * lol::cos(m_time * 2.f)
-    caca_set_color_ansi(m_caca, CACA_YELLOW, CACA_RED);
-    caca_put_str(m_caca, x4, 25, "Le Caca C'Est Surpuissant \\:D/");
-    */
 }
 
 
@@ -160,7 +153,7 @@ int main(int argc, char **argv)
 #endif
 
     new Neercs();
-    new DebugFps(5, 5);
+    new DebugFps(5, 15);
     app.ShowPointer(false);
 
     app.Run();

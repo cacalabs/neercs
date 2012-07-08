@@ -38,7 +38,6 @@ extern char const *lolfx_postfx;
 extern char const *lolfx_radial;
 extern char const *lolfx_simple;
 
-#define DEBUG 1            // debug flag //#if defined(_DEBUG)
 #define PID M_PI/180.0f    // pi ratio
 #define CR 1.0f/256.0f     // color ratio
 
