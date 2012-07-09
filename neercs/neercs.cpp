@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 #endif
 
     new Neercs();
-    new DebugFps(5, 15);
+    new DebugFps(2, 2);
     app.ShowPointer(false);
 
     app.Run();
