@@ -81,16 +81,15 @@ float beat_angle = 0;      // angle
 float beat_value = 0;      // value
 float beat_speed = 2.0f;   // speed
 /* window variable */
-int window_m;              // margin
+ivec2 border;            // margin
 int window_vtx[8];         // vertex array
-ivec2 ratio_2d(2,4);       // 2d ratio
+/* text variable */
+ivec2 ratio_2d(2,2);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
-ivec2 text_size(80,25);    // text size
+ivec2 text_size(0,0);      // text size
 ivec2 blit_top(0,0);       // text blit top position
 ivec2 blit_bottom(0,0);    // text blit bottom position
-int shell_vtx[8];          // vertex array
-float shell_tex[] = {1.0f, 0.96875f, 1.0f, 1.0f, 0.78125f, 1.0f, 0.78125f, 0.96875f};
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
@@ -232,11 +231,11 @@ int Render::InitDraw(void)
     return true;
 }
 
-int Render::CreateGLWindow()
+int Render::CreateGLWindow(caca_canvas_t *caca)
 {
     screen_size = Video::GetSize();
 
-    window_m = 12 * ratio_2d.x;
+    border = 12 * ratio_2d;
     window_vtx[0] = font_size.x * ratio_2d.x / 2.0f;
     window_vtx[1] = font_size.y * ratio_2d.y / 2.0f;
     window_vtx[2] = font_size.x * ratio_2d.x / 2.0f;
@@ -245,19 +244,16 @@ int Render::CreateGLWindow()
     window_vtx[5] = -font_size.y * ratio_2d.y / 2.0f;
     window_vtx[6] = -font_size.x * ratio_2d.x / 2.0f;
     window_vtx[7] = font_size.y * ratio_2d.y / 2.0f;
-    shell_vtx[0] = window_m + 58 * ratio_2d.x;
-    shell_vtx[1] = window_m + (font_size.y + 1) * ratio_2d.y;
-    shell_vtx[2] = window_m + 58 * ratio_2d.x;
-    shell_vtx[3] = window_m + ratio_2d.y;
-    shell_vtx[4] = window_m + 2 * ratio_2d.x;
-    shell_vtx[5] = window_m + ratio_2d.y;
-    shell_vtx[6] = window_m + 2 * ratio_2d.x;
-    shell_vtx[7] = window_m + (font_size.y + 1) * ratio_2d.y;
 
-    blit_top = ivec2(window_m, window_m + font_size.y * ratio_2d.y) + ratio_2d * 2;
-    blit_bottom = screen_size - ivec2(window_m * 2, window_m * 2 + font_size.y * ratio_2d.y) + ratio_2d * 2;
+    ivec2 current_size = (screen_size - border * 2);
+    text_size = current_size / (font_size * ratio_2d);
 
-    //caca_set_canvas_size(m_caca,20,10);
+    //border
+
+    blit_top = border;
+    blit_bottom = screen_size - border * 2;
+
+    caca_set_canvas_size(caca,text_size.x,text_size.y);
 
     InitDraw();
     return true;
@@ -268,7 +264,7 @@ Render::Render(caca_canvas_t *caca)
     m_ready(false),
     m_pause(false),
     m_polygon(true),
-    m_shader(true),
+    m_shader(false),
     m_shader_blur(true),
     m_shader_glow(true),
     m_shader_fx(true),
@@ -314,7 +310,7 @@ void Render::TickDraw(float seconds)
 
     if (!m_ready)
     {
-        CreateGLWindow();
+        CreateGLWindow(m_caca);
         text_render->Init();
         m_ready = true;
     }
@@ -399,41 +395,10 @@ void Render::Draw2D()
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
     glColor3f(1.0f,1.0f,1.0f);
-    rectangle(window_m,window_m,screen_size.x-53*ratio_2d.x-window_m*2,(font_size.y+2)*ratio_2d.y);
-    rectangle(screen_size.x-51*ratio_2d.x-window_m,window_m,22*ratio_2d.x,(font_size.y+2)*ratio_2d.y);
-    rectangle(screen_size.x-27*ratio_2d.x-window_m,window_m,22*ratio_2d.x,(font_size.y+2)*ratio_2d.y);
-    rectangle(screen_size.x-3*ratio_2d.x-window_m,window_m,3*ratio_2d.x,(font_size.y+2)*ratio_2d.y);
-    rectangle(window_m,window_m+(font_size.y+2)*ratio_2d.y,2*ratio_2d.x,screen_size.y-(font_size.y+2)*ratio_2d.y-window_m*2);
-    rectangle(screen_size.x-2*ratio_2d.x-window_m,window_m+(font_size.y+2)*ratio_2d.y,2*ratio_2d.x,screen_size.y-(font_size.y+2)*ratio_2d.y-window_m*2);
-    rectangle(window_m+2*ratio_2d.x,screen_size.y-ratio_2d.y-window_m,screen_size.x-4*ratio_2d.x-window_m*2,ratio_2d.y);
-    glColor3f(screen_color.x,screen_color.y,screen_color.z);
-    rectangle(window_m+2*ratio_2d.x,window_m+ratio_2d.y,56*ratio_2d.x,font_size.y*ratio_2d.y);
-    rectangle(window_m+60*ratio_2d.x,window_m+2*ratio_2d.y,screen_size.x-115*ratio_2d.x-window_m*2,2*ratio_2d.y);
-    rectangle(window_m+60*ratio_2d.x,window_m+6*ratio_2d.y,screen_size.x-115*ratio_2d.x-window_m*2,2*ratio_2d.y);
-    rectangle(screen_size.x-49*ratio_2d.x-window_m,window_m+ratio_2d.y,14*ratio_2d.x,6*ratio_2d.y);
-    glColor3f(1.0f,1.0f,1.0f);
-    rectangle(screen_size.x-47*ratio_2d.x-window_m,window_m+2*ratio_2d.y,10*ratio_2d.x,4*ratio_2d.y);
-    glColor3f(0,0,0);
-    rectangle(screen_size.x-45*ratio_2d.x-window_m,window_m+3*ratio_2d.y,14*ratio_2d.x,6*ratio_2d.y);
-    rectangle(screen_size.x-25*ratio_2d.x-window_m,window_m+1*ratio_2d.y,14*ratio_2d.x,6*ratio_2d.y);
-    glColor3f(screen_color.x,screen_color.y,screen_color.z);
-    rectangle(screen_size.x-21*ratio_2d.x-window_m,window_m+2*ratio_2d.y,14*ratio_2d.x,7*ratio_2d.y);
-    glColor3f(1.0f,1.0f,1.0f);
-    rectangle(screen_size.x-19*ratio_2d.x-window_m,window_m+3*ratio_2d.y,10*ratio_2d.x,5*ratio_2d.y);
-    rectangle(screen_size.x-16*ratio_2d.x-window_m,screen_size.y-9*ratio_2d.y-window_m,14*ratio_2d.x,8*ratio_2d.y);
-    glColor3f(screen_color.x,screen_color.y,screen_color.z);
-    rectangle(screen_size.x-14*ratio_2d.x-window_m,screen_size.y-8*ratio_2d.y-window_m,12*ratio_2d.x,7*ratio_2d.y);
-    glColor3f(1.0f,1.0f,1.0f);
-    rectangle(screen_size.x-8*ratio_2d.x-window_m,screen_size.y-8*ratio_2d.y-window_m,8*ratio_2d.x,2*ratio_2d.y);
-    rectangle(screen_size.x-14*ratio_2d.x-window_m,screen_size.y-5*ratio_2d.y-window_m,4*ratio_2d.x,5*ratio_2d.y);
-    rectangle(screen_size.x-12*ratio_2d.x-window_m,screen_size.y-7*ratio_2d.y-window_m,2*ratio_2d.x,1*ratio_2d.y);
-    rectangle(screen_size.x-8*ratio_2d.x-window_m,screen_size.y-5*ratio_2d.y-window_m,4*ratio_2d.x,3*ratio_2d.y);
-    glEnable(GL_BLEND);
-    if(m_polygon) glEnable(GL_TEXTURE_2D);
-    glBlendFunc(GL_ONE, GL_ONE);
-    glVertexPointer(2, GL_INT, 0, shell_vtx);
-    glTexCoordPointer(2, GL_FLOAT, 0, shell_tex);
-    glDrawArrays(GL_QUADS, 0, 4);
+    rectangle(border.x+ratio_2d.x,border.y,screen_size.x-2*ratio_2d.x-border.x*2,ratio_2d.y);//(font_size.y+2)*ratio_2d.y);
+    rectangle(border.x,border.y+ratio_2d.y,ratio_2d.x,screen_size.y-ratio_2d.y*2-border.y*2);
+    rectangle(screen_size.x-ratio_2d.x-border.x,border.y+ratio_2d.y,ratio_2d.x,screen_size.y-2*ratio_2d.y-border.y*2);
+    rectangle(border.x+ratio_2d.x,screen_size.y-ratio_2d.y-border.y,screen_size.x-2*ratio_2d.x-border.x*2,ratio_2d.y);
     glEnable(GL_BLEND);
 }
 

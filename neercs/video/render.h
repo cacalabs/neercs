@@ -20,7 +20,7 @@ protected:
     void Draw3D();
 
 private:
-    int CreateGLWindow();
+    int CreateGLWindow(caca_canvas_t *m_caca);
     int InitDraw();
     void Pause();
     void Shader();
