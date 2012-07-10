@@ -112,19 +112,26 @@ void Neercs::TickGame(float seconds)
     caca_draw_thin_line(m_caca, x2, y2, x3, y3);
     caca_draw_thin_line(m_caca, x3, y3, x1, y1);
 
-    int logo_x = -1;
+    int logo_x = 1;
     int logo_y = h / 2 - 3;
 
+/*
+ ___  __ ______ ______ ______  ______ ______
+ \  \|  /  ____Y  ____Y  __  \/  ___//  ___/
+ /   `  >  ____>  ____>  ,_  <  <____\___  \
+/__/\___\______\______\__| \__\_____________\
+*/
+
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3               ),0.5f,0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y    ," ___  __ _______ _______ _______  ._____ _______. ");
+    caca_put_str(m_caca, logo_x, logo_y    ," ___  __ ______ ______ ______  ______ ______");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 1),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y + 1, "|   \\|  Y   ____Y   ____Y  ___  \\/  .___Y   ___/  ");
+    caca_put_str(m_caca, logo_x, logo_y + 1, " \\  \\|  /  ____Y  ____Y  __  \\/  ___//  ___/");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 2),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y + 2, "|  . °  >   ____>   ____>  .__  /  <_____\\____  \\ ");
+    caca_put_str(m_caca, logo_x, logo_y + 2, " /   `  >  ____>  ____>  ,_  <  <____\\___  \\");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 3),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y + 3, "|__|\\___\\_______\\_______\\__|  \\_\\________________\\");
+    caca_put_str(m_caca, logo_x, logo_y + 3, "/__/\\___\\______\\______\\__| \\__\\_____________\\");
     caca_set_color_argb(m_caca, 0xdef, bg_color);
-    caca_put_str(m_caca, logo_x + 7, logo_y + 5, "ALL YOUR TERMINALS ARE BELONG TO US!");
+    caca_put_str(m_caca, logo_x + 5, logo_y + 5, "ALL YOUR TERMINALS ARE BELONG TO US");
 
     caca_set_color_ansi(m_caca, 0x666, bg_color);
     caca_printf(m_caca, 1, h - 2, "W=%i H=%i", w, h);
