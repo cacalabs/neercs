@@ -116,18 +116,18 @@ void Neercs::TickGame(float seconds)
     int logo_y = h / 2 - 3;
 
 /*
- ___  __ ______ ______ ______  ______ ______
- \  \|  /  ____Y  ____Y  __  \/  ___//  ___/
- /   `  >  ____>  ____>  ,_  <  <____\___  \
+.___  __ ______ ______ ______  ______ ______,
+ \° \|  /° __  \° __  \° __  \/° ___//° ___/
+ /   `  >  ____/  ____/  ,_  <  <____\___  \
 /__/\___\______\______\__| \__\_____________\
 */
 
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3               ),0.5f,0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y    ," ___  __ ______ ______ ______  ______ ______");
+    caca_put_str(m_caca, logo_x, logo_y    ,".___  __ ______ ______ ______  ______ ______,");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 1),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y + 1, " \\  \\|  /  ____Y  ____Y  __  \\/  ___//  ___/");
+    caca_put_str(m_caca, logo_x, logo_y + 1, " \\° \\|  /° __  \\° __  \\° __  \\/° ___//° ___/");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 2),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y + 2, " /   `  >  ____>  ____>  ,_  <  <____\\___  \\");
+    caca_put_str(m_caca, logo_x, logo_y + 2, " /   `  >  ____/  ____/  ,_  <  <____\\___  \\");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 3),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);
     caca_put_str(m_caca, logo_x, logo_y + 3, "/__/\\___\\______\\______\\__| \\__\\_____________\\");
     caca_set_color_argb(m_caca, 0xdef, bg_color);
@@ -135,6 +135,7 @@ void Neercs::TickGame(float seconds)
 
     caca_set_color_ansi(m_caca, 0x666, bg_color);
     caca_printf(m_caca, 1, h - 2, "W=%i H=%i", w, h);
+    //caca_printf(m_caca, 1, h - 2, "2d ratio=%i*%i", ratio_2d.x, ratio_2d.y);
     caca_put_str(m_caca, w - 13, h - 2, "CACA RULEZ");
 }
 

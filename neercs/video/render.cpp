@@ -80,17 +80,15 @@ bool beat_flag = false;    // flag
 float beat_angle = 0;      // angle
 float beat_value = 0;      // value
 float beat_speed = 2.0f;   // speed
-/* corner variable */
-const int corner_n = 10;   // m_polygon number
-int corner_w = 24;         // radius
-int corner_vtx[corner_n*6];// vertex array
 /* window variable */
 int window_m;              // margin
 int window_vtx[8];         // vertex array
 ivec2 ratio_2d(2,4);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
-vec2 car_size(1.0f/map_size.x*font_size.x, 1.0f/map_size.y*font_size.y);
+ivec2 text_size(80,25);    // text size
+ivec2 blit_top(0,0);       // text blit top position
+ivec2 blit_bottom(0,0);    // text blit bottom position
 int shell_vtx[8];          // vertex array
 float shell_tex[] = {1.0f, 0.96875f, 1.0f, 1.0f, 0.78125f, 1.0f, 0.78125f, 0.96875f};
 /* common variable */
@@ -171,31 +169,6 @@ void rectangle(int x, int y, int w, int h)
     glEnd();
 }
 
-void corner()
-{
-    float vertex[6+corner_n*2];
-    vertex[0] = 0;
-    vertex[1] = 0;
-    for (int i = 1; i < corner_n + 1; i++)
-    {
-        int j = i*2;
-        float a = PID*90.0f/(corner_n-1)*(i-1);
-        vertex[j  ] = corner_w-corner_w*cosf(a);
-        vertex[j+1] = corner_w-corner_w*sinf(a);
-    }
-    for (int i = 0; i < corner_n; i++)
-    {
-        int j = i*6;
-        int k = i*2;
-        corner_vtx[j  ] = (int)vertex[0];
-        corner_vtx[j+1] = (int)vertex[1];
-        corner_vtx[j+2] = (int)vertex[2+k];
-        corner_vtx[j+3] = (int)vertex[3+k];
-        corner_vtx[j+4] = (int)vertex[4+k];
-        corner_vtx[j+5] = (int)vertex[5+k];
-    }
-}
-
 int Render::InitDraw(void)
 {
     glDepthMask(GL_TRUE);     // do not write z-buffer
@@ -262,25 +235,30 @@ int Render::InitDraw(void)
 int Render::CreateGLWindow()
 {
     screen_size = Video::GetSize();
-    corner_w = 16*ratio_2d.x;
-    corner();
-    window_m=12*ratio_2d.x;
-    window_vtx[0]=font_size.x*ratio_2d.x/2.0f;
-    window_vtx[1]=font_size.y*ratio_2d.y/2.0f;
-    window_vtx[2]=font_size.x*ratio_2d.x/2.0f;
-    window_vtx[3]=-font_size.y*ratio_2d.y/2.0f;
-    window_vtx[4]=-font_size.x*ratio_2d.x/2.0f;
-    window_vtx[5]=-font_size.y*ratio_2d.y/2.0f;
-    window_vtx[6]=-font_size.x*ratio_2d.x/2.0f;
-    window_vtx[7]=font_size.y*ratio_2d.y/2.0f;
-    shell_vtx[0]=window_m+58*ratio_2d.x;
-    shell_vtx[1]=window_m+(font_size.y+1)*ratio_2d.y;
-    shell_vtx[2]=window_m+58*ratio_2d.x;
-    shell_vtx[3]=window_m+ratio_2d.y;
-    shell_vtx[4]=window_m+2*ratio_2d.x;
-    shell_vtx[5]=window_m+ratio_2d.y;
-    shell_vtx[6]=window_m+2*ratio_2d.x;
-    shell_vtx[7]=window_m+(font_size.y+1)*ratio_2d.y;
+
+    window_m = 12 * ratio_2d.x;
+    window_vtx[0] = font_size.x * ratio_2d.x / 2.0f;
+    window_vtx[1] = font_size.y * ratio_2d.y / 2.0f;
+    window_vtx[2] = font_size.x * ratio_2d.x / 2.0f;
+    window_vtx[3] = -font_size.y * ratio_2d.y / 2.0f;
+    window_vtx[4] = -font_size.x * ratio_2d.x / 2.0f;
+    window_vtx[5] = -font_size.y * ratio_2d.y / 2.0f;
+    window_vtx[6] = -font_size.x * ratio_2d.x / 2.0f;
+    window_vtx[7] = font_size.y * ratio_2d.y / 2.0f;
+    shell_vtx[0] = window_m + 58 * ratio_2d.x;
+    shell_vtx[1] = window_m + (font_size.y + 1) * ratio_2d.y;
+    shell_vtx[2] = window_m + 58 * ratio_2d.x;
+    shell_vtx[3] = window_m + ratio_2d.y;
+    shell_vtx[4] = window_m + 2 * ratio_2d.x;
+    shell_vtx[5] = window_m + ratio_2d.y;
+    shell_vtx[6] = window_m + 2 * ratio_2d.x;
+    shell_vtx[7] = window_m + (font_size.y + 1) * ratio_2d.y;
+
+    blit_top = ivec2(window_m, window_m + font_size.y * ratio_2d.y) + ratio_2d * 2;
+    blit_bottom = screen_size - ivec2(window_m * 2, window_m * 2 + font_size.y * ratio_2d.y) + ratio_2d * 2;
+
+    //caca_set_canvas_size(m_caca,20,10);
+
     InitDraw();
     return true;
 }
@@ -406,11 +384,7 @@ void Render::Draw2D()
     glClearDepth(1.0f); // set depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ivec2 border_top = ivec2(window_m, window_m + font_size.y * ratio_2d.y)
-                     + ratio_2d * 2;
-    ivec2 border_bottom = ivec2(window_m * 2, window_m * 2 + font_size.y * ratio_2d.y)
-                        + ratio_2d * 2;
-    text_render->Blit(border_top, screen_size - border_bottom);
+    text_render->Blit(blit_top, blit_bottom);
 
     //if(m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
     glLineWidth((m_polygon)?2.0f:1.0f);
@@ -460,22 +434,6 @@ void Render::Draw2D()
     glVertexPointer(2, GL_INT, 0, shell_vtx);
     glTexCoordPointer(2, GL_FLOAT, 0, shell_tex);
     glDrawArrays(GL_QUADS, 0, 4);
-    // draw corner
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-    glVertexPointer(2, GL_INT, 0, corner_vtx);
-    glLoadIdentity();
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glDrawArrays(GL_TRIANGLES, 0, corner_n*3);
-    glTranslated(screen_size.x, 0, 0);
-    glRotated(90.0f, 0, 0, 1.0f);
-    glDrawArrays(GL_TRIANGLES, 0, corner_n*3);
-    glTranslated(screen_size.y, 0, 0);
-    glRotated(90.0f, 0, 0, 1.0f);
-    glDrawArrays(GL_TRIANGLES, 0, corner_n*3);
-    glTranslated(screen_size.x, 0, 0);
-    glRotated(90.0f, 0, 0, 1.0f);
-    glDrawArrays(GL_TRIANGLES, 0, corner_n*3);
     glEnable(GL_BLEND);
 }
 
