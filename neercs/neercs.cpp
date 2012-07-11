@@ -46,7 +46,7 @@ using namespace lol;
 
 Neercs::Neercs()
   : m_ready(false),
-    m_caca(caca_create_canvas(47, 32)),
+    m_caca(caca_create_canvas(10, 10)),
     m_render(new Render(m_caca)),
     m_time(0.f)
 {

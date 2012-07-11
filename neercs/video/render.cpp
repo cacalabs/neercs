@@ -81,15 +81,13 @@ float beat_angle = 0;      // angle
 float beat_value = 0;      // value
 float beat_speed = 2.0f;   // speed
 /* window variable */
-ivec2 border;            // margin
-int window_vtx[8];         // vertex array
+ivec2 border;              // border width
 /* text variable */
 ivec2 ratio_2d(2,2);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
-ivec2 text_size(0,0);      // text size
-ivec2 blit_top(0,0);       // text blit top position
-ivec2 blit_bottom(0,0);    // text blit bottom position
+ivec2 canvas_char(0,0);    // canvas char number
+ivec2 canvas_size(0,0);    // caca size
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
@@ -174,83 +172,73 @@ int Render::InitDraw(void)
     glEnable(GL_CULL_FACE);   // disable cull face
     glCullFace(GL_BACK);      // don't draw front face
 
-    /* Initialise framebuffer objects */
-    fbo_back = new FrameBuffer(screen_size);
-    fbo_front = new FrameBuffer(screen_size);
-    fbo_blur_h = new FrameBuffer(screen_size / glow_fbo_size);
-    fbo_blur_v = new FrameBuffer(screen_size / glow_fbo_size);
-    fbo_ping = new FrameBuffer(screen_size);
-    fbo_pong = new FrameBuffer(screen_size);
-    // shader simple
-    shader_simple = Shader::Create(lolfx_simple);
-    shader_simple_texture = shader_simple->GetUniformLocation("texture");
-    // shader blur horizontal
-    shader_blur_h = Shader::Create(lolfx_blurh);
-    shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
-    shader_blur_h_screen_size = shader_blur_h->GetUniformLocation("screen_size");
-    shader_blur_h_time = shader_blur_h->GetUniformLocation("time");
-    shader_blur_h_value = shader_blur_h->GetUniformLocation("value");
-    // shader blur vertical
-    shader_blur_v = Shader::Create(lolfx_blurv);
-    shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
-    shader_blur_v_screen_size = shader_blur_v->GetUniformLocation("screen_size");
-    shader_blur_v_time = shader_blur_v->GetUniformLocation("time");
-    shader_blur_v_value = shader_blur_v->GetUniformLocation("value");
-    // shader glow
-    shader_glow = Shader::Create(lolfx_glow);
-    shader_glow_texture = shader_glow->GetUniformLocation("texture");
-    shader_glow_texture_prv = shader_glow->GetUniformLocation("texture_prv");
-    shader_glow_screen_size = shader_glow->GetUniformLocation("screen_size");
-    shader_glow_time = shader_glow->GetUniformLocation("time");
-    shader_glow_step = shader_glow->GetUniformLocation("step");
-    shader_glow_value1 = shader_glow->GetUniformLocation("value1");
-    shader_glow_value2 = shader_glow->GetUniformLocation("value2");
-    // shader radial
-    shader_radial = Shader::Create(lolfx_radial);
-    shader_radial_texture = shader_radial->GetUniformLocation("texture");
-    shader_radial_screen_size = shader_radial->GetUniformLocation("screen_size");
-    shader_radial_time = shader_radial->GetUniformLocation("time");
-    shader_radial_value1 = shader_radial->GetUniformLocation("value1");
-    shader_radial_value2 = shader_radial->GetUniformLocation("value2");
-    shader_radial_color = shader_radial->GetUniformLocation("color");
-    // shader postfx
-    shader_postfx = Shader::Create(lolfx_postfx);
-    shader_postfx_texture = shader_postfx->GetUniformLocation("texture");
-    shader_postfx_texture_2d = shader_postfx->GetUniformLocation("texture_2d");
-    shader_postfx_screen_size = shader_postfx->GetUniformLocation("screen_size");
-    shader_postfx_time = shader_postfx->GetUniformLocation("time");
-    shader_postfx_flash = shader_postfx->GetUniformLocation("flash");
-    shader_postfx_value = shader_postfx->GetUniformLocation("value");
-    shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
-    shader_postfx_scanline = shader_postfx->GetUniformLocation("scanline");
-    shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
+    if (m_shader)
+    {
+        /* Initialise framebuffer objects */
+        fbo_back = new FrameBuffer(screen_size);
+        fbo_front = new FrameBuffer(screen_size);
+        fbo_blur_h = new FrameBuffer(screen_size / glow_fbo_size);
+        fbo_blur_v = new FrameBuffer(screen_size / glow_fbo_size);
+        fbo_ping = new FrameBuffer(screen_size);
+        fbo_pong = new FrameBuffer(screen_size);
+        // shader simple
+        shader_simple = Shader::Create(lolfx_simple);
+        shader_simple_texture = shader_simple->GetUniformLocation("texture");
+        // shader blur horizontal
+        shader_blur_h = Shader::Create(lolfx_blurh);
+        shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
+        shader_blur_h_screen_size = shader_blur_h->GetUniformLocation("screen_size");
+        shader_blur_h_time = shader_blur_h->GetUniformLocation("time");
+        shader_blur_h_value = shader_blur_h->GetUniformLocation("value");
+        // shader blur vertical
+        shader_blur_v = Shader::Create(lolfx_blurv);
+        shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
+        shader_blur_v_screen_size = shader_blur_v->GetUniformLocation("screen_size");
+        shader_blur_v_time = shader_blur_v->GetUniformLocation("time");
+        shader_blur_v_value = shader_blur_v->GetUniformLocation("value");
+        // shader glow
+        shader_glow = Shader::Create(lolfx_glow);
+        shader_glow_texture = shader_glow->GetUniformLocation("texture");
+        shader_glow_texture_prv = shader_glow->GetUniformLocation("texture_prv");
+        shader_glow_screen_size = shader_glow->GetUniformLocation("screen_size");
+        shader_glow_time = shader_glow->GetUniformLocation("time");
+        shader_glow_step = shader_glow->GetUniformLocation("step");
+        shader_glow_value1 = shader_glow->GetUniformLocation("value1");
+        shader_glow_value2 = shader_glow->GetUniformLocation("value2");
+        // shader radial
+        shader_radial = Shader::Create(lolfx_radial);
+        shader_radial_texture = shader_radial->GetUniformLocation("texture");
+        shader_radial_screen_size = shader_radial->GetUniformLocation("screen_size");
+        shader_radial_time = shader_radial->GetUniformLocation("time");
+        shader_radial_value1 = shader_radial->GetUniformLocation("value1");
+        shader_radial_value2 = shader_radial->GetUniformLocation("value2");
+        shader_radial_color = shader_radial->GetUniformLocation("color");
+        // shader postfx
+        shader_postfx = Shader::Create(lolfx_postfx);
+        shader_postfx_texture = shader_postfx->GetUniformLocation("texture");
+        shader_postfx_texture_2d = shader_postfx->GetUniformLocation("texture_2d");
+        shader_postfx_screen_size = shader_postfx->GetUniformLocation("screen_size");
+        shader_postfx_time = shader_postfx->GetUniformLocation("time");
+        shader_postfx_flash = shader_postfx->GetUniformLocation("flash");
+        shader_postfx_value = shader_postfx->GetUniformLocation("value");
+        shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
+        shader_postfx_scanline = shader_postfx->GetUniformLocation("scanline");
+        shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
+    }
 
     return true;
 }
 
-int Render::CreateGLWindow(caca_canvas_t *caca)
+int Render::CreateGLWindow()
 {
     screen_size = Video::GetSize();
-
     border = 12 * ratio_2d;
-    window_vtx[0] = font_size.x * ratio_2d.x / 2.0f;
-    window_vtx[1] = font_size.y * ratio_2d.y / 2.0f;
-    window_vtx[2] = font_size.x * ratio_2d.x / 2.0f;
-    window_vtx[3] = -font_size.y * ratio_2d.y / 2.0f;
-    window_vtx[4] = -font_size.x * ratio_2d.x / 2.0f;
-    window_vtx[5] = -font_size.y * ratio_2d.y / 2.0f;
-    window_vtx[6] = -font_size.x * ratio_2d.x / 2.0f;
-    window_vtx[7] = font_size.y * ratio_2d.y / 2.0f;
+    canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
+    canvas_size = canvas_char * font_size * ratio_2d;
 
-    ivec2 current_size = (screen_size - border * 2);
-    text_size = current_size / (font_size * ratio_2d);
+    border = (screen_size - canvas_size) / 2;
 
-    //border
-
-    blit_top = border;
-    blit_bottom = screen_size - border * 2;
-
-    caca_set_canvas_size(caca,text_size.x,text_size.y);
+    caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
 
     InitDraw();
     return true;
@@ -286,7 +274,7 @@ void Render::TickDraw(float seconds)
     if (Input::GetButtonState(27/*SDLK_ESCAPE*/))
         Ticker::Shutdown();
     //if (Input::GetButtonState(282/*SDLK_F1*/))
-    //    Pause();
+    //    LEAULE();
     if (Input::GetButtonState(283/*SDLK_F2*/))
         {
         m_polygon=!m_polygon;
@@ -307,7 +295,7 @@ void Render::TickDraw(float seconds)
 
     if (!m_ready)
     {
-        CreateGLWindow(m_caca);
+        CreateGLWindow();
         text_render->Init();
         m_ready = true;
     }
@@ -377,7 +365,7 @@ void Render::Draw2D()
     glClearDepth(1.0f); // set depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    text_render->Blit(blit_top, blit_bottom);
+    text_render->Blit(border, canvas_size);
 
     //if(m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
     glLineWidth((m_polygon)?2.0f:1.0f);
@@ -388,14 +376,14 @@ void Render::Draw2D()
     mat4 m = mat4::ortho(0, screen_size.x, screen_size.y, 0, -1.f, 1.f);
     glLoadMatrixf(&m[0][0]);
     glMatrixMode(GL_MODELVIEW);
-    // draw window
+    // draw border
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
     glColor3f(1.0f,1.0f,1.0f);
-    rectangle(border.x+ratio_2d.x,border.y,screen_size.x-2*ratio_2d.x-border.x*2,ratio_2d.y);//(font_size.y+2)*ratio_2d.y);
-    rectangle(border.x,border.y+ratio_2d.y,ratio_2d.x,screen_size.y-ratio_2d.y*2-border.y*2);
-    rectangle(screen_size.x-ratio_2d.x-border.x,border.y+ratio_2d.y,ratio_2d.x,screen_size.y-2*ratio_2d.y-border.y*2);
-    rectangle(border.x+ratio_2d.x,screen_size.y-ratio_2d.y-border.y,screen_size.x-2*ratio_2d.x-border.x*2,ratio_2d.y);
+    rectangle(border.x - ratio_2d.x, border.y - ratio_2d.y, canvas_size.x + ratio_2d.x * 2, ratio_2d.y);
+    rectangle(border.x - ratio_2d.x, border.y, ratio_2d.x, canvas_size.y);
+    rectangle(border.x + canvas_size.x, border.y, ratio_2d.x, canvas_size.y);
+    rectangle(border.x - ratio_2d.x, border.y + canvas_size.y, canvas_size.x + ratio_2d.x * 2, ratio_2d.y);
     glEnable(GL_BLEND);
 }
 
