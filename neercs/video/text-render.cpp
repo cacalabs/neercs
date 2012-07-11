@@ -36,9 +36,6 @@ TextRender::TextRender(caca_canvas_t *caca, ivec2 font_size)
     m_fbo_size(m_font_size * m_canvas_size),
     m_cells(m_canvas_size.x * m_canvas_size.y)
 {
-    for (int j = 0; j < m_canvas_size.y; j++)
-    for (int i = 0; i < m_canvas_size.x; i++)
-        m_vertices << vec2(i, j);
 }
 
 void TextRender::Init()
@@ -60,9 +57,16 @@ void TextRender::Init()
                               VertexStream<uint32_t>(VertexUsage::Color),
                               VertexStream<uint32_t>(VertexUsage::Color));
 
-    m_vbo1 = new VertexBuffer(m_vertices.Bytes());
-    void *vertices = m_vbo1->Lock(0, 0);
-    memcpy(vertices, &m_vertices[0], m_vertices.Bytes());
+    CreateBuffers();
+}
+
+void TextRender::CreateBuffers()
+{
+    m_vbo1 = new VertexBuffer(m_cells * sizeof(vec2));
+    vec2 *vertices = (vec2 *)m_vbo1->Lock(0, 0);
+    for (int j = 0; j < m_canvas_size.y; j++)
+    for (int i = 0; i < m_canvas_size.x; i++)
+        vertices[j * m_canvas_size.x + i] = vec2(i, j);
     m_vbo1->Unlock();
 
     m_vbo2 = new VertexBuffer(m_cells * sizeof(int32_t));
@@ -73,6 +77,23 @@ void TextRender::Init()
 
 void TextRender::Render()
 {
+    /* Handle canvas size changes */
+    ivec2 current_size(caca_get_canvas_width(m_caca),
+                       caca_get_canvas_height(m_caca));
+    if (current_size != m_canvas_size)
+    {
+        delete m_vbo1;
+        delete m_vbo2;
+        delete m_vbo3;
+        delete m_fbo;
+
+        m_canvas_size = current_size;
+        m_fbo_size = m_font_size * m_canvas_size;
+        m_cells = m_canvas_size.x * m_canvas_size.y;
+
+        CreateBuffers();
+    }
+
     /* Transform matrix for the scene:
      *  - translate to the centre of the glyph
      *  - scale by 2.f * font_size / fbo_size

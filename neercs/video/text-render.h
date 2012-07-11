@@ -13,11 +13,12 @@ struct TextRender
     void Blit(ivec2 pos, ivec2 size);
 
 private:
+    void CreateBuffers();
+
     caca_canvas_t *m_caca;
     ivec2 m_font_size, m_canvas_size, m_fbo_size;
     int m_cells;
 
-    Array<vec2> m_vertices;
     TileSet *m_font;
     Shader *m_shader;
     ShaderAttrib m_coord, m_color, m_char;
