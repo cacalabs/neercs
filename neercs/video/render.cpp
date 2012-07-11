@@ -172,59 +172,56 @@ int Render::InitDraw(void)
     glEnable(GL_CULL_FACE);   // disable cull face
     glCullFace(GL_BACK);      // don't draw front face
 
-    if (m_shader)
-    {
-        /* Initialise framebuffer objects */
-        fbo_back = new FrameBuffer(screen_size);
-        fbo_front = new FrameBuffer(screen_size);
-        fbo_blur_h = new FrameBuffer(screen_size / glow_fbo_size);
-        fbo_blur_v = new FrameBuffer(screen_size / glow_fbo_size);
-        fbo_ping = new FrameBuffer(screen_size);
-        fbo_pong = new FrameBuffer(screen_size);
-        // shader simple
-        shader_simple = Shader::Create(lolfx_simple);
-        shader_simple_texture = shader_simple->GetUniformLocation("texture");
-        // shader blur horizontal
-        shader_blur_h = Shader::Create(lolfx_blurh);
-        shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
-        shader_blur_h_screen_size = shader_blur_h->GetUniformLocation("screen_size");
-        shader_blur_h_time = shader_blur_h->GetUniformLocation("time");
-        shader_blur_h_value = shader_blur_h->GetUniformLocation("value");
-        // shader blur vertical
-        shader_blur_v = Shader::Create(lolfx_blurv);
-        shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
-        shader_blur_v_screen_size = shader_blur_v->GetUniformLocation("screen_size");
-        shader_blur_v_time = shader_blur_v->GetUniformLocation("time");
-        shader_blur_v_value = shader_blur_v->GetUniformLocation("value");
-        // shader glow
-        shader_glow = Shader::Create(lolfx_glow);
-        shader_glow_texture = shader_glow->GetUniformLocation("texture");
-        shader_glow_texture_prv = shader_glow->GetUniformLocation("texture_prv");
-        shader_glow_screen_size = shader_glow->GetUniformLocation("screen_size");
-        shader_glow_time = shader_glow->GetUniformLocation("time");
-        shader_glow_step = shader_glow->GetUniformLocation("step");
-        shader_glow_value1 = shader_glow->GetUniformLocation("value1");
-        shader_glow_value2 = shader_glow->GetUniformLocation("value2");
-        // shader radial
-        shader_radial = Shader::Create(lolfx_radial);
-        shader_radial_texture = shader_radial->GetUniformLocation("texture");
-        shader_radial_screen_size = shader_radial->GetUniformLocation("screen_size");
-        shader_radial_time = shader_radial->GetUniformLocation("time");
-        shader_radial_value1 = shader_radial->GetUniformLocation("value1");
-        shader_radial_value2 = shader_radial->GetUniformLocation("value2");
-        shader_radial_color = shader_radial->GetUniformLocation("color");
-        // shader postfx
-        shader_postfx = Shader::Create(lolfx_postfx);
-        shader_postfx_texture = shader_postfx->GetUniformLocation("texture");
-        shader_postfx_texture_2d = shader_postfx->GetUniformLocation("texture_2d");
-        shader_postfx_screen_size = shader_postfx->GetUniformLocation("screen_size");
-        shader_postfx_time = shader_postfx->GetUniformLocation("time");
-        shader_postfx_flash = shader_postfx->GetUniformLocation("flash");
-        shader_postfx_value = shader_postfx->GetUniformLocation("value");
-        shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
-        shader_postfx_scanline = shader_postfx->GetUniformLocation("scanline");
-        shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
-    }
+    /* Initialise framebuffer objects */
+    fbo_back = new FrameBuffer(screen_size);
+    fbo_front = new FrameBuffer(screen_size);
+    fbo_blur_h = new FrameBuffer(screen_size / glow_fbo_size);
+    fbo_blur_v = new FrameBuffer(screen_size / glow_fbo_size);
+    fbo_ping = new FrameBuffer(screen_size);
+    fbo_pong = new FrameBuffer(screen_size);
+    // shader simple
+    shader_simple = Shader::Create(lolfx_simple);
+    shader_simple_texture = shader_simple->GetUniformLocation("texture");
+    // shader blur horizontal
+    shader_blur_h = Shader::Create(lolfx_blurh);
+    shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
+    shader_blur_h_screen_size = shader_blur_h->GetUniformLocation("screen_size");
+    shader_blur_h_time = shader_blur_h->GetUniformLocation("time");
+    shader_blur_h_value = shader_blur_h->GetUniformLocation("value");
+    // shader blur vertical
+    shader_blur_v = Shader::Create(lolfx_blurv);
+    shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
+    shader_blur_v_screen_size = shader_blur_v->GetUniformLocation("screen_size");
+    shader_blur_v_time = shader_blur_v->GetUniformLocation("time");
+    shader_blur_v_value = shader_blur_v->GetUniformLocation("value");
+    // shader glow
+    shader_glow = Shader::Create(lolfx_glow);
+    shader_glow_texture = shader_glow->GetUniformLocation("texture");
+    shader_glow_texture_prv = shader_glow->GetUniformLocation("texture_prv");
+    shader_glow_screen_size = shader_glow->GetUniformLocation("screen_size");
+    shader_glow_time = shader_glow->GetUniformLocation("time");
+    shader_glow_step = shader_glow->GetUniformLocation("step");
+    shader_glow_value1 = shader_glow->GetUniformLocation("value1");
+    shader_glow_value2 = shader_glow->GetUniformLocation("value2");
+    // shader radial
+    shader_radial = Shader::Create(lolfx_radial);
+    shader_radial_texture = shader_radial->GetUniformLocation("texture");
+    shader_radial_screen_size = shader_radial->GetUniformLocation("screen_size");
+    shader_radial_time = shader_radial->GetUniformLocation("time");
+    shader_radial_value1 = shader_radial->GetUniformLocation("value1");
+    shader_radial_value2 = shader_radial->GetUniformLocation("value2");
+    shader_radial_color = shader_radial->GetUniformLocation("color");
+    // shader postfx
+    shader_postfx = Shader::Create(lolfx_postfx);
+    shader_postfx_texture = shader_postfx->GetUniformLocation("texture");
+    shader_postfx_texture_2d = shader_postfx->GetUniformLocation("texture_2d");
+    shader_postfx_screen_size = shader_postfx->GetUniformLocation("screen_size");
+    shader_postfx_time = shader_postfx->GetUniformLocation("time");
+    shader_postfx_flash = shader_postfx->GetUniformLocation("flash");
+    shader_postfx_value = shader_postfx->GetUniformLocation("value");
+    shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
+    shader_postfx_scanline = shader_postfx->GetUniformLocation("scanline");
+    shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
 
     return true;
 }
