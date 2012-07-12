@@ -83,7 +83,7 @@ float beat_speed = 2.0f;   // speed
 /* window variable */
 ivec2 border;              // border width
 /* text variable */
-ivec2 ratio_2d(2,2);       // 2d ratio
+ivec2 ratio_2d(2,4);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
@@ -231,7 +231,7 @@ int Render::CreateGLWindow()
     screen_size = Video::GetSize();
     border = 12 * ratio_2d;
     canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
-    canvas_size = canvas_char * font_size * ratio_2d;
+    canvas_size = canvas_char * font_size * ratio_2d.x;
 
     border = (screen_size - canvas_size) / 2;
 

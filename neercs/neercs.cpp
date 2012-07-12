@@ -112,8 +112,8 @@ void Neercs::TickGame(float seconds)
     caca_draw_thin_line(m_caca, x2, y2, x3, y3);
     caca_draw_thin_line(m_caca, x3, y3, x1, y1);
 
-    int logo_x = 1;
-    int logo_y = h / 2 - 3;
+    int logo_x = (w - 46) / 2;
+    int logo_y = h / 2 - 2;
 
 /*
 .___  __ ______ ______ ______  ______ ______,
@@ -136,7 +136,7 @@ void Neercs::TickGame(float seconds)
     caca_set_color_ansi(m_caca, 0x666, bg_color);
     caca_printf(m_caca, 1, h - 2, "W=%i H=%i", w, h);
     //caca_printf(m_caca, 1, h - 2, "2d ratio=%i*%i", ratio_2d.x, ratio_2d.y);
-    caca_put_str(m_caca, w - 13, h - 2, "CACA RULEZ");
+    caca_put_str(m_caca, w - 11, h - 2, "CACA RULEZ");
 }
 
 
