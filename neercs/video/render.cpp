@@ -229,9 +229,10 @@ int Render::InitDraw(void)
 int Render::CreateGLWindow()
 {
     screen_size = Video::GetSize();
-    border = 12 * ratio_2d;
+    border = 10 * ratio_2d;
+    border.y = border.x; // enabled to get same border everywhere
     canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
-    canvas_size = canvas_char * font_size * ratio_2d.x;
+    canvas_size = canvas_char * font_size * ratio_2d;
 
     border = (screen_size - canvas_size) / 2;
 

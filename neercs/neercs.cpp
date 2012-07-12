@@ -32,7 +32,6 @@
 #endif
 
 #include <time.h>
-
 #include <caca.h>
 
 #include "core.h"
@@ -74,46 +73,26 @@ void Neercs::TickGame(float seconds)
 
     caca_set_color_argb(m_caca, 0x444, bg_color);
 
-    int n1 = 8;
-    int n2 = 6;//w / n1 * h;
+    int n = 16;
+    int radius = 48;
+    int speed = 1;
+    int z = 1;
 
-    for(int i = 0; i < n1; i++)
+    for(int i = 0; i < n; i++)
     {
-        for(int j = 0; j < n2; j++)
-        {
-            int p_x = i * w / n1 + w / (n1 * 2);
-            int p_y = j * h / n2 + h / (n2 * 2);
-            int r_w = w / (n1 * 2) + w / (n1 * 4) * lol::cos(m_time * 3 + M_PI / n1 * i) + h / (n2 * 4) * lol::sin(m_time * 2 + M_PI / n2 * j);
-            caca_fill_ellipse(m_caca, p_x, p_y, r_w, r_w, '%');
-        }
+        //z -= speed;
+        int r = (radius - i * 4) / z;
+        int x1 = w / 2 + r * lol::cos(m_time * 2 - M_PI / 20);
+        int y1 = h / 2 + r * lol::sin(m_time * 2 - M_PI / 20);
+        int x2 = w / 2 + r * lol::cos(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
+        int y2 = h / 2 + r * lol::sin(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
+        int x3 = w / 2 + r * lol::cos(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
+        int y3 = h / 2 + r * lol::sin(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
+        caca_set_color_argb(m_caca, 0x642, bg_color);
+        caca_draw_thin_line(m_caca, x1, y1, x2, y2);
+        caca_draw_thin_line(m_caca, x2, y2, x3, y3);
+        caca_draw_thin_line(m_caca, x3, y3, x1, y1);
     }
-
-    int radius = 12;
-
-    int x1 = w / 2 + radius * lol::cos(m_time * 2 - M_PI / 20);
-    int y1 = h / 2 + radius * lol::sin(m_time * 2 - M_PI / 20);
-    int x2 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
-    int y2 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
-    int x3 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
-    int y3 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
-    caca_set_color_argb(m_caca, 0x642, bg_color);
-    caca_draw_thin_line(m_caca, x1, y1, x2, y2);
-    caca_draw_thin_line(m_caca, x2, y2, x3, y3);
-    caca_draw_thin_line(m_caca, x3, y3, x1, y1);
-
-    x1 = w / 2 + radius * lol::cos(m_time * 2);
-    y1 = h / 2 + radius * lol::sin(m_time * 2);
-    x2 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3);
-    y2 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3);
-    x3 = w / 2 + radius * lol::cos(m_time * 2 + M_PI * 2 / 3 * 2);
-    y3 = h / 2 + radius * lol::sin(m_time * 2 + M_PI * 2 / 3 * 2);
-    caca_set_color_argb(m_caca, 0xea6, bg_color);
-    caca_draw_thin_line(m_caca, x1, y1, x2, y2);
-    caca_draw_thin_line(m_caca, x2, y2, x3, y3);
-    caca_draw_thin_line(m_caca, x3, y3, x1, y1);
-
-    int logo_x = (w - 46) / 2;
-    int logo_y = h / 2 - 2;
 
 /*
 .___  __ ______ ______ ______  ______ ______,
@@ -121,6 +100,9 @@ void Neercs::TickGame(float seconds)
  /   `  >  ____/  ____/  ,_  <  <____\___  \
 /__/\___\______\______\__| \__\_____________\
 */
+
+    int logo_x = (w - 46) / 2;
+    int logo_y = h / 2 - 2;
 
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3               ),0.5f,0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
     caca_put_str(m_caca, logo_x, logo_y    ,".___  __ ______ ______ ______  ______ ______,");
