@@ -99,7 +99,7 @@ float radial_value1 = 2.0f;
 float radial_value2 = 0.8f;
 float radial_color = 0;       // color
 bool postfx_scanline = true;
-float postfx_deform = 0.5f;   // deformation ratio
+float postfx_deform = 0.625f; // deformation ratio
 
 Shader *shader_simple, *shader_blur_h, *shader_blur_v;
 Shader *shader_glow, *shader_radial, *shader_postfx;
