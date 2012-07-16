@@ -71,54 +71,49 @@ void Neercs::TickGame(float seconds)
     caca_set_color_argb(m_caca, 0xfff, bg_color);
     caca_clear_canvas(m_caca);
 
-    caca_set_color_argb(m_caca, 0x444, bg_color);
-
-    int n = 16;
-    int radius = 48;
-    int speed = 1;
-    int z = 1;
-
-    for(int i = 0; i < n; i++)
+    caca_set_color_argb(m_caca, 0x234, bg_color);
+    for(int i = 0; i < h; i++)
     {
-        //z -= speed;
-        int r = (radius - i * 4) / z;
-        int x1 = w / 2 + r * lol::cos(m_time * 2 - M_PI / 20);
-        int y1 = h / 2 + r * lol::sin(m_time * 2 - M_PI / 20);
-        int x2 = w / 2 + r * lol::cos(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
-        int y2 = h / 2 + r * lol::sin(m_time * 2 + M_PI * 2 / 3 - M_PI / 20);
-        int x3 = w / 2 + r * lol::cos(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
-        int y3 = h / 2 + r * lol::sin(m_time * 2 + M_PI * 2 / 3 * 2 - M_PI / 20);
-        caca_set_color_argb(m_caca, 0x642, bg_color);
-        caca_draw_thin_line(m_caca, x1, y1, x2, y2);
-        caca_draw_thin_line(m_caca, x2, y2, x3, y3);
-        caca_draw_thin_line(m_caca, x3, y3, x1, y1);
+        float a = M_PI / 180 * i * 16 + m_time * 4;
+        float b = M_PI / 180 * i * 12;
+        int x = w / 2  - 15 + h / 3 * lol::cos(a) + h / 4 * lol::sin(b);
+        caca_put_str(m_caca, x, i, "LOL WUT! NEERCS SI TEH RULEZ!");
+    }
+
+    caca_set_color_argb(m_caca, 0x444, bg_color);
+    for(int i = 0; i < w; i++)
+    {
+        float a = m_time * 1 + M_PI / 180 * i * 8;
+        float b = m_time * -2 + M_PI / 180 * i * 5;
+        int y = h / 2 + h / 4 * lol::cos(a) + h / 4 * lol::sin(b);
+        caca_draw_line(m_caca, i, y - 1, i, y + 1,'%');
     }
 
 /*
 .___  __ ______ ______ ______  ______ ______,
  \° \|  /° __  \° __  \° __  \/° ___//° ___/
- /   `  >  ____/  ____/  ,_  <  <____\___  \
-/__/\___\______\______\__| \__\_____________\
+ /   `  >  ____/  ____/  ,_  <_ <____\___  \
+/__/\___\______\______\__| \__/_____________\
 */
 
-    int logo_x = (w - 46) / 2;
+    int logo_x = (w - 45) / 2;
     int logo_y = h / 2 - 2;
 
-    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3               ),0.5f,0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.375f * lol::cos(m_time * 3               ),0.5f,0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
     caca_put_str(m_caca, logo_x, logo_y    ,".___  __ ______ ______ ______  ______ ______,");
-    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 1),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.375f * lol::cos(m_time * 3 + M_PI / 4 * 1),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
     caca_put_str(m_caca, logo_x, logo_y + 1, " \\° \\|  /° __  \\° __  \\° __  \\/° ___//° ___/");
-    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 2),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y + 2, " /   `  >  ____/  ____/  ,_  <  <____\\___  \\");
-    caca_set_color_argb(m_caca, hex_color(0.5f + 0.25f * lol::cos(m_time * 3 + M_PI / 4 * 3),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);
-    caca_put_str(m_caca, logo_x, logo_y + 3, "/__/\\___\\______\\______\\__| \\__\\_____________\\");
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.375f * lol::cos(m_time * 3 + M_PI / 4 * 2),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
+    caca_put_str(m_caca, logo_x, logo_y + 2, " /   `  >  ____/  ____/  ,_  <_ <____\\___  \\");
+    caca_set_color_argb(m_caca, hex_color(0.5f + 0.375f * lol::cos(m_time * 3 + M_PI / 4 * 3),0.5f,0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);
+    caca_put_str(m_caca, logo_x, logo_y + 3, "/__/\\___\\______\\______\\__| \\__/_____________\\");
     caca_set_color_argb(m_caca, 0xdef, bg_color);
     caca_put_str(m_caca, logo_x + 5, logo_y + 5, "ALL YOUR TERMINALS ARE BELONG TO US");
 
-    caca_set_color_ansi(m_caca, 0x666, bg_color);
-    caca_printf(m_caca, 1, h - 2, "W=%i H=%i", w, h);
-    //caca_printf(m_caca, 1, h - 2, "2d ratio=%i*%i", ratio_2d.x, ratio_2d.y);
-    caca_put_str(m_caca, w - 11, h - 2, "CACA RULEZ");
+    caca_set_color_argb(m_caca, 0x666, bg_color);
+    caca_put_str(m_caca, w - 10, h - 1, "CACA RULEZ");
+    caca_printf(m_caca, 0, h - 2, "W=%i", w);
+    caca_printf(m_caca, 0, h - 1, "H=%i", h);
 }
 
 

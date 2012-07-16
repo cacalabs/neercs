@@ -52,7 +52,7 @@ int polygon_fillmode = GL_FILL; // fill mode
 bool key_state = 0;      // key state
 /* window variable */
 ivec2 screen_size;         // screen size
-vec3 screen_color = CR * vec3(48, 56, 64); // screen color
+vec3 screen_color = CR * vec3(32, 32, 32); // screen color
 /* object variable */
 float main_angle = 0.0f;   // main angle
 float part_angle = 0.0f;   // part angle
@@ -229,7 +229,7 @@ int Render::InitDraw(void)
 int Render::CreateGLWindow()
 {
     screen_size = Video::GetSize();
-    border = 10 * ratio_2d;
+    border = 18 * ratio_2d;
     border.y = border.x; // enabled to get same border everywhere
     canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
     canvas_size = canvas_char * font_size * ratio_2d;
@@ -251,7 +251,8 @@ Render::Render(caca_canvas_t *caca)
     m_shader_blur(true),
     m_shader_glow(true),
     m_shader_fx(true),
-    m_shader_postfx(true)
+    m_shader_postfx(true),
+    m_border(false)
 {
     text_render = new TextRender(m_caca, font_size);
 }
@@ -375,14 +376,17 @@ void Render::Draw2D()
     glLoadMatrixf(&m[0][0]);
     glMatrixMode(GL_MODELVIEW);
     // draw border
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-    glColor3f(1.0f,1.0f,1.0f);
-    rectangle(border.x - ratio_2d.x, border.y - ratio_2d.y, canvas_size.x + ratio_2d.x * 2, ratio_2d.y);
-    rectangle(border.x - ratio_2d.x, border.y, ratio_2d.x, canvas_size.y);
-    rectangle(border.x + canvas_size.x, border.y, ratio_2d.x, canvas_size.y);
-    rectangle(border.x - ratio_2d.x, border.y + canvas_size.y, canvas_size.x + ratio_2d.x * 2, ratio_2d.y);
-    glEnable(GL_BLEND);
+    if(m_border)
+    {
+        glDisable(GL_TEXTURE_2D);
+        glDisable(GL_BLEND);
+        glColor3f(1.0f,1.0f,1.0f);
+        rectangle(border.x - ratio_2d.x, border.y - ratio_2d.y, canvas_size.x + ratio_2d.x * 2, ratio_2d.y);
+        rectangle(border.x - ratio_2d.x, border.y, ratio_2d.x, canvas_size.y);
+        rectangle(border.x + canvas_size.x, border.y, ratio_2d.x, canvas_size.y);
+        rectangle(border.x - ratio_2d.x, border.y + canvas_size.y, canvas_size.x + ratio_2d.x * 2, ratio_2d.y);
+        glEnable(GL_BLEND);
+    }
 }
 
 void Render::Draw3D()
