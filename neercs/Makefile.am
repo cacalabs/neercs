@@ -8,8 +8,9 @@ neercs_SOURCES = \
     \
     video/render.cpp video/render.h \
     video/text-render.cpp video/text-render.h \
-    video/blurh.lolfx video/blurv.lolfx video/glow.lolfx \
-    video/postfx.lolfx video/radial.lolfx video/simple.lolfx \
+    video/simple.lolfx \
+    video/blurh.lolfx video/blurv.lolfx \
+    video/remanency.lolfx video/glow.lolfx video/postfx.lolfx video/radial.lolfx \
     video/text.lolfx
 neercs_CPPFLAGS = @LOL_CFLAGS@ @PIPI_CFLAGS@ @CACA_CFLAGS@
 neercs_LDADD =

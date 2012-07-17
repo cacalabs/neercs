@@ -1,0 +1,28 @@
+-- GLSL.Vert --
+
+#version 120
+
+void main()
+	{
+	gl_Position=gl_Vertex;
+	gl_TexCoord[0]=gl_MultiTexCoord0;
+	}
+
+-- GLSL.Frag --
+
+#version 120
+
+uniform sampler2D texture;
+uniform sampler2D texture_prv;
+uniform vec2 screen_size;
+uniform float time;
+uniform float value;
+
+void main(void)
+	{
+	vec2 p=gl_TexCoord[0].xy;
+	vec4 source=texture2D(texture,p);
+	vec4 remanency=texture2D(texture_prv,p);
+	vec4 color=source*(1.0-value)+remanency*value;
+	gl_FragColor=color;
+	}

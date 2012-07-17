@@ -89,7 +89,7 @@ void main(void)
 		{
 		color*=0.675;
 		}
-	color=vec3(color.x*0.75,color.y*1.0,color.z*0.5);
+	color=vec3(color.x*0.875,color.y*1.0,color.z*0.75);
 	color*=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);						// vignetting
 	//color*=2.0*letterbox(z,-0.75,0.125)*2.0;						// vignetting
 	color*=letterbox(z,-0.75,0.95);									// letterbox

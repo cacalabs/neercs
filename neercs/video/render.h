@@ -31,6 +31,7 @@ private:
     bool m_polygon;
     bool m_shader;
     bool m_shader_blur;
+    bool m_shader_remanency;
     bool m_shader_glow;
     bool m_shader_fx;
     bool m_shader_postfx;

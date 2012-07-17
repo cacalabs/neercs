@@ -33,6 +33,7 @@ using namespace lol;
 
 extern char const *lolfx_blurh;
 extern char const *lolfx_blurv;
+extern char const *lolfx_remanency;
 extern char const *lolfx_glow;
 extern char const *lolfx_postfx;
 extern char const *lolfx_radial;
@@ -99,10 +100,11 @@ float radial_value1 = 2.0f;
 float radial_value2 = 0.8f;
 float radial_color = 0;       // color
 bool postfx_scanline = true;
-float postfx_deform = 0.825f; // deformation ratio
+float postfx_deform = 0.625f; // deformation ratio
 
-Shader *shader_simple, *shader_blur_h, *shader_blur_v;
-Shader *shader_glow, *shader_radial, *shader_postfx;
+Shader *shader_simple;
+Shader *shader_blur_h, *shader_blur_v;
+Shader *shader_remanency, *shader_glow, *shader_radial, *shader_postfx;
 // shader variables
 ShaderUniform shader_simple_texture;
 ShaderUniform shader_blur_h_texture,
@@ -113,6 +115,11 @@ ShaderUniform shader_blur_v_texture,
               shader_blur_v_screen_size,
               shader_blur_v_time,
               shader_blur_v_value;
+ShaderUniform shader_remanency_texture,
+              shader_remanency_texture_prv,
+              shader_remanency_screen_size,
+              shader_remanency_time,
+              shader_remanency_value;
 ShaderUniform shader_glow_texture,
               shader_glow_texture_prv,
               shader_glow_screen_size,
@@ -136,7 +143,7 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_scanline,
               shader_postfx_sync;
 
-FrameBuffer *fbo_back, *fbo_front;
+FrameBuffer *fbo_back, *fbo_front, *fbo_buffer;
 FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_ping, *fbo_pong;
 
 TextRender *text_render;
@@ -175,6 +182,7 @@ int Render::InitDraw(void)
     /* Initialise framebuffer objects */
     fbo_back = new FrameBuffer(screen_size);
     fbo_front = new FrameBuffer(screen_size);
+    fbo_buffer = new FrameBuffer(screen_size);
     fbo_blur_h = new FrameBuffer(screen_size / glow_fbo_size);
     fbo_blur_v = new FrameBuffer(screen_size / glow_fbo_size);
     fbo_ping = new FrameBuffer(screen_size);
@@ -194,6 +202,13 @@ int Render::InitDraw(void)
     shader_blur_v_screen_size = shader_blur_v->GetUniformLocation("screen_size");
     shader_blur_v_time = shader_blur_v->GetUniformLocation("time");
     shader_blur_v_value = shader_blur_v->GetUniformLocation("value");
+    // shader remanency
+    shader_remanency = Shader::Create(lolfx_remanency);
+    shader_remanency_texture = shader_remanency->GetUniformLocation("texture");
+    shader_remanency_texture_prv = shader_remanency->GetUniformLocation("texture_prv");
+    shader_remanency_screen_size = shader_remanency->GetUniformLocation("screen_size");
+    shader_remanency_time = shader_remanency->GetUniformLocation("time");
+    shader_remanency_value = shader_remanency->GetUniformLocation("value");
     // shader glow
     shader_glow = Shader::Create(lolfx_glow);
     shader_glow_texture = shader_glow->GetUniformLocation("texture");
@@ -249,6 +264,7 @@ Render::Render(caca_canvas_t *caca)
     m_polygon(true),
     m_shader(true),
     m_shader_blur(true),
+    m_shader_remanency(true),
     m_shader_glow(true),
     m_shader_fx(true),
     m_shader_postfx(true),
@@ -300,43 +316,43 @@ void Render::TickDraw(float seconds)
     }
 
     // timer
-    if(!m_pause)
+    if (!m_pause)
         main_angle += seconds * 100.0f * PID;
-    if(sync_flag)
+    if (sync_flag)
     {
         angle=(main_angle-sync_angle)*sync_speed;
         sync_value=1.0f-sinf(angle);
-        if(angle>90.0f*PID)
+        if (angle>90.0f*PID)
         {
             sync_value=0;
             sync_flag=false;
         }
     }
-    if(beat_flag)
+    if (beat_flag)
     {
         angle=(main_angle-beat_angle)*beat_speed;
         beat_value=1.0f-sinf(angle);
-        if(angle>90.0f*PID)
+        if (angle>90.0f*PID)
         {
             beat_value=0;
             beat_flag=false;
         }
     }
-    if(flash_flag)
+    if (flash_flag)
     {
         angle=(main_angle-flash_angle)*flash_speed;
         flash_value=1.0f-sinf(angle);
-        if(angle>90.0f*PID)
+        if (angle>90.0f*PID)
         {
             flash_value=0;
             flash_flag=false;
         }
     }
-    if(fade_flag)
+    if (fade_flag)
     {
         angle=(main_angle-fade_angle)*fade_speed;
         fade_value=1.0f-sinf(angle);
-        if(angle>90.0f*PID)
+        if (angle>90.0f*PID)
         {
             fade_value=0;
             fade_flag=false;
@@ -352,8 +368,10 @@ void Render::Draw2D()
     /* Draw text in an offline buffer */
     text_render->Render();
 
-    if(m_shader)
+    if (m_shader)
+    {
         fbo_back->Bind();
+    }
 
     glViewport(0, 0, screen_size.x, screen_size.y);
 
@@ -366,21 +384,22 @@ void Render::Draw2D()
 
     text_render->Blit(border, canvas_size);
 
-    //if(m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
+    //if (m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
     glLineWidth((m_polygon)?2.0f:1.0f);
     fx_angle=main_angle-part_angle;
-    if(m_polygon) glEnable(GL_TEXTURE_2D);
+    if (m_polygon)
+        glEnable(GL_TEXTURE_2D);
 
     glMatrixMode(GL_PROJECTION);
     mat4 m = mat4::ortho(0, screen_size.x, screen_size.y, 0, -1.f, 1.f);
     glLoadMatrixf(&m[0][0]);
     glMatrixMode(GL_MODELVIEW);
     // draw border
-    if(m_border)
+    if (m_border)
     {
         glDisable(GL_TEXTURE_2D);
         glDisable(GL_BLEND);
-        glColor3f(1.0f,1.0f,1.0f);
+        glColor3f(1.0f, 1.0f, 1.0f);
         rectangle(border.x - ratio_2d.x, border.y - ratio_2d.y, canvas_size.x + ratio_2d.x * 2, ratio_2d.y);
         rectangle(border.x - ratio_2d.x, border.y, ratio_2d.x, canvas_size.y);
         rectangle(border.x + canvas_size.x, border.y, ratio_2d.x, canvas_size.y);
@@ -403,7 +422,29 @@ void Render::Draw3D()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2, GL_FLOAT, 0, fs_quad_tex);
 
-    fbo_back->Unbind();
+    if (m_shader_remanency)
+    {
+        // shader remanency
+        fbo_ping->Bind();
+        shader_remanency->Bind();
+        shader_remanency->SetTexture(shader_remanency_texture, fbo_back->GetTexture(), 0);
+        shader_remanency->SetTexture(shader_remanency_texture_prv, fbo_buffer->GetTexture(), 1);
+        shader_remanency->SetUniform(shader_remanency_screen_size, vec2(1.0f));
+        shader_remanency->SetUniform(shader_remanency_time, fx_angle);
+        shader_remanency->SetUniform(shader_remanency_value, 0.8f);
+        fs_quad();
+        shader_remanency->Unbind();
+        fbo_ping->Unbind();
+        // shader simple
+        fbo_back->Bind();
+        draw_shader_simple(fbo_ping, 0);
+        fbo_back->Unbind();
+        // save previous fbo
+        fbo_buffer->Bind();
+        draw_shader_simple(fbo_front, 0);
+        fbo_buffer->Unbind();
+    }
+
     if (m_shader_fx && m_shader_blur)
     {
         // shader blur horizontal
@@ -434,7 +475,7 @@ void Render::Draw3D()
     }
     fbo_front->Unbind();
     // shader glow
-    if(m_shader_fx && m_shader_glow)
+    if (m_shader_fx && m_shader_glow)
     {
         // shader blur horizontal
         fbo_blur_h->Bind();
@@ -489,14 +530,14 @@ void Render::Draw3D()
         fs_quad();
         shader_glow->Unbind();
     }
-    if(!m_shader_fx)
+    if (!m_shader_fx)
     {
         // shader simple
         fbo_pong->Bind();
         draw_shader_simple(fbo_front, 0);
     }
     fbo_pong->Unbind();
-    if(m_shader_postfx)
+    if (m_shader_postfx)
     {
         // shader postfx
         shader_postfx->Bind();
