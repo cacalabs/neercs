@@ -27,7 +27,7 @@ float lens=deform+sync*0.0625;
 vec2 zoom(in vec2 p,in float radius)
 	{
 	float zoom=1.5-(radius*cos(p.x*lens)+radius*cos(p.y*lens));
-	return vec2(p.x*zoom-0.5,p.y*zoom-0.5);
+	return p*zoom-0.5;
 	}
 
 vec3 get_color(in sampler2D tex,in vec2 p)
@@ -37,7 +37,7 @@ vec3 get_color(in sampler2D tex,in vec2 p)
 
 float rand(in vec2 p)
 	{
-	return fract(sin(dot(p.xy,vec2(12.9898,78.233)))*43758.5453);
+	return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);
 	}
 
 float letterbox(in vec2 p,in float radius,in float smooth)
@@ -82,16 +82,16 @@ void main(void)
 		{
 		color-=0.0125*mod(z.y*4.0+time*0.25,1.0);					// electron beam
 		color-=(vec3(rnd1,rnd1,rnd1)-vec3(rnd2,rnd2,rnd2))*0.1;		// noise
-		color*=0.75+0.25*sin(z.x*float(screen_size.x*2));			// scanline w
-		color*=0.90+0.10*cos(z.y*float(screen_size.y))*sin(0.5+z.x*float(screen_size.x));	// scanline h
+		color*=0.75+0.25*cos(z.x*float(screen_size.x*2))*sin(0.5+z.y*float(screen_size.y));	// scanline w
+		color*=0.75+0.50*sin(z.y*float(screen_size.y*2));			// scanline h
 		}
 	else
 		{
 		color*=0.675;
 		}
-	color=vec3(color.x*0.875,color.y*1.25,color.z*0.5);
+	color=vec3(color.x*0.75,color.y*1.0,color.z*0.5);
 	color*=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);						// vignetting
 	//color*=2.0*letterbox(z,-0.75,0.125)*2.0;						// vignetting
-	color*=letterbox(z,-0.75,0.975);								// letterbox
+	color*=letterbox(z,-0.75,0.95);									// letterbox
 	gl_FragColor=vec4(color,1.0);
 	}

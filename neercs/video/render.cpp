@@ -83,7 +83,7 @@ float beat_speed = 2.0f;   // speed
 /* window variable */
 ivec2 border;              // border width
 /* text variable */
-ivec2 ratio_2d(2,4);       // 2d ratio
+ivec2 ratio_2d(1,3);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
@@ -99,7 +99,7 @@ float radial_value1 = 2.0f;
 float radial_value2 = 0.8f;
 float radial_color = 0;       // color
 bool postfx_scanline = true;
-float postfx_deform = 0.625f; // deformation ratio
+float postfx_deform = 0.825f; // deformation ratio
 
 Shader *shader_simple, *shader_blur_h, *shader_blur_v;
 Shader *shader_glow, *shader_radial, *shader_postfx;
@@ -229,7 +229,7 @@ int Render::InitDraw(void)
 int Render::CreateGLWindow()
 {
     screen_size = Video::GetSize();
-    border = 18 * ratio_2d;
+    border = 24 * ratio_2d;
     border.y = border.x; // enabled to get same border everywhere
     canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
     canvas_size = canvas_char * font_size * ratio_2d;
@@ -247,7 +247,7 @@ Render::Render(caca_canvas_t *caca)
     m_ready(false),
     m_pause(false),
     m_polygon(true),
-    m_shader(false),
+    m_shader(true),
     m_shader_blur(true),
     m_shader_glow(true),
     m_shader_fx(true),
@@ -442,7 +442,7 @@ void Render::Draw3D()
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_ping->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f / glow_fbo_size));
         shader_blur_h->SetUniform(shader_blur_h_time, fx_angle);
-        shader_blur_h->SetUniform(shader_blur_h_value, 2.5f/screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_value, 2.25f / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
@@ -452,7 +452,7 @@ void Render::Draw3D()
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f / glow_fbo_size));
         shader_blur_v->SetUniform(shader_blur_v_time, fx_angle);
-        shader_blur_v->SetUniform(shader_blur_h_value, 2.5f/screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_h_value, 2.25f / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
@@ -462,7 +462,7 @@ void Render::Draw3D()
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_blur_v->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f / glow_fbo_size));
         shader_blur_h->SetUniform(shader_blur_h_time, fx_angle);
-        shader_blur_h->SetUniform(shader_blur_h_value, 1.0f/screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_value, 1.0f / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
@@ -472,7 +472,7 @@ void Render::Draw3D()
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f / glow_fbo_size));
         shader_blur_v->SetUniform(shader_blur_v_time, fx_angle);
-        shader_blur_v->SetUniform(shader_blur_h_value, 1.0f/screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_h_value, 1.0f / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
