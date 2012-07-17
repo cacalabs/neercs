@@ -54,4 +54,3 @@ void main(void)
     float t = texture2D(in_Texture, c).x;
     gl_FragColor = mix(pass_Background, pass_Foreground, t);
 }
-

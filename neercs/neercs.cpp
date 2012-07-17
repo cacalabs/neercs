@@ -76,7 +76,7 @@ void Neercs::TickGame(float seconds)
     caca_set_color_argb(m_caca, 0xfff, bg_color);
     caca_clear_canvas(m_caca);
 
-    caca_set_color_argb(m_caca, 0xc48, bg_color);
+    caca_set_color_argb(m_caca, 0xa46, bg_color);
     for(int i = 0; i < h; i++)
     {
         float a = M_PI / 180 * i * 16 + m_time * 4;
@@ -120,7 +120,7 @@ void Neercs::TickGame(float seconds)
     caca_printf(m_caca, 2, h - 3, "W=%i", w);
     caca_printf(m_caca, 2, h - 2, "H=%i", h);
 
-    caca_set_color_argb(m_caca, hex_color(0.6f + 0.4f * lol::cos(m_time * 2), 0.125f, 0.125f), bg_color);
+    caca_set_color_argb(m_caca, hex_color(0.6f + 0.4f * lol::cos(m_time * 2), 0.2f, 0.2f), bg_color);
     caca_put_str(m_caca, w - 12, h - 2, "CACA RULEZ");
 }
 
