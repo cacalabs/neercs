@@ -1,5 +1,5 @@
 
-if USE_CACA
+if BUILD_NEERCS
 noinst_PROGRAMS = neercs
 endif
 
@@ -20,7 +20,7 @@ neercs_LDFLAGS = $(top_builddir)/src/liblol.a \
                  @LOL_LIBS@ @PIPI_LIBS@ @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
 neercs_DEPENDENCIES = $(top_builddir)/src/liblol.a
 
-if USE_CACA
+if BUILD_NEERCS
 all-local: neercs$(EXEEXT)
 	test $(MAKE_FSELF) = no || make_fself neercs$(EXEEXT) neercs.self
 endif
