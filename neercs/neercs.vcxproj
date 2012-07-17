@@ -55,6 +55,7 @@
     <LolFxCompile Include="video\glow.lolfx" />
     <LolFxCompile Include="video\postfx.lolfx" />
     <LolFxCompile Include="video\radial.lolfx" />
+    <LolFxCompile Include="video\remanency.lolfx" />
     <LolFxCompile Include="video\simple.lolfx" />
     <LolFxCompile Include="video\text.lolfx" />
   </ItemGroup>

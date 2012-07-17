@@ -39,6 +39,9 @@
     <LolFxCompile Include="video\radial.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
+    <LolFxCompile Include="video\remanency.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
     <LolFxCompile Include="video\simple.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
