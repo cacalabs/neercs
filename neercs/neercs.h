@@ -14,7 +14,7 @@
 class Neercs : public WorldEntity
 {
 public:
-    Neercs();
+    Neercs(int argc, char **argv);
     virtual ~Neercs();
 
     char const *GetName() { return "<neercs>"; }

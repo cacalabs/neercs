@@ -43,7 +43,12 @@ using namespace lol;
 #include "neercs.h"
 #include "video/render.h"
 
-Neercs::Neercs()
+extern "C"
+{
+#include "old/neercs.h"
+}
+
+Neercs::Neercs(int argc, char **argv)
   : m_ready(false),
     m_caca(caca_create_canvas(10, 10)),
     m_render(new Render(m_caca)),
@@ -140,7 +145,7 @@ int main(int argc, char **argv)
     _chdir("../..");
 #endif
 
-    new Neercs();
+    new Neercs(argc, argv);
     new DebugFps(2, 2);
     app.ShowPointer(false);
 
