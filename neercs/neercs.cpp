@@ -27,10 +27,6 @@
 #   include <cmath>
 #endif
 
-#if USE_SDL
-#   include <SDL_main.h>
-#endif
-
 #include <time.h>
 #include <caca.h>
 
