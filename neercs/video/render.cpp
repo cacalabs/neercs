@@ -116,9 +116,7 @@ ShaderUniform shader_blur_v_texture,
               shader_blur_v_time,
               shader_blur_v_value;
 ShaderUniform shader_remanency_texture,
-              shader_remanency_texture_buffer1,
-              shader_remanency_texture_buffer2,
-              shader_remanency_texture_buffer3,
+              shader_remanency_texture_buffer,
               shader_remanency_screen_size,
               shader_remanency_time,
               shader_remanency_value1,
@@ -146,8 +144,7 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_scanline,
               shader_postfx_sync;
 
-FrameBuffer *fbo_back, *fbo_front;
-FrameBuffer *fbo_buffer1, *fbo_buffer2, *fbo_buffer3, *fbo_buffer4, *fbo_buffer5, *fbo_buffer6;
+FrameBuffer *fbo_back, *fbo_front, *fbo_buffer;
 FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_ping, *fbo_pong;
 
 TextRender *text_render;
@@ -186,12 +183,7 @@ int Render::InitDraw(void)
     /* Initialise framebuffer objects */
     fbo_back = new FrameBuffer(screen_size);
     fbo_front = new FrameBuffer(screen_size);
-    fbo_buffer1 = new FrameBuffer(screen_size);
-    fbo_buffer2 = new FrameBuffer(screen_size);
-    fbo_buffer3 = new FrameBuffer(screen_size);
-    fbo_buffer4 = new FrameBuffer(screen_size);
-    fbo_buffer5 = new FrameBuffer(screen_size);
-    fbo_buffer6 = new FrameBuffer(screen_size);
+    fbo_buffer = new FrameBuffer(screen_size);
     fbo_blur_h = new FrameBuffer(screen_size / glow_fbo_size);
     fbo_blur_v = new FrameBuffer(screen_size / glow_fbo_size);
     fbo_ping = new FrameBuffer(screen_size);
@@ -214,9 +206,7 @@ int Render::InitDraw(void)
     // shader remanency
     shader_remanency = Shader::Create(lolfx_remanency);
     shader_remanency_texture = shader_remanency->GetUniformLocation("texture");
-    shader_remanency_texture_buffer1 = shader_remanency->GetUniformLocation("texture_buffer1");
-    shader_remanency_texture_buffer2 = shader_remanency->GetUniformLocation("texture_buffer2");
-    shader_remanency_texture_buffer3 = shader_remanency->GetUniformLocation("texture_buffer3");
+    shader_remanency_texture_buffer = shader_remanency->GetUniformLocation("texture_buffer");
     shader_remanency_screen_size = shader_remanency->GetUniformLocation("screen_size");
     shader_remanency_time = shader_remanency->GetUniformLocation("time");
     shader_remanency_value1 = shader_remanency->GetUniformLocation("value1");
@@ -440,13 +430,11 @@ void Render::Draw3D()
         fbo_ping->Bind();
         shader_remanency->Bind();
         shader_remanency->SetTexture(shader_remanency_texture, fbo_back->GetTexture(), 0);
-        shader_remanency->SetTexture(shader_remanency_texture_buffer1, fbo_buffer2->GetTexture(), 1);
-        shader_remanency->SetTexture(shader_remanency_texture_buffer2, fbo_buffer4->GetTexture(), 2);
-        shader_remanency->SetTexture(shader_remanency_texture_buffer3, fbo_buffer6->GetTexture(), 3);
+        shader_remanency->SetTexture(shader_remanency_texture_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanency->SetUniform(shader_remanency_screen_size, vec2(1.0f));
         shader_remanency->SetUniform(shader_remanency_time, fx_angle);
         shader_remanency->SetUniform(shader_remanency_value1, 0.25f);
-        shader_remanency->SetUniform(shader_remanency_value2, 0.25f);
+        shader_remanency->SetUniform(shader_remanency_value2, 0.75f);
         fs_quad();
         shader_remanency->Unbind();
         fbo_ping->Unbind();
@@ -455,24 +443,21 @@ void Render::Draw3D()
         draw_shader_simple(fbo_ping, 0);
         fbo_back->Unbind();
         // save previous fbo
-        fbo_buffer6->Bind();
-        draw_shader_simple(fbo_buffer5, 0);
-        fbo_buffer6->Unbind();
-        fbo_buffer5->Bind();
-        draw_shader_simple(fbo_buffer4, 0);
-        fbo_buffer5->Unbind();
-        fbo_buffer4->Bind();
-        draw_shader_simple(fbo_buffer3, 0);
-        fbo_buffer4->Unbind();
-        fbo_buffer3->Bind();
-        draw_shader_simple(fbo_buffer2, 0);
-        fbo_buffer3->Unbind();
-        fbo_buffer2->Bind();
-        draw_shader_simple(fbo_buffer1, 0);
-        fbo_buffer2->Unbind();
-        fbo_buffer1->Bind();
-        draw_shader_simple(fbo_front, 0);
-        fbo_buffer1->Unbind();
+        fbo_ping->Bind();
+        shader_remanency->Bind();
+        shader_remanency->SetTexture(shader_remanency_texture, fbo_front->GetTexture(), 0);
+        shader_remanency->SetTexture(shader_remanency_texture_buffer, fbo_buffer->GetTexture(), 1);
+        shader_remanency->SetUniform(shader_remanency_screen_size, vec2(1.0f));
+        shader_remanency->SetUniform(shader_remanency_time, fx_angle);
+        shader_remanency->SetUniform(shader_remanency_value1, 0.25f);
+        shader_remanency->SetUniform(shader_remanency_value2, 0.75f);
+        fs_quad();
+        shader_remanency->Unbind();
+        fbo_ping->Unbind();
+        // shader simple
+        fbo_buffer->Bind();
+        draw_shader_simple(fbo_ping, 0);
+        fbo_buffer->Unbind();
     }
 
     if (m_shader_fx && m_shader_blur)
