@@ -92,8 +92,8 @@ void Neercs::TickGame(float seconds)
     }
 
 /*
-   __  _________ ______ _____  ______ ______
-  /  \/  /  __  Y  __  Y __  \/  ___//  ___/
+   __  _________ ______ ______ ______ ______
+  /  \/  /  __  Y  __  Y  __  Y  ___//  ___/
  /      /  ____/  ____/  __  <  <____\___  \
 /__/\__/\_______________/  \________________\
 */
@@ -102,9 +102,9 @@ void Neercs::TickGame(float seconds)
     int logo_y = h / 2 - 2;
 
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3               ), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
-    caca_put_str(m_caca, logo_x + 3, logo_y    ,"__  _________ ______ _____  ______ ______");
+    caca_put_str(m_caca, logo_x + 3, logo_y    ,"__  _________ ______ ______ ______ ______");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 1), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
-    caca_put_str(m_caca, logo_x + 2, logo_y + 1, "/  \\/  /  __  Y  __  Y __  \\/  ___//  ___/");
+    caca_put_str(m_caca, logo_x + 2, logo_y + 1, "/  \\/  /  __  Y  __  Y  __  Y  ___//  ___/");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 2), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
     caca_put_str(m_caca, logo_x + 1, logo_y + 2, "/      /  ____/  ____/  __  <  <____\\___  \\");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 3), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);
