@@ -32,8 +32,10 @@
 #include <caca.h>
 
 #include "core.h"
-#include "neercs.h"
 
+extern "C" {
+#include "neercs.h"
+}
 
 void resize_screen(struct screen *s, int w, int h)
 {
