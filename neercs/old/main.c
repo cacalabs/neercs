@@ -81,17 +81,6 @@ void usage(int argc, char **argv)
     printf("\t--help\t\t-h \t\t\tthis help\n");
 }
 
-#if 0
-int main(int argc, char **argv)
-{
-    struct screen_list *screen_list = init_neercs(argc, argv);
-    if (!screen_list)
-        return -1;
-
-    mainloop(screen_list);
-}
-#endif
-
 struct screen_list *init_neercs(int argc, char **argv)
 {
     struct screen_list *screen_list = NULL;

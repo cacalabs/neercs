@@ -238,7 +238,8 @@ static char *select_socket(struct screen_list *screen_list)
                     debug("Connection refused on %s", sockets[i]);
                     break;
                 case ECONNREFUSED:
-                    fprintf(stderr, "%s is dead\n", sockets[i]);
+                    fprintf(stderr, "%s is dead, removing\n", sockets[i]);
+                    unlink(sockets[i]);
                     break;
                 default:
                     fprintf(stderr, "Unknown error on %s:%s\n", sockets[i],

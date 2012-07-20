@@ -39,6 +39,8 @@ using namespace lol;
 #include "neercs.h"
 #include "video/render.h"
 
+#define USE_OLD_NEERCS 0
+
 extern "C"
 {
 #include "old/neercs.h"
@@ -51,16 +53,28 @@ Neercs::Neercs(int argc, char **argv)
     m_time(0.f)
 {
     Ticker::Ref(m_render);
+
+#if USE_OLD_NEERCS
+    m_buf = NULL;
+    m_screen_list = init_neercs(argc, argv);
+    if (!m_screen_list)
+        exit(-1);
+    m_screen_list->last_key_time = get_us();
+#endif
 }
 
 int Neercs::hex_color(float r, float g, float b)
 {
-return ((int)(r * 15.99f) << 8) | ((int)(g * 15.99f) << 4) | (int)(b * 15.99f);
+    return ((int)(r * 15.99f) << 8) | ((int)(g * 15.99f) << 4) | (int)(b * 15.99f);
 }
 
 void Neercs::TickGame(float seconds)
 {
     WorldEntity::TickGame(seconds);
+
+#if USE_OLD_NEERCS
+    mainloop_tick(&m_buf, m_screen_list);
+#endif
 
     m_time += seconds;
 
@@ -128,6 +142,11 @@ void Neercs::TickDraw(float seconds)
 
 Neercs::~Neercs()
 {
+#if USE_OLD_NEERCS
+    free(m_buf);
+    free_screen_list(m_screen_list);
+#endif
+
     Ticker::Unref(m_render);
 }
 

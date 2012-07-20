@@ -159,17 +159,6 @@ int send_delay(struct screen_list *screen_list)
  *    - "TITLE": set window or display title
  *  - wait for an input event with a 10ms timeout
  */
-void mainloop(struct screen_list *screen_list)
-{
-    char *buf = NULL;
-    screen_list->last_key_time = get_us();
-
-    while (mainloop_tick(&buf, screen_list))
-        ;
-
-    free(buf);
-}
-
 int mainloop_tick(char **pbuf, struct screen_list *screen_list)
 {
     caca_event_t ev;
@@ -189,7 +178,7 @@ int mainloop_tick(char **pbuf, struct screen_list *screen_list)
             read(screen_list->comm.socket[SOCK_CLIENT], *pbuf,
                  NEERCS_RECV_BUFSIZE - 1)) > 0)
     {
-        *pbuf[n] = 0;
+        (*pbuf)[n] = 0;
         debug("Received from server: '%s' (%d bytes)", *pbuf, n);
         if (!strncmp("DETACH", *pbuf, 6))
         {

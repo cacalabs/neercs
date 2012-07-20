@@ -11,6 +11,11 @@
 
 #include "video/render.h"
 
+extern "C"
+{
+#include "old/neercs.h"
+}
+
 class Neercs : public WorldEntity
 {
 public:
@@ -30,6 +35,10 @@ private:
     caca_canvas_t *m_caca;
     Render *m_render;
     float m_time;
+
+    /* Old neercs stuff */
+    char *m_buf;
+    struct screen_list *m_screen_list;
 };
 
 #endif // __NEERCS_H__
