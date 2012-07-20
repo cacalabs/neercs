@@ -11,7 +11,11 @@
  *  To Public License, Version 2, as published by Sam Hocevar. See
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
-#include "config.h"
+
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
 #include <caca.h>
 #include <string.h>
 #include "neercs.h"

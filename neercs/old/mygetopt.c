@@ -15,7 +15,9 @@
  *  mygetopt.c: getopt_long reimplementation
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -44,7 +46,7 @@ int mygetopt(int argc, char *const _argv[], const char *optstring,
 
     if (flag[0] == '-' && flag[1] != '-')
     {
-        char *tmp;
+        char const *tmp;
         int ret = flag[1];
 
         if (ret == '\0')

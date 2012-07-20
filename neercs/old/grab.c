@@ -10,7 +10,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #define _XOPEN_SOURCE 500       /* getsid() */
 
@@ -391,3 +395,6 @@ long select_process(struct screen_list *screen_list)
     }
     return ret;
 }
+
+#endif
+

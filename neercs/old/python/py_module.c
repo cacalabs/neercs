@@ -10,7 +10,9 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
 
 #ifdef USE_PYTHON
 

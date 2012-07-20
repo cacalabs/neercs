@@ -11,7 +11,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,3 +78,5 @@ void draw_help(struct screen_list *screen_list)
     caca_printf(screen_list->cv, x, y++, "");
     caca_printf(screen_list->cv, x, y, "See http://caca.zoy.org/wiki/neercs for more informations");
 }
+
+#endif

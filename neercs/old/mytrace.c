@@ -11,7 +11,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #include <errno.h>
 #include <fcntl.h>
@@ -783,3 +787,6 @@ static void print_registers(pid_t pid)
 #endif /* DEBUG */
 
 #endif /* USE_GRAB */
+
+#endif /* _WIN32 */
+

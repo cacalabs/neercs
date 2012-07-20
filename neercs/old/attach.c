@@ -12,6 +12,12 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
+
 #include <errno.h>
 #include <fcntl.h>
 #include <glob.h>
@@ -27,7 +33,6 @@
 
 #include <caca.h>
 
-#include "config.h"
 #include "neercs.h"
 
 char *build_socket_path(char *socket_dir, char *session_name,
@@ -422,3 +427,4 @@ void attach(struct screen_list *screen_list)
     }
 }
 
+#endif

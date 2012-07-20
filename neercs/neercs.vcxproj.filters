@@ -8,6 +8,75 @@
     <ClCompile Include="video\text-render.cpp">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="old\actions.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\ansi.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\attach.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\client.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\configuration.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\effects.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\grab.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\help.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\input.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\lock.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\main.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\mygetopt.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\mytrace.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\recurrent.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\screen_list.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\screens.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\screensaver.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\server.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\term.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\widgets.c">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\wm.cpp">
+      <Filter>old</Filter>
+    </ClCompile>
+    <ClCompile Include="old\python\interpreter.c">
+      <Filter>old\python</Filter>
+    </ClCompile>
+    <ClCompile Include="old\python\py_module.c">
+      <Filter>old\python</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="neercs.h" />
@@ -17,10 +86,31 @@
     <ClInclude Include="video\text-render.h">
       <Filter>video</Filter>
     </ClInclude>
+    <ClInclude Include="old\mygetopt.h">
+      <Filter>old</Filter>
+    </ClInclude>
+    <ClInclude Include="old\mytrace.h">
+      <Filter>old</Filter>
+    </ClInclude>
+    <ClInclude Include="old\neercs.h">
+      <Filter>old</Filter>
+    </ClInclude>
+    <ClInclude Include="old\widgets.h">
+      <Filter>old</Filter>
+    </ClInclude>
+    <ClInclude Include="old\python\py_module.h">
+      <Filter>old\python</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="video">
       <UniqueIdentifier>{8598edd6-ce35-4250-b16e-4237b34ebd2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="old">
+      <UniqueIdentifier>{ac200501-b60f-4451-9005-a29f3cf9bf75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="old\python">
+      <UniqueIdentifier>{9140687d-c5b2-4302-8121-9b12ebf3908e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

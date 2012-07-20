@@ -18,7 +18,7 @@ static void widget_ibox_del_char(struct input_box *box);
 
 struct input_box *widget_ibox_init(caca_canvas_t *cv, int w, int h)
 {
-    struct input_box *box = malloc(sizeof(struct input_box));
+    struct input_box *box = (struct input_box *)malloc(sizeof(struct input_box));
     if (!box)
         return NULL;
     box->cv = cv;

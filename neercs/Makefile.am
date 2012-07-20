@@ -61,4 +61,4 @@ old_sources = \
     old/term.c \
     old/widgets.c \
     old/widgets.h \
-    old/wm.c
+    old/wm.cpp

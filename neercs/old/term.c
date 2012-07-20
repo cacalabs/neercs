@@ -10,7 +10,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #define _XOPEN_SOURCE
 #include <stdlib.h>
@@ -131,3 +135,6 @@ int update_terms(struct screen_list *screen_list)
     }
     return refresh;
 }
+
+#endif
+

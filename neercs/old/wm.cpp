@@ -11,19 +11,33 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if defined _XBOX
+#   define _USE_MATH_DEFINES /* for M_PI */
+#   include <xtl.h>
+#   undef near /* Fuck Microsoft */
+#   undef far /* Fuck Microsoft again */
+#elif defined _WIN32
+#   define _USE_MATH_DEFINES /* for M_PI */
+#   define WIN32_LEAN_AND_MEAN
+#   include <windows.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <caca.h>
 
+#include "core.h"
 #include "neercs.h"
 
 
 void resize_screen(struct screen *s, int w, int h)
 {
-    caca_canvas_t *old, *new;
+    caca_canvas_t *oldc, *newc;
 
     if (w == s->w && h == s->h)
         return;
@@ -39,12 +53,12 @@ void resize_screen(struct screen *s, int w, int h)
      * caca_set_canvas_boundaries() is bugged as hell, so let's resize it by
      * hands
      */
-    old = s->cv;
-    new = caca_create_canvas(w, h);
-    caca_blit(new, 0, 0, old, NULL);
-    s->cv = new;
-    caca_gotoxy(new, caca_get_cursor_x(old), caca_get_cursor_y(old));
-    caca_free_canvas(old);
+    oldc = s->cv;
+    newc = caca_create_canvas(w, h);
+    caca_blit(newc, 0, 0, oldc, NULL);
+    s->cv = newc;
+    caca_gotoxy(newc, caca_get_cursor_x(oldc), caca_get_cursor_y(oldc));
+    caca_free_canvas(oldc);
     set_tty_size(s->fd, w, h);
 
     s->orig_w = s->w;
@@ -446,8 +460,8 @@ void wm_refresh_cube(struct screen_list *screen_list)
             if (screen_list->cube.side == 1)
                 angle = -angle;
 
-            float sina = sin(angle);
-            float cosa = cos(angle);
+            float sina = lol::sin(angle);
+            float cosa = lol::cos(angle);
 
             for (i = 0; i < 12; i++)
             {

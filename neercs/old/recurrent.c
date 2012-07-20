@@ -11,7 +11,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #include <stdio.h>
 #include <string.h>
@@ -110,3 +114,5 @@ int remove_recurrent(struct recurrent_list *list, int n)
     list->count--;
     return 0;
 }
+
+#endif

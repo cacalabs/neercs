@@ -11,7 +11,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -276,3 +280,6 @@ int close_screen_recurrent(struct screen_list *screen_list,
     screen_list->changed = 1;
     return 1;
 }
+
+#endif
+

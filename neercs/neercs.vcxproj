@@ -36,11 +36,39 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="neercs.h" />
+    <ClInclude Include="old\mygetopt.h" />
+    <ClInclude Include="old\mytrace.h" />
+    <ClInclude Include="old\neercs.h" />
+    <ClInclude Include="old\python\py_module.h" />
+    <ClInclude Include="old\widgets.h" />
     <ClInclude Include="video\render.h" />
     <ClInclude Include="video\text-render.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="neercs.cpp" />
+    <ClCompile Include="old\actions.c" />
+    <ClCompile Include="old\ansi.c" />
+    <ClCompile Include="old\attach.c" />
+    <ClCompile Include="old\client.c" />
+    <ClCompile Include="old\configuration.c" />
+    <ClCompile Include="old\effects.c" />
+    <ClCompile Include="old\grab.c" />
+    <ClCompile Include="old\help.c" />
+    <ClCompile Include="old\input.c" />
+    <ClCompile Include="old\lock.c" />
+    <ClCompile Include="old\main.c" />
+    <ClCompile Include="old\mygetopt.c" />
+    <ClCompile Include="old\mytrace.c" />
+    <ClCompile Include="old\python\interpreter.c" />
+    <ClCompile Include="old\python\py_module.c" />
+    <ClCompile Include="old\recurrent.c" />
+    <ClCompile Include="old\screens.c" />
+    <ClCompile Include="old\screensaver.c" />
+    <ClCompile Include="old\screen_list.c" />
+    <ClCompile Include="old\server.c" />
+    <ClCompile Include="old\term.c" />
+    <ClCompile Include="old\widgets.c" />
+    <ClCompile Include="old\wm.cpp" />
     <ClCompile Include="video\render.cpp" />
     <ClCompile Include="video\text-render.cpp" />
   </ItemGroup>

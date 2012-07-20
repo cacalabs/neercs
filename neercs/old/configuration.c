@@ -11,6 +11,12 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -566,3 +572,6 @@ char *get_delay(struct screen_list *screen_list)
     sprintf(r, "%d", screen_list->requested_delay);
     return r;
 }
+
+#endif
+

@@ -12,7 +12,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #include <stdio.h>
 #include <string.h>
@@ -678,3 +682,5 @@ long long get_us(void)
     gettimeofday(&tv, NULL);
     return (tv.tv_sec * (1000000) + tv.tv_usec);
 }
+
+#endif

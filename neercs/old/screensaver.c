@@ -11,7 +11,11 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if !defined _WIN32
 
 #include <stdio.h>
 #include <string.h>
@@ -185,3 +189,5 @@ void screensaver_flying_toasters(struct screen_list *screen_list)
         d->s[i] = ((d->s[i] + 24) % (3 * PRECISION));
     }
 }
+
+#endif

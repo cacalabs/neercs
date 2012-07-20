@@ -10,6 +10,8 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
+#if !defined _WIN32
+
 #include <termios.h>
 
 struct mytrace;
@@ -31,3 +33,5 @@ int mytrace_exec(struct mytrace *t, char const *command);
 int mytrace_tcgets(struct mytrace *t, int fd, struct termios *tos);
 int mytrace_tcsets(struct mytrace *t, int fd, struct termios *tos);
 int mytrace_sctty(struct mytrace *t, int fd);
+
+#endif

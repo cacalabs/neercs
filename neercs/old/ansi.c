@@ -11,7 +11,15 @@
  *  To Public License, Version 2, as published by Sam Hocevar. See
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
-#include "config.h"
+
+#if defined HAVE_CONFIG_H
+#   include "config.h"
+#endif
+
+#if defined _MSC_VER
+#   define inline __inline
+#endif
+
 #include <string.h>
 #include <caca.h>
 #include "neercs.h"
@@ -533,9 +541,9 @@ long int import_term(struct screen_list *screen_list, struct screen *sc,
                 /* FIXME better parsing */
                 if (buffer[i + 2] == '?')
                 {
-                    char arg[5];
+                    char arg[5], *end;
                     int a = 0;
-                    int c, p;
+                    int c, p, Pm;
                     for (p = 0; p < 4; p++)
                     {
                         if (buffer[i + 3 + p] >= '0'
@@ -551,8 +559,7 @@ long int import_term(struct screen_list *screen_list, struct screen *sc,
                             break;
                         }
                     }
-                    char *end;
-                    int Pm = strtol(arg, &end, 10);
+                    Pm = strtol(arg, &end, 10);
 
                     c = buffer[i + 3 + (end - arg)];
 
@@ -878,7 +885,7 @@ long int import_term(struct screen_list *screen_list, struct screen *sc,
 
             skip += final;
 
-            string = malloc(final - (semicolon + 1) + 1);
+            string = (char *)malloc(final - (semicolon + 1) + 1);
             memcpy(string, buffer + i + (semicolon + 1),
                    final - (semicolon + 1));
             string[final - (semicolon + 1)] = '\0';
