@@ -15,7 +15,7 @@ void main()
 uniform sampler2D texture;
 uniform sampler2D texture_buffer;
 uniform vec2 screen_size;
-uniform float time;
+uniform float screen_color;
 uniform float value1;
 uniform float value2;
 

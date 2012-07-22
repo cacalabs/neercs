@@ -78,7 +78,7 @@ void Neercs::TickGame(float seconds)
 
     m_time += seconds;
 
-    /* draw something */
+    /* draw something awesome */
     int bg_color = 0x222;
     int w = caca_get_canvas_width(m_caca);
     int h = caca_get_canvas_height(m_caca);
@@ -86,7 +86,7 @@ void Neercs::TickGame(float seconds)
     caca_set_color_argb(m_caca, 0xfff, bg_color);
     caca_clear_canvas(m_caca);
 
-    caca_set_color_argb(m_caca, 0xa46, bg_color);
+    caca_set_color_argb(m_caca, 0x545, bg_color);
     for(int i = 0; i < h; i++)
     {
         float a = M_PI / 180 * i * 16 + m_time * 4;
@@ -105,20 +105,18 @@ void Neercs::TickGame(float seconds)
         caca_draw_line(m_caca, i, y - 1, i, y + 1,'%');
     }
 
-/*
-   __  _________ ______ ______ ______ ______
-  /  \/  /  __  Y  __  Y  __  Y  ___//  ___/
+/* __  _________ ______ ______ ______ ______
+  /  \/  /  __  >  __  >  __  >  ___//  ___/ \x0a9
  /      /  ____/  ____/  __  <  <____\___  \
-/__/\__/\_______________/  \________________\
-*/
+/__/\__/\_______________/  \________________\ */
 
     int logo_x = (w - 46) / 2;
-    int logo_y = h / 2 - 2;
+    int logo_y = h / 2 - 2;// + h / 4 * lol::cos(m_time * 2);
 
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3               ), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
     caca_put_str(m_caca, logo_x + 3, logo_y    ,"__  _________ ______ ______ ______ ______");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 1), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
-    caca_put_str(m_caca, logo_x + 2, logo_y + 1, "/  \\/  /  __  Y  __  Y  __  Y  ___//  ___/");
+    caca_put_str(m_caca, logo_x + 2, logo_y + 1, "/  \\/  /  __  >  __  >  __  >  ___//  ___/");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 2), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
     caca_put_str(m_caca, logo_x + 1, logo_y + 2, "/      /  ____/  ____/  __  <  <____\\___  \\");
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 3), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);

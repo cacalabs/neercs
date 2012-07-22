@@ -14,23 +14,25 @@ void main()
 
 uniform sampler2D texture;
 uniform vec2 screen_size;
-uniform float time;
-uniform float value;
+uniform float blur;
+uniform float deform;
 
-float blur=value;
+const float PI=3.14159265358979323846;
 
 void main(void)
 	{
 	vec4 total=vec4(0.0);
 	vec2 p=gl_TexCoord[0].xy/screen_size;
-	total+=texture2D(texture,vec2(p.x,p.y-blur*4.0))*0.04;
-	total+=texture2D(texture,vec2(p.x,p.y-blur*3.0))*0.08;
-	total+=texture2D(texture,vec2(p.x,p.y-blur*2.0))*0.12;
-	total+=texture2D(texture,vec2(p.x,p.y-blur    ))*0.16;
-	total+=texture2D(texture,vec2(p.x,p.y         ))*0.20;
-	total+=texture2D(texture,vec2(p.x,p.y+blur    ))*0.16;
-	total+=texture2D(texture,vec2(p.x,p.y+blur*2.0))*0.12;
-	total+=texture2D(texture,vec2(p.x,p.y+blur*3.0))*0.08;
-	total+=texture2D(texture,vec2(p.x,p.y+blur*4.0))*0.04;
+	float mask=2.0-p.x*(6.0-p.x*6.0)*p.y*(6.0-p.y*6.0);
+	float b=blur+deform*mask;
+	total+=texture2D(texture,vec2(p.x,p.y-b*4.0))*0.04;
+	total+=texture2D(texture,vec2(p.x,p.y-b*3.0))*0.08;
+	total+=texture2D(texture,vec2(p.x,p.y-b*2.0))*0.12;
+	total+=texture2D(texture,vec2(p.x,p.y-b    ))*0.16;
+	total+=texture2D(texture,vec2(p.x,p.y      ))*0.20;
+	total+=texture2D(texture,vec2(p.x,p.y+b    ))*0.16;
+	total+=texture2D(texture,vec2(p.x,p.y+b*2.0))*0.12;
+	total+=texture2D(texture,vec2(p.x,p.y+b*3.0))*0.08;
+	total+=texture2D(texture,vec2(p.x,p.y+b*4.0))*0.04;
 	gl_FragColor=total;
 	}

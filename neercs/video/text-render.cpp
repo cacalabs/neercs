@@ -40,7 +40,7 @@ TextRender::TextRender(caca_canvas_t *caca, ivec2 font_size)
 
 void TextRender::Init()
 {
-    m_font = new TileSet("tools/neercs/video/resource/charset_amiga.png",
+    m_font = new TileSet("tools/neercs/video/resource/charset_p0t-noodle.png",
                          ivec2(256, 256), ivec2(1));
 
     m_shader = Shader::Create(lolfx_text);
@@ -169,4 +169,3 @@ void TextRender::Blit(ivec2 pos, ivec2 size)
         glVertex2i(pos.x + size.x, pos.y + size.y);
     glEnd();
 }
-

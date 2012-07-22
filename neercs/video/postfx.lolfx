@@ -16,17 +16,18 @@ uniform sampler2D texture;
 uniform vec2 screen_size;
 uniform float time;
 uniform float flash;
-uniform float value;
+uniform float noise;
+uniform float aberration;
 uniform float deform;
 uniform bool scanline;
 uniform float sync;
 
 const float PI=3.14159265358979323846;
-float lens=deform+sync*0.0625;
 
 vec2 zoom(in vec2 p,in float radius)
 	{
-	float zoom=1.5-(radius*cos(p.x*lens)+radius*cos(p.y*lens));
+	float d=deform+sync*0.0625;
+	float zoom=1.5-(radius*cos(p.x*d)+radius*cos(p.y*d));
 	return p*zoom-0.5;
 	}
 
@@ -53,14 +54,14 @@ void main(void)
 	vec2 z =zoom(p,0.5250);
 	vec2 z1=zoom(p,0.5225);
 	vec2 z2=zoom(p,0.5275);
-	float g=(2.0-cos(lens*0.5+z.x*lens)-cos(lens*0.5+z.y*lens))*32.0;
+	float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);
 
 	float rnd1=rand(vec2(p.x+time,p.y-time));
 	float rnd2=rand(vec2(p.x-time,p.y+time));
-	float d1=rnd1*value/float(screen_size.x);
-	float d2=rnd2*value/float(screen_size.y);
+	float d1=rnd1*noise/float(screen_size.x);
+	float d2=rnd2*noise/float(screen_size.y);
 
-	vec3 source;//=get_color(texture,z);
+	vec3 source;
 	source.x=get_color(texture,vec2(z.x+d1,z.y)).x;
 	source.y=get_color(texture,vec2(z.x+d1,z.y)).y;
 	source.z=get_color(texture,vec2(z.x+d1,z.y)).z;
@@ -68,7 +69,7 @@ void main(void)
 	vec3 glass1=get_color(texture,z1);
 	vec3 glass2=get_color(texture,z2);
 
-	float v=value/float(screen_size.x)*g;
+	float v=aberration/float(screen_size.x)+aberration/float(screen_size.x)*(2.0-mask);
 
 	vec3 noise;
 	noise.x=get_color(texture,vec2(z.x+d1-v,z.y+d2)).x;
@@ -90,8 +91,7 @@ void main(void)
 		color*=0.675;
 		}
 	color=vec3(color.x*0.875,color.y*1.0,color.z*0.75);
-	color*=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);						// vignetting
-	//color*=2.0*letterbox(z,-0.75,0.125)*2.0;						// vignetting
+	color*=mask;													// vignetting
 	color*=letterbox(z,-0.75,0.95);									// letterbox
 	gl_FragColor=vec4(color,1.0);
 	}
