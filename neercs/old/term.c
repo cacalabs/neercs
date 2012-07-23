@@ -136,5 +136,8 @@ int update_terms(struct screen_list *screen_list)
     return refresh;
 }
 
+#else
+/* FIXME: unimplemented */
+int set_tty_size(int fd, unsigned int w, unsigned int h) { return 0; }
 #endif
 

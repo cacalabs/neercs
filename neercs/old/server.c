@@ -683,4 +683,9 @@ long long get_us(void)
     return (tv.tv_sec * (1000000) + tv.tv_usec);
 }
 
+#else
+/* FIXME: unimplemented */
+long long get_us(void) { return 0; }
+int send_ansi_sequence(struct screen_list *screen_list, char *str) { return 0; }
 #endif
+

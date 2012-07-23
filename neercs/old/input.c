@@ -76,6 +76,7 @@ int handle_command_input(struct screen_list *screen_list, unsigned int c)
 {
     int refresh = 0;
 
+#if !defined _WIN32
     debug("Key %x\n", c);
     screen_list->changed = 1;
 
@@ -191,6 +192,7 @@ int handle_command_input(struct screen_list *screen_list, unsigned int c)
         break;
 #endif
     }
+#endif /* _WIN32 */
     return refresh;
 
 }
