@@ -84,7 +84,7 @@ float beat_speed = 2.0f;   // speed
 /* window variable */
 ivec2 border;              // border width
 /* text variable */
-ivec2 ratio_2d(2,3);       // 2d ratio
+ivec2 ratio_2d(1,4);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
@@ -92,17 +92,37 @@ ivec2 canvas_size(0,0);    // caca size
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
-int glow_fbo_size = 2;        // glow fbo size
-float glow_smoothstep = 0.0f; // glow smoothstep value (try 0.025f)
-float glow_mix_ratio1 = 0.5f; // glow mixing ratio
-float glow_mix_ratio2 = 0.5f; // source mixing ratio
-float radial_value1 = 2.0f;
-float radial_value2 = 0.8f;
-float radial_color = 0;       // color
-float postfx_deform = 0.625f; // deformation ratio
-float postfx_noise = 4.0f;    // noise
+float remanency_source_mix = 0.25f;
+float remanency_buffer_mix = 0.75f;
+float remanency_new_frame_mix = 0.75f;
+float remanency_old_frame_mix = 0.25f;
+float blur_radius = 0.25f;      // glow radius
+float blur_radius_deform = 0.625f;// glow radius deform
+int glow_fbo_size = 2;          // glow fbo size
+float glow_smoothstep = 0.0f;   // glow smoothstep value (try 0.025f)
+float glow_mix_ratio1 = 0.375f; // glow mixing ratio
+float glow_mix_ratio2 = 0.625f; // source mixing ratio
+float glow_radius1 = 2.0f;      // large glow radius
+float glow_radius2 = 1.0f;      // small glow radius
+float glow_radius_deform1 = 3.0f;// large glow radius deform
+float glow_radius_deform2 = 1.5f;// small glow radius deform
+float postfx_deform = 0.625f;   // deformation ratio
+float postfx_noise = 0.125f;    // global noise
+float postfx_noise_h = 3.0f;    // horizontal noise
+float postfx_noise_v = 3.0f;    // vertical noise
 float postfx_aberration = 3.0f; // chromatic aberration
-bool postfx_scanline = true;  // scanline
+bool postfx_scanline = true;    // scanline
+float postfx_scanline_h_base = 0.75f;
+float postfx_scanline_h_var = 0.25f;
+float postfx_scanline_h_repeat_x = 1.0f;
+float postfx_scanline_h_repeat_y = 1.0f;
+float postfx_scanline_v_base = 0.75f;
+float postfx_scanline_v_var = 0.5f;
+float postfx_scanline_v_repeat_x = 0.0f;
+float postfx_scanline_v_repeat_y = 1.0f;
+//float radial_value1 = 2.0f;
+//float radial_value2 = 0.8f;
+//float radial_color = 0;
 
 Shader *shader_simple;
 Shader *shader_blur_h, *shader_blur_v;
@@ -142,8 +162,18 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_time,
               shader_postfx_deform,
               shader_postfx_noise,
+              shader_postfx_noise_h,
+              shader_postfx_noise_v,
               shader_postfx_aberration,
               shader_postfx_scanline,
+              shader_postfx_scanline_h_base,
+              shader_postfx_scanline_h_var,
+              shader_postfx_scanline_h_repeat_x,
+              shader_postfx_scanline_h_repeat_y,
+              shader_postfx_scanline_v_base,
+              shader_postfx_scanline_v_var,
+              shader_postfx_scanline_v_repeat_x,
+              shader_postfx_scanline_v_repeat_y,
               shader_postfx_flash,
               shader_postfx_sync;
 
@@ -239,8 +269,18 @@ int Render::InitDraw(void)
     shader_postfx_time = shader_postfx->GetUniformLocation("time");
     shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
     shader_postfx_noise = shader_postfx->GetUniformLocation("noise");
+    shader_postfx_noise_h = shader_postfx->GetUniformLocation("noise_h");
+    shader_postfx_noise_v = shader_postfx->GetUniformLocation("noise_v");
     shader_postfx_aberration = shader_postfx->GetUniformLocation("aberration");
     shader_postfx_scanline = shader_postfx->GetUniformLocation("scanline");
+    shader_postfx_scanline_h_base = shader_postfx->GetUniformLocation("scanline_h_base");
+    shader_postfx_scanline_h_var = shader_postfx->GetUniformLocation("scanline_h_var");
+    shader_postfx_scanline_h_repeat_x = shader_postfx->GetUniformLocation("scanline_h_repeat_x");
+    shader_postfx_scanline_h_repeat_y = shader_postfx->GetUniformLocation("scanline_h_repeat_y");
+    shader_postfx_scanline_v_base = shader_postfx->GetUniformLocation("scanline_v_base");
+    shader_postfx_scanline_v_var = shader_postfx->GetUniformLocation("scanline_v_var");
+    shader_postfx_scanline_v_repeat_x = shader_postfx->GetUniformLocation("scanline_v_repeat_x");
+    shader_postfx_scanline_v_repeat_y = shader_postfx->GetUniformLocation("scanline_v_repeat_y");
     shader_postfx_flash = shader_postfx->GetUniformLocation("flash");
     shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
 
@@ -437,8 +477,8 @@ void Render::Draw3D()
         shader_remanency->SetTexture(shader_remanency_texture_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanency->SetUniform(shader_remanency_screen_size, vec2(1.0f));
         shader_remanency->SetUniform(shader_remanency_screen_color, screen_color);
-        shader_remanency->SetUniform(shader_remanency_value1, 0.25f);
-        shader_remanency->SetUniform(shader_remanency_value2, 0.75f);
+        shader_remanency->SetUniform(shader_remanency_value1, remanency_source_mix);
+        shader_remanency->SetUniform(shader_remanency_value2, remanency_buffer_mix);
         fs_quad();
         shader_remanency->Unbind();
         fbo_ping->Unbind();
@@ -453,8 +493,8 @@ void Render::Draw3D()
         shader_remanency->SetTexture(shader_remanency_texture_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanency->SetUniform(shader_remanency_screen_size, vec2(1.0f));
         shader_remanency->SetUniform(shader_remanency_screen_color, screen_color);
-        shader_remanency->SetUniform(shader_remanency_value1, 0.75f);
-        shader_remanency->SetUniform(shader_remanency_value2, 0.25f);
+        shader_remanency->SetUniform(shader_remanency_value1, remanency_new_frame_mix);
+        shader_remanency->SetUniform(shader_remanency_value2, remanency_old_frame_mix);
         fs_quad();
         shader_remanency->Unbind();
         fbo_ping->Unbind();
@@ -471,8 +511,8 @@ void Render::Draw3D()
         shader_blur_h->Bind();
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_back->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f));
-        shader_blur_h->SetUniform(shader_blur_h_blur, 0.25f / screen_size.x);
-        shader_blur_h->SetUniform(shader_blur_h_deform, 0.375f / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_blur, blur_radius / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_deform, blur_radius_deform / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_ping->Unbind();
@@ -481,8 +521,8 @@ void Render::Draw3D()
         shader_blur_v->Bind();
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_ping->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f));
-        shader_blur_v->SetUniform(shader_blur_v_blur, 0.25f / screen_size.y);
-        shader_blur_v->SetUniform(shader_blur_v_deform, 0.375f / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_blur, blur_radius / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_deform, blur_radius_deform / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
     }
@@ -501,8 +541,8 @@ void Render::Draw3D()
         shader_blur_h->Bind();
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_ping->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_h->SetUniform(shader_blur_h_blur, 2.5f / screen_size.x);
-        shader_blur_h->SetUniform(shader_blur_h_deform, 0.5f / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_blur, glow_radius1 / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_deform, glow_radius_deform1 / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
@@ -511,8 +551,8 @@ void Render::Draw3D()
         shader_blur_v->Bind();
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_v->SetUniform(shader_blur_v_blur, 2.5f / screen_size.y);
-        shader_blur_v->SetUniform(shader_blur_v_deform, 0.5f / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_blur, glow_radius1 / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_deform, glow_radius_deform1 / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
@@ -521,8 +561,8 @@ void Render::Draw3D()
         shader_blur_h->Bind();
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_blur_v->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_h->SetUniform(shader_blur_h_blur, 1.0f / screen_size.x);
-        shader_blur_h->SetUniform(shader_blur_h_deform, 0.5f / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_blur, glow_radius2 / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_deform, glow_radius_deform2 / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
@@ -531,8 +571,8 @@ void Render::Draw3D()
         shader_blur_v->Bind();
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_v->SetUniform(shader_blur_v_blur, 1.0f / screen_size.y);
-        shader_blur_h->SetUniform(shader_blur_v_deform, 0.5f / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_blur, glow_radius2 / screen_size.y);
+        shader_blur_h->SetUniform(shader_blur_v_deform, glow_radius_deform2 / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
@@ -565,8 +605,18 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_time, fx_angle);
         shader_postfx->SetUniform(shader_postfx_deform, postfx_deform);
         shader_postfx->SetUniform(shader_postfx_noise, postfx_noise);
+        shader_postfx->SetUniform(shader_postfx_noise_h, postfx_noise_h);
+        shader_postfx->SetUniform(shader_postfx_noise_v, postfx_noise_v);
         shader_postfx->SetUniform(shader_postfx_aberration, postfx_aberration);
         shader_postfx->SetUniform(shader_postfx_scanline, postfx_scanline);
+        shader_postfx->SetUniform(shader_postfx_scanline_h_base, postfx_scanline_h_base);
+        shader_postfx->SetUniform(shader_postfx_scanline_h_var, postfx_scanline_h_var);
+        shader_postfx->SetUniform(shader_postfx_scanline_h_repeat_x, postfx_scanline_h_repeat_x);
+        shader_postfx->SetUniform(shader_postfx_scanline_h_repeat_y, postfx_scanline_h_repeat_y);
+        shader_postfx->SetUniform(shader_postfx_scanline_v_base, postfx_scanline_v_base);
+        shader_postfx->SetUniform(shader_postfx_scanline_v_var, postfx_scanline_v_var);
+        shader_postfx->SetUniform(shader_postfx_scanline_v_repeat_x, postfx_scanline_v_repeat_x);
+        shader_postfx->SetUniform(shader_postfx_scanline_v_repeat_y, postfx_scanline_v_repeat_y);
         shader_postfx->SetUniform(shader_postfx_flash, flash_value);
         shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(beat_value*cosf((main_angle-beat_angle)*8.0f)));
         fs_quad();

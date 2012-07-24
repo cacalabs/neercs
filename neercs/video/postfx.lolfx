@@ -15,11 +15,21 @@ void main()
 uniform sampler2D texture;
 uniform vec2 screen_size;
 uniform float time;
-uniform float flash;
 uniform float noise;
+uniform float noise_h;
+uniform float noise_v;
 uniform float aberration;
 uniform float deform;
 uniform bool scanline;
+uniform float scanline_h_base;
+uniform float scanline_h_var;
+uniform float scanline_h_repeat_x;
+uniform float scanline_h_repeat_y;
+uniform float scanline_v_base;
+uniform float scanline_v_var;
+uniform float scanline_v_repeat_x;
+uniform float scanline_v_repeat_y;
+uniform float flash;
 uniform float sync;
 
 const float PI=3.14159265358979323846;
@@ -58,8 +68,8 @@ void main(void)
 
 	float rnd1=rand(vec2(p.x+time,p.y-time));
 	float rnd2=rand(vec2(p.x-time,p.y+time));
-	float d1=rnd1*noise/float(screen_size.x);
-	float d2=rnd2*noise/float(screen_size.y);
+	float d1=(noise_h-noise_h*2.0*rnd1)/float(screen_size.x);
+	float d2=(noise_v-noise_v*2.0*rnd1)/float(screen_size.y);
 
 	vec3 source;
 	source.x=get_color(texture,vec2(z.x+d1,z.y)).x;
@@ -73,8 +83,8 @@ void main(void)
 
 	vec3 noise;
 	noise.x=get_color(texture,vec2(z.x+d1-v,z.y+d2)).x;
-	noise.y=get_color(texture,vec2(z.x+d1  ,z.y-d2)).y;
-	noise.z=get_color(texture,vec2(z.x+d1+v,z.y-d2)).z;
+	noise.y=get_color(texture,vec2(z.x+d1  ,z.y+d2)).y;
+	noise.z=get_color(texture,vec2(z.x+d1+v,z.y+d2)).z;
 
 	vec3 color=source+glass1*glass1*0.25+glass2*glass2*0.25+(scanline?noise:source);
 
@@ -82,15 +92,15 @@ void main(void)
 	if(scanline)
 		{
 		color-=0.0125*mod(z.y*4.0+time*0.25,1.0);					// electron beam
-		color-=(vec3(rnd1,rnd1,rnd1)-vec3(rnd2,rnd2,rnd2))*0.1;		// noise
-		color*=0.75+0.25*cos(z.x*float(screen_size.x*2))*sin(0.5+z.y*float(screen_size.y));	// scanline w
-		color*=0.75+0.50*sin(z.y*float(screen_size.y*2));			// scanline h
+		color-=(vec3(rnd1,rnd1,rnd1)-vec3(rnd2,rnd2,rnd2))*noise;	// noise
+		color*=scanline_h_base+scanline_h_var*cos(z.x*float(screen_size.x*scanline_h_repeat_x))*sin(z.y*float(screen_size.y*scanline_h_repeat_y));	// scanline w
+		color*=scanline_v_base+scanline_v_var*sin(z.y*float(screen_size.x*scanline_v_repeat_x))*cos(z.y*float(screen_size.y*scanline_v_repeat_y));	// scanline h
 		}
 	else
 		{
 		color*=0.675;
 		}
-	color=vec3(color.x*0.875,color.y*1.0,color.z*0.75);
+	color=vec3(color.x*0.875,color.y*1.0,color.z*0.75);				// hue
 	color*=mask;													// vignetting
 	color*=letterbox(z,-0.75,0.95);									// letterbox
 	gl_FragColor=vec4(color,1.0);
