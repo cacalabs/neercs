@@ -18,9 +18,8 @@ uniform float time;
 uniform float deform;
 uniform vec3 filter;
 uniform vec3 retrace;
-uniform float noise;
-uniform float noise_h;
-uniform float noise_v;
+uniform vec2 offset;
+uniform vec2 noise;
 uniform float aberration;
 uniform bool moire;
 uniform vec4 moire_h;
@@ -65,32 +64,26 @@ void main(void)
 	vec2 z2=zoom(p,0.5275);
 	float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);
 
-	float rnd1=rand(vec2(p.x+time,p.y-time));
-	float rnd2=rand(vec2(p.x-time,p.y+time));
-	float d1=(noise_h-noise_h*2.0*rnd1)/float(screen_size.x);
-	float d2=(noise_v-noise_v*2.0*rnd1)/float(screen_size.y);
+	vec2 rnd=vec2(rand(vec2(p.x+time,p.y-time)),rand(vec2(p.x-time,p.y+time)));
 
-	vec3 source;
-	source.x=get_color(texture,vec2(z.x+d1,z.y)).x;
-	source.y=get_color(texture,vec2(z.x+d1,z.y)).y;
-	source.z=get_color(texture,vec2(z.x+d1,z.y)).z;
-
+	vec2 o=(offset-offset*2.0*rnd.x)/screen_size;					// offset
+	vec3 source=get_color(texture,z+o);								// offset added to source
 	vec3 glass1=get_color(texture,z1);
 	vec3 glass2=get_color(texture,z2);
 
 	float v=aberration/float(screen_size.x)+aberration/float(screen_size.x)*(2.0-mask);
 
-	vec3 scramble;
-	scramble.x=get_color(texture,vec2(z.x+d1-v,z.y+d2)).x;
-	scramble.y=get_color(texture,vec2(z.x+d1  ,z.y+d2)).y;
-	scramble.z=get_color(texture,vec2(z.x+d1+v,z.y+d2)).z;
+	vec3 ca;
+	ca.x=get_color(texture,vec2(z.x+o.x-v,z.y+o.y)).x;
+	ca.y=get_color(texture,vec2(z.x+o.x  ,z.y+o.y)).y;
+	ca.z=get_color(texture,vec2(z.x+o.x+v,z.y+o.y)).z;
 
 	vec3 color=source+glass1*glass1*0.25+glass2*glass2*0.25;
 
 	color+=flash;													// flash
-	color+=scramble;												// scramble
+	color+=ca;														// chromatic aberration
 	color-=retrace.x*mod(z.y*retrace.y+time*retrace.z,1.0);			// retrace
-	color-=(vec3(rnd1,rnd1,rnd1)-vec3(rnd2,rnd2,rnd2))*noise;		// noise
+	color-=(vec3(rnd.x,rnd.x,rnd.x)-vec3(rnd.y,rnd.y,rnd.y))*noise.y;// noise
 	if(moire)
 		{
 		color*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w));	// moire h
@@ -111,6 +104,6 @@ void main(void)
 		}
 	color*=filter;													// hue
 	color*=mask;													// vignetting
-	color*=letterbox(z,-0.75,0.95);									// letterbox
+	color*=letterbox(z,-0.75,0.95);									// letnoiseterbox
 	gl_FragColor=vec4(color,1.0);
 	}

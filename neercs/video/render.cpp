@@ -104,17 +104,16 @@ vec3 glow_large(0.75f,2.0f,3.0f);// large glow [mix,ratio normal,ratio deform]
 vec3 glow_small(0.50f,1.0f,1.5f);// small glow [mix,ratio normal,ratio deform]
 //---------------------------------[IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
 float postfx_deform = 0.625f;   // deformation ratio
-vec3 postfx_filter(0.875f,1.0f,0.75f);// color filter
-vec3 postfx_retrace(0.025f,2.0f,2.0f);// retrace [color,repeat,speed]
-float postfx_noise = 0.125f;    // global noise
-float postfx_noise_h = 3.0f;    // horizontal noise
-float postfx_noise_v = 3.0f;    // vertical noise
+vec3 postfx_filter(0.875f,1.0f,0.75f);// color filter [red,green,blue]
+vec3 postfx_retrace(0.025f,2.0f,4.0f);// retrace [color,length,speed]
+vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
+vec2 postfx_noise(0,0.125f);    // noise [0=grey/1=color,mix]
 float postfx_aberration = 3.0f; // chromatic aberration
 bool postfx_moire = true;       // moire
-vec4 postfx_moire_h(0.75f,0.25f,1.5f,2.0f);
-vec4 postfx_moire_v(0.75f,0.25f,1.5f,1.0f);
+vec4 postfx_moire_h(0.75f,0.25f,0.5f,1.5f);
+vec4 postfx_moire_v(0.75f,0.25f,0.5f,1.5f);
 bool postfx_scanline = true;    // scanline
-vec4 postfx_scanline_h(0.5f,0.5f,2.0f,0.0f);
+vec4 postfx_scanline_h(0.75f,0.25f,1.0f,0.0f);// vertical scanline [base,variable,repeat]
 vec4 postfx_scanline_v(1.0f,0.0f,0.0f,0.0f);
 //float radial_value1 = 2.0f;
 //float radial_value2 = 0.8f;
@@ -159,9 +158,8 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_deform,
               shader_postfx_filter,
               shader_postfx_retrace,
+              shader_postfx_offset,
               shader_postfx_noise,
-              shader_postfx_noise_h,
-              shader_postfx_noise_v,
               shader_postfx_aberration,
               shader_postfx_moire,
               shader_postfx_moire_h,
@@ -265,9 +263,8 @@ int Render::InitDraw(void)
     shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
     shader_postfx_filter = shader_postfx->GetUniformLocation("filter");
     shader_postfx_retrace = shader_postfx->GetUniformLocation("retrace");
+    shader_postfx_offset = shader_postfx->GetUniformLocation("offset");
     shader_postfx_noise = shader_postfx->GetUniformLocation("noise");
-    shader_postfx_noise_h = shader_postfx->GetUniformLocation("noise_h");
-    shader_postfx_noise_v = shader_postfx->GetUniformLocation("noise_v");
     shader_postfx_aberration = shader_postfx->GetUniformLocation("aberration");
     shader_postfx_moire = shader_postfx->GetUniformLocation("moire");
     shader_postfx_moire_h = shader_postfx->GetUniformLocation("moire_h");
@@ -600,9 +597,8 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_deform, postfx_deform);
         shader_postfx->SetUniform(shader_postfx_filter, postfx_filter);
         shader_postfx->SetUniform(shader_postfx_retrace, postfx_retrace);
+        shader_postfx->SetUniform(shader_postfx_offset, postfx_offset);
         shader_postfx->SetUniform(shader_postfx_noise, postfx_noise);
-        shader_postfx->SetUniform(shader_postfx_noise_h, postfx_noise_h);
-        shader_postfx->SetUniform(shader_postfx_noise_v, postfx_noise_v);
         shader_postfx->SetUniform(shader_postfx_aberration, postfx_aberration);
         shader_postfx->SetUniform(shader_postfx_moire, postfx_moire);
         shader_postfx->SetUniform(shader_postfx_moire_h, postfx_moire_h);
