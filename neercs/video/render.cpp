@@ -84,7 +84,7 @@ float beat_speed = 2.0f;   // speed
 /* window variable */
 ivec2 border;              // border width
 /* text variable */
-ivec2 ratio_2d(1,4);       // 2d ratio
+ivec2 ratio_2d(2,4);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
@@ -92,16 +92,13 @@ ivec2 canvas_size(0,0);    // caca size
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
-float remanency_source_mix = 0.25f;
-float remanency_buffer_mix = 0.75f;
-float remanency_new_frame_mix = 0.75f;
-float remanency_old_frame_mix = 0.25f;
-float blur_radius = 0.25f;      // glow radius
-float blur_radius_deform = 0.625f;// glow radius deform
-int glow_fbo_size = 2;          // glow fbo size
-float glow_smoothstep = 0.1f;   // glow smoothstep value (try 0.025f)
-vec3 glow_large(0.75f,2.0f,3.0f);// large glow [mix,ratio normal,ratio deform]
-vec3 glow_small(0.50f,1.0f,1.5f);// small glow [mix,ratio normal,ratio deform]
+vec2 buffer(0.75f,0.25f);       // [new frame mix,old frame mix]
+vec2 remanency(0.25f,0.75f);    // remanency [source mix,buffer mix]
+vec2 blur(0.5f,1.0f);           // glow radius [normal,deform]
+vec3 glow_mix(1.0f,0.0f,0.025f);// glow mix [glow mix,source mix,source smoothstep]
+vec2 glow_large(4.0f,6.0f);     // large glow radius [normal,deform]
+vec2 glow_small(2.0f,4.0f);     // small glow radius [normal,deform]
+//vec3 radial(2.0f,0.8f,0);     // radial [mix,strength,color mode]
 //---------------------------------[IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
 float postfx_deform = 0.625f;   // deformation ratio
 vec3 postfx_filter(0.875f,1.0f,0.75f);// color filter [red,green,blue]
@@ -110,14 +107,11 @@ vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
 vec2 postfx_noise(0,0.125f);    // noise [0=grey/1=color,mix]
 float postfx_aberration = 3.0f; // chromatic aberration
 bool postfx_moire = true;       // moire
-vec4 postfx_moire_h(0.75f,0.25f,0.5f,1.5f);
-vec4 postfx_moire_v(0.75f,0.25f,0.5f,1.5f);
+vec4 postfx_moire_h(0.75f,-0.25f,1.0f,2.0f);
+vec4 postfx_moire_v(0.875f,-0.125f,0.5f,2.0f);
 bool postfx_scanline = true;    // scanline
-vec4 postfx_scanline_h(0.75f,0.25f,1.0f,0.0f);// vertical scanline [base,variable,repeat]
-vec4 postfx_scanline_v(1.0f,0.0f,0.0f,0.0f);
-//float radial_value1 = 2.0f;
-//float radial_value2 = 0.8f;
-//float radial_color = 0;
+vec4 postfx_scanline_h(0.75f,-0.5f,2.0f,0.0f);// vertical scanline [base,variable,repeat]
+vec4 postfx_scanline_v(1.0f,0.0f,0.0f,0.0f);  // horizontal scanline [base,variable,repeat]
 
 Shader *shader_simple;
 Shader *shader_blur_h, *shader_blur_v;
@@ -125,26 +119,15 @@ Shader *shader_remanency, *shader_glow, *shader_radial, *shader_postfx;
 // shader variables
 ShaderUniform shader_simple_texture;
 ShaderUniform shader_blur_h_texture,
-              shader_blur_h_screen_size,
-              shader_blur_h_blur,
-              shader_blur_h_deform;
+              shader_blur_h_radius;
 ShaderUniform shader_blur_v_texture,
-              shader_blur_v_screen_size,
-              shader_blur_v_blur,
-              shader_blur_v_deform;
-ShaderUniform shader_remanency_texture,
-              shader_remanency_texture_buffer,
-              shader_remanency_screen_size,
-              shader_remanency_screen_color,
-              shader_remanency_value1,
-              shader_remanency_value2;
-ShaderUniform shader_glow_texture,
-              shader_glow_texture_prv,
-              shader_glow_screen_size,
-              shader_glow_time,
-              shader_glow_step,
-              shader_glow_value1,
-              shader_glow_value2;
+              shader_blur_v_radius;
+ShaderUniform shader_remanency_source,
+              shader_remanency_buffer,
+              shader_remanency_mix;
+ShaderUniform shader_glow_glow,
+              shader_glow_source,
+              shader_glow_mix;
 ShaderUniform shader_radial_texture,
               shader_radial_screen_size,
               shader_radial_time,
@@ -210,8 +193,8 @@ int Render::InitDraw(void)
     fbo_back = new FrameBuffer(screen_size);
     fbo_front = new FrameBuffer(screen_size);
     fbo_buffer = new FrameBuffer(screen_size);
-    fbo_blur_h = new FrameBuffer(screen_size / glow_fbo_size);
-    fbo_blur_v = new FrameBuffer(screen_size / glow_fbo_size);
+    fbo_blur_h = new FrameBuffer(screen_size / 2);
+    fbo_blur_v = new FrameBuffer(screen_size / 2);
     fbo_ping = new FrameBuffer(screen_size);
     fbo_pong = new FrameBuffer(screen_size);
     // shader simple
@@ -220,32 +203,21 @@ int Render::InitDraw(void)
     // shader blur horizontal
     shader_blur_h = Shader::Create(lolfx_blurh);
     shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
-    shader_blur_h_screen_size = shader_blur_h->GetUniformLocation("screen_size");
-    shader_blur_h_blur = shader_blur_h->GetUniformLocation("blur");
-    shader_blur_h_deform = shader_blur_h->GetUniformLocation("deform");
+    shader_blur_h_radius = shader_blur_h->GetUniformLocation("radius");
     // shader blur vertical
     shader_blur_v = Shader::Create(lolfx_blurv);
     shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
-    shader_blur_v_screen_size = shader_blur_v->GetUniformLocation("screen_size");
-    shader_blur_v_blur = shader_blur_v->GetUniformLocation("blur");
-    shader_blur_v_deform = shader_blur_v->GetUniformLocation("deform");
+    shader_blur_v_radius = shader_blur_v->GetUniformLocation("radius");
     // shader remanency
     shader_remanency = Shader::Create(lolfx_remanency);
-    shader_remanency_texture = shader_remanency->GetUniformLocation("texture");
-    shader_remanency_texture_buffer = shader_remanency->GetUniformLocation("texture_buffer");
-    shader_remanency_screen_size = shader_remanency->GetUniformLocation("screen_size");
-    shader_remanency_screen_color = shader_remanency->GetUniformLocation("screen_color");
-    shader_remanency_value1 = shader_remanency->GetUniformLocation("value1");
-    shader_remanency_value2 = shader_remanency->GetUniformLocation("value2");
+    shader_remanency_source = shader_remanency->GetUniformLocation("source");
+    shader_remanency_buffer = shader_remanency->GetUniformLocation("buffer");
+    shader_remanency_mix = shader_remanency->GetUniformLocation("mix");
     // shader glow
     shader_glow = Shader::Create(lolfx_glow);
-    shader_glow_texture = shader_glow->GetUniformLocation("texture");
-    shader_glow_texture_prv = shader_glow->GetUniformLocation("texture_prv");
-    shader_glow_screen_size = shader_glow->GetUniformLocation("screen_size");
-    shader_glow_time = shader_glow->GetUniformLocation("time");
-    shader_glow_step = shader_glow->GetUniformLocation("step");
-    shader_glow_value1 = shader_glow->GetUniformLocation("value1");
-    shader_glow_value2 = shader_glow->GetUniformLocation("value2");
+    shader_glow_glow = shader_glow->GetUniformLocation("glow");
+    shader_glow_source = shader_glow->GetUniformLocation("source");
+    shader_glow_mix = shader_glow->GetUniformLocation("mix");
     // shader radial
     shader_radial = Shader::Create(lolfx_radial);
     shader_radial_texture = shader_radial->GetUniformLocation("texture");
@@ -464,12 +436,9 @@ void Render::Draw3D()
         // shader remanency
         fbo_ping->Bind();
         shader_remanency->Bind();
-        shader_remanency->SetTexture(shader_remanency_texture, fbo_back->GetTexture(), 0);
-        shader_remanency->SetTexture(shader_remanency_texture_buffer, fbo_buffer->GetTexture(), 1);
-        shader_remanency->SetUniform(shader_remanency_screen_size, vec2(1.0f));
-        shader_remanency->SetUniform(shader_remanency_screen_color, screen_color);
-        shader_remanency->SetUniform(shader_remanency_value1, remanency_source_mix);
-        shader_remanency->SetUniform(shader_remanency_value2, remanency_buffer_mix);
+        shader_remanency->SetTexture(shader_remanency_source, fbo_back->GetTexture(), 0);
+        shader_remanency->SetTexture(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
+        shader_remanency->SetUniform(shader_remanency_mix, remanency);
         fs_quad();
         shader_remanency->Unbind();
         fbo_ping->Unbind();
@@ -480,12 +449,9 @@ void Render::Draw3D()
         // save previous fbo
         fbo_ping->Bind();
         shader_remanency->Bind();
-        shader_remanency->SetTexture(shader_remanency_texture, fbo_front->GetTexture(), 0);
-        shader_remanency->SetTexture(shader_remanency_texture_buffer, fbo_buffer->GetTexture(), 1);
-        shader_remanency->SetUniform(shader_remanency_screen_size, vec2(1.0f));
-        shader_remanency->SetUniform(shader_remanency_screen_color, screen_color);
-        shader_remanency->SetUniform(shader_remanency_value1, remanency_new_frame_mix);
-        shader_remanency->SetUniform(shader_remanency_value2, remanency_old_frame_mix);
+        shader_remanency->SetTexture(shader_remanency_source, fbo_front->GetTexture(), 0);
+        shader_remanency->SetTexture(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
+        shader_remanency->SetUniform(shader_remanency_mix, buffer);
         fs_quad();
         shader_remanency->Unbind();
         fbo_ping->Unbind();
@@ -501,9 +467,7 @@ void Render::Draw3D()
         fbo_ping->Bind();
         shader_blur_h->Bind();
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_back->GetTexture(), 0);
-        shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f));
-        shader_blur_h->SetUniform(shader_blur_h_blur, blur_radius / screen_size.x);
-        shader_blur_h->SetUniform(shader_blur_h_deform, blur_radius_deform / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_radius, blur / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_ping->Unbind();
@@ -511,9 +475,7 @@ void Render::Draw3D()
         fbo_front->Bind();
         shader_blur_v->Bind();
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_ping->GetTexture(), 0);
-        shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f));
-        shader_blur_v->SetUniform(shader_blur_v_blur, blur_radius / screen_size.y);
-        shader_blur_v->SetUniform(shader_blur_v_deform, blur_radius_deform / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_radius, blur / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
     }
@@ -531,9 +493,7 @@ void Render::Draw3D()
         fbo_blur_h->Bind();
         shader_blur_h->Bind();
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_ping->GetTexture(), 0);
-        shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_h->SetUniform(shader_blur_h_blur, glow_large.y / screen_size.x);
-        shader_blur_h->SetUniform(shader_blur_h_deform, glow_large.z / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_radius, glow_large / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
@@ -541,9 +501,7 @@ void Render::Draw3D()
         fbo_blur_v->Bind();
         shader_blur_v->Bind();
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
-        shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_v->SetUniform(shader_blur_v_blur, glow_large.y / screen_size.y);
-        shader_blur_v->SetUniform(shader_blur_v_deform, glow_large.z / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_radius, glow_large / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
@@ -551,9 +509,7 @@ void Render::Draw3D()
         fbo_blur_h->Bind();
         shader_blur_h->Bind();
         shader_blur_h->SetTexture(shader_blur_h_texture, fbo_blur_v->GetTexture(), 0);
-        shader_blur_h->SetUniform(shader_blur_h_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_h->SetUniform(shader_blur_h_blur, glow_small.y / screen_size.x);
-        shader_blur_h->SetUniform(shader_blur_h_deform, glow_small.z / screen_size.x);
+        shader_blur_h->SetUniform(shader_blur_h_radius, glow_small / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
@@ -561,22 +517,16 @@ void Render::Draw3D()
         fbo_blur_v->Bind();
         shader_blur_v->Bind();
         shader_blur_v->SetTexture(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
-        shader_blur_v->SetUniform(shader_blur_v_screen_size, vec2(1.0f / glow_fbo_size));
-        shader_blur_v->SetUniform(shader_blur_v_blur, glow_small.y / screen_size.y);
-        shader_blur_h->SetUniform(shader_blur_v_deform, glow_small.z / screen_size.y);
+        shader_blur_v->SetUniform(shader_blur_v_radius, glow_small / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
         // shader glow
         fbo_pong->Bind();
         shader_glow->Bind();
-        shader_glow->SetTexture(shader_glow_texture, fbo_blur_v->GetTexture(), 0);
-        shader_glow->SetTexture(shader_glow_texture_prv, fbo_front->GetTexture(), 1);
-        shader_glow->SetUniform(shader_glow_screen_size, vec2(1.0f));
-        shader_glow->SetUniform(shader_glow_time, fx_angle);
-        shader_glow->SetUniform(shader_glow_step, glow_smoothstep);
-        shader_glow->SetUniform(shader_glow_value1, glow_large.x);
-        shader_glow->SetUniform(shader_glow_value2, glow_small.x);
+        shader_glow->SetTexture(shader_glow_glow, fbo_blur_v->GetTexture(), 0);
+        shader_glow->SetTexture(shader_glow_source, fbo_front->GetTexture(), 1);
+        shader_glow->SetUniform(shader_glow_mix, glow_mix);
         fs_quad();
         shader_glow->Unbind();
     }

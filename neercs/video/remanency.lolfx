@@ -12,18 +12,11 @@ void main()
 
 #version 120
 
-uniform sampler2D texture;
-uniform sampler2D texture_buffer;
-uniform vec2 screen_size;
-uniform float screen_color;
-uniform float value1;
-uniform float value2;
+uniform sampler2D source;
+uniform sampler2D buffer;
+uniform vec2 mix;
 
 void main(void)
 	{
-	vec2 p=gl_TexCoord[0].xy;
-	vec4 source=texture2D(texture,p);
-	vec4 buffer=texture2D(texture_buffer,p);
-	vec4 color=source*value1+buffer*value2;
-	gl_FragColor=color;
+	gl_FragColor=texture2D(source,gl_TexCoord[0].xy)*mix.x+texture2D(buffer,gl_TexCoord[0].xy)*mix.y;
 	}

@@ -12,20 +12,11 @@ void main()
 
 #version 120
 
-uniform sampler2D texture;
-uniform sampler2D texture_prv;
-uniform vec2 screen_size;
-uniform float time;
-uniform float step;
-uniform float value1;
-uniform float value2;
+uniform sampler2D glow;
+uniform sampler2D source;
+uniform vec3 mix;
 
 void main(void)
 	{
-	vec2 p=gl_TexCoord[0].xy;
-	vec4 source=texture2D(texture_prv,p);
-	vec4 glow=texture2D(texture,p);
-	source=smoothstep(step,1.0,source);
-	vec4 color=glow*value1+source*value2;
-	gl_FragColor=color;
+	gl_FragColor=smoothstep(mix.z,1.0,texture2D(source,gl_TexCoord[0].xy))*mix.x+texture2D(glow,gl_TexCoord[0].xy)*mix.y;
 	}
