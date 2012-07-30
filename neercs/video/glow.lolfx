@@ -14,9 +14,9 @@ void main()
 
 uniform sampler2D glow;
 uniform sampler2D source;
-uniform vec3 mix;
+uniform vec2 mix;
 
 void main(void)
 	{
-	gl_FragColor=smoothstep(mix.z,1.0,texture2D(source,gl_TexCoord[0].xy))*mix.x+texture2D(glow,gl_TexCoord[0].xy)*mix.y;
+	gl_FragColor=texture2D(source,gl_TexCoord[0].xy)*mix.x+texture2D(glow,gl_TexCoord[0].xy)*mix.y;
 	}

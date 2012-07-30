@@ -91,8 +91,8 @@ void Neercs::TickGame(float seconds)
     {
         float a = M_PI / 180 * i * 16 + m_time * 4;
         float b = M_PI / 180 * i * 12;
-        int x = w / 2  - 15 + h / 3 * lol::cos(a) + h / 4 * lol::sin(b);
-        caca_put_str(m_caca, x, i, "LOL WUT! NEERCS SI TEH RULEZ!");
+        int x = w / 2  - 14 + w / 4 * lol::cos(a) + w / 4 * lol::sin(b);
+        caca_put_str(m_caca, x, i, "LOL WUT! NEERCS SI TEH RULEZ");
     }
 
     caca_set_color_argb(m_caca, 0x444, bg_color);
@@ -130,6 +130,11 @@ void Neercs::TickGame(float seconds)
 
     caca_set_color_argb(m_caca, hex_color(0.6f + 0.4f * lol::cos(m_time * 2), 0.2f, 0.2f), bg_color);
     caca_put_str(m_caca, w - 12, h - 2, "CACA RULEZ");
+
+    caca_set_color_argb(m_caca, 0xdef, bg_color);
+    caca_put_str(m_caca, 0, 0, "mdr@lol:~/ cd code/lolengine/");
+    caca_put_str(m_caca, 0, 1, "mdr@lol:~/code/lolengine/ cd /var/log/");
+    caca_put_str(m_caca, 0, 2, "mdr@lol:/var/log/");
 }
 
 

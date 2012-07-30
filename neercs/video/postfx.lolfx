@@ -19,7 +19,7 @@ uniform float deform;
 uniform vec3 filter;
 uniform vec3 retrace;
 uniform vec2 offset;
-uniform vec2 noise;
+uniform float noise;
 uniform float aberration;
 uniform bool moire;
 uniform vec4 moire_h;
@@ -80,10 +80,11 @@ void main(void)
 
 	vec3 color=source+glass1*glass1*0.25+glass2*glass2*0.25;
 
+	color=smoothstep(0.05,1.0,color);
 	color+=flash;													// flash
 	color+=ca;														// chromatic aberration
 	color-=retrace.x*mod(z.y*retrace.y+time*retrace.z,1.0);			// retrace
-	color-=(vec3(rnd.x,rnd.x,rnd.x)-vec3(rnd.y,rnd.y,rnd.y))*noise.y;// noise
+	color-=(vec3(rnd.x-rnd.y))*noise;								// noise
 	if(moire)
 		{
 		color*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w));	// moire h
@@ -102,7 +103,7 @@ void main(void)
 		{
 		color*=(scanline_h.x+scanline_v.x)*0.5;
 		}
-	color*=filter;													// hue
+	color*=filter;													// filter
 	color*=mask;													// vignetting
 	color*=letterbox(z,-0.75,0.95);									// letnoiseterbox
 	gl_FragColor=vec4(color,1.0);
