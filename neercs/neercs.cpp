@@ -111,7 +111,7 @@ void Neercs::TickGame(float seconds)
 /__/\__/\_______________/  \________________\ */
 
     int logo_x = (w - 46) / 2;
-    int logo_y = h / 2 - 2;// + h / 4 * lol::cos(m_time * 2);
+    int logo_y = h / 2 - 2;
 
     caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3               ), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
     caca_put_str(m_caca, logo_x + 3, logo_y    ,"__  _________ ______ ______ ______ ______");
@@ -131,10 +131,23 @@ void Neercs::TickGame(float seconds)
     caca_set_color_argb(m_caca, hex_color(0.6f + 0.4f * lol::cos(m_time * 2), 0.2f, 0.2f), bg_color);
     caca_put_str(m_caca, w - 12, h - 2, "CACA RULEZ");
 
+    int lolcube_x = w / 2 - 5 + (w - 10) * lol::cos(m_time / 2);
+    int lolcube_y = h - 5 - abs ((h - 5) * lol::sin(m_time * 4));
+
+    caca_set_color_argb(m_caca, hex_color(0.75f + 0.25f * lol::sin(m_time * 2), 0.75f + 0.25f * lol::cos(m_time * 3), 0.75f + 0.25f * lol::sin(m_time * 5)), bg_color);
+    caca_put_str(m_caca, lolcube_x + 2, lolcube_y    , "_______");
+    caca_put_str(m_caca, lolcube_x + 1, lolcube_y + 1, "/      /|");
+    caca_put_str(m_caca, lolcube_x    , lolcube_y + 2, "/______/ |");
+    caca_put_str(m_caca, lolcube_x    , lolcube_y + 3, "|      | |");
+    caca_put_str(m_caca, lolcube_x    , lolcube_y + 4, "|  :D  | /");
+    caca_put_str(m_caca, lolcube_x    , lolcube_y + 5, "|______|/");
+
     caca_set_color_argb(m_caca, 0xdef, bg_color);
-    caca_put_str(m_caca, 0, 0, "mdr@lol:~/ cd code/lolengine/");
-    caca_put_str(m_caca, 0, 1, "mdr@lol:~/code/lolengine/ cd /var/log/");
-    caca_put_str(m_caca, 0, 2, "mdr@lol:/var/log/");
+    caca_put_str(m_caca, 0, 0, "rez@lol:~/ sudo -s");
+    caca_put_str(m_caca, 0, 1, "[sudo] password for rez:");
+    caca_put_str(m_caca, 0, 2, "root@lol:~/ echo LOL");
+    caca_put_str(m_caca, 0, 3, "LOL");
+    caca_put_str(m_caca, 0, 4, "root@lol:~/");
 }
 
 

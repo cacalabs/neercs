@@ -27,6 +27,7 @@ uniform vec4 moire_v;
 uniform bool scanline;
 uniform vec4 scanline_h;
 uniform vec4 scanline_v;
+uniform vec2 smooth;
 uniform float flash;
 uniform float sync;
 
@@ -80,7 +81,8 @@ void main(void)
 
 	vec3 color=source+glass1*glass1*0.25+glass2*glass2*0.25;
 
-	color=smoothstep(0.05,1.0,color);
+	color*=filter;													// filter
+	color=smoothstep(smooth.x,smooth.y,color);						// smoothstep
 	color+=flash;													// flash
 	color+=ca;														// chromatic aberration
 	color-=retrace.x*mod(z.y*retrace.y+time*retrace.z,1.0);			// retrace
@@ -103,7 +105,6 @@ void main(void)
 		{
 		color*=(scanline_h.x+scanline_v.x)*0.5;
 		}
-	color*=filter;													// filter
 	color*=mask;													// vignetting
 	color*=letterbox(z,-0.75,0.95);									// letnoiseterbox
 	gl_FragColor=vec4(color,1.0);
