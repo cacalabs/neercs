@@ -50,7 +50,10 @@ int active = true;         // window active flag
 float nearplane = 0.1f;    // nearplane
 float farplane = 1000.0f;  // farplane
 int polygon_fillmode = GL_FILL; // fill mode
-bool key_state = 0;        // key state
+/* timer variable */
+float timer = 0;           // timer
+float timer_key = 0;       // key timer
+float timer_key_repeat = 0.25f;// key repeat delay
 /* window variable */
 ivec2 screen_size;         // screen size
 vec3 screen_color = CR * vec3(32, 32, 32); // screen color
@@ -302,21 +305,28 @@ void Render::TickDraw(float seconds)
         Ticker::Shutdown();
     //if (Input::GetButtonState(282/*SDLK_F1*/))
     //    LEAULE();
-    if (Input::GetButtonState(283/*SDLK_F2*/))
+    if (Input::GetButtonState(283/*SDLK_F2*/)&&(timer-timer_key>timer_key_repeat))
         {
-        m_polygon=!m_polygon;
-        polygon_fillmode=(m_polygon)?GL_FILL:GL_LINE;
-        glPolygonMode(GL_FRONT,polygon_fillmode);
+        m_polygon = !m_polygon;
+        polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
+        glPolygonMode(GL_FRONT, polygon_fillmode);
+        timer_key = timer;
         }
-    if (Input::GetButtonState(284/*SDLK_F3*/)&&key_state!=284)
+    if (Input::GetButtonState(284/*SDLK_F3*/)&&(timer-timer_key>timer_key_repeat))
         {
-        m_shader=!m_shader;
-        key_state=284;
+        m_shader = !m_shader;
+        timer_key = timer;
         }
-    if (Input::GetButtonState(285/*SDLK_F4*/))
-        m_shader_postfx=!m_shader_postfx;
-    if (Input::GetButtonState(286/*SDLK_F5*/))
+    if (Input::GetButtonState(285/*SDLK_F4*/)&&(timer-timer_key>timer_key_repeat))
+        {
+        m_shader_postfx = !m_shader_postfx;
+        timer_key = timer;
+        }
+    if (Input::GetButtonState(286/*SDLK_F5*/)&&(timer-timer_key>timer_key_repeat))
+        {
         Pause();
+        timer_key = timer;
+        }
 
     Entity::TickDraw(seconds);
 
@@ -329,7 +339,10 @@ void Render::TickDraw(float seconds)
 
     // timer
     if (!m_pause)
-        main_angle += seconds * 100.0f * PID;
+    {
+        timer += seconds;
+        main_angle = timer * 100.0f * PID;
+    }
     if (sync_flag)
     {
         angle=(main_angle-sync_angle)*sync_speed;
