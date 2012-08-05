@@ -17,6 +17,7 @@ uniform vec2 screen_size;
 uniform float time;
 uniform float deform;
 uniform vec3 filter;
+uniform vec3 color;
 uniform vec3 retrace;
 uniform vec2 offset;
 uniform float noise;
@@ -27,7 +28,6 @@ uniform vec4 moire_v;
 uniform bool scanline;
 uniform vec4 scanline_h;
 uniform vec4 scanline_v;
-uniform vec2 smooth;
 uniform float flash;
 uniform float sync;
 
@@ -67,8 +67,8 @@ void main(void)
 
 	vec2 rnd=vec2(rand(vec2(p.x+time,p.y-time)),rand(vec2(p.x-time,p.y+time)));
 
-	vec2 o=(offset-offset*2.0*rnd.x)/screen_size;					// offset
-	vec3 source=get_color(texture,z+o);								// offset added to source
+	vec2 o=(offset-offset*2.0*rnd.x)/screen_size;			// offset
+	vec3 source=get_color(texture,z+o);						// offset added to source
 	vec3 glass1=get_color(texture,z1);
 	vec3 glass2=get_color(texture,z2);
 
@@ -79,33 +79,38 @@ void main(void)
 	ca.y=get_color(texture,vec2(z.x+o.x  ,z.y+o.y)).y;
 	ca.z=get_color(texture,vec2(z.x+o.x+v,z.y+o.y)).z;
 
-	vec3 color=source+glass1*glass1*0.25+glass2*glass2*0.25;
+	vec3 c=source+glass1*glass1*0.25+glass2*glass2*0.25;
 
-	color*=filter;													// filter
-	color=smoothstep(smooth.x,smooth.y,color);						// smoothstep
-	color+=flash;													// flash
-	color+=ca;														// chromatic aberration
-	color-=retrace.x*mod(z.y*retrace.y+time*retrace.z,1.0);			// retrace
-	color-=(vec3(rnd.x-rnd.y))*noise;								// noise
+	float a=(c.x+c.y+c.z)/3.0;
+	vec3 g=vec3(a,a,a);
+	c=mix(c,g,color.z);										// gray
+	c*=filter;												// filter
+	c*=color.x;												// brightness
+	c=0.5+(c-0.5)*color.y;									// contrast
+
+	c+=flash;												// flash
+	c+=ca;													// chromatic aberration
+	c-=retrace.x*mod(z.y*retrace.y+time*retrace.z,1.0);		// retrace
+	c-=(vec3(rnd.x-rnd.y))*noise;							// noise
 	if(moire)
 		{
-		color*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w));	// moire h
-		color*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z))*sin(0.5+z.y*float(screen_size.y*moire_v.w));	// moire v
+		c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w));	// moire h
+		c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z))*sin(0.5+z.y*float(screen_size.y*moire_v.w));	// moire v
 		}
 	else
 		{
-		color*=(moire_h.x+moire_v.x)*0.5;
+		c*=(moire_h.x+moire_v.x)*0.5;
 		}
 	if(scanline)
 		{
-		color*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w));	// scanline h
-		color*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w));	// scanline v
+		c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w));	// scanline h
+		c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w));	// scanline v
 		}
 	else
 		{
-		color*=(scanline_h.x+scanline_v.x)*0.5;
+		c*=(scanline_h.x+scanline_v.x)*0.5;
 		}
-	color*=mask;													// vignetting
-	color*=letterbox(z,-0.75,0.95);									// letnoiseterbox
-	gl_FragColor=vec4(color,1.0);
+	c*=mask;												// vignetting
+	c*=letterbox(z,-0.75,0.95);								// letnoiseterbox
+	gl_FragColor=vec4(c,1.0);
 	}
