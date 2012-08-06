@@ -53,7 +53,7 @@ int polygon_fillmode = GL_FILL; // fill mode
 /* timer variable */
 float timer = 0;           // timer
 float timer_key = 0;       // key timer
-float timer_key_repeat = 0.25f;// key repeat delay
+float timer_key_repeat = 0.125f;// key repeat delay
 /* window variable */
 ivec2 screen_size;         // screen size
 vec3 screen_color = CR * vec3(32, 32, 32); // screen color
