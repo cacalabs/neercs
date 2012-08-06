@@ -92,6 +92,12 @@ ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
 ivec2 canvas_size(0,0);    // caca size
+/* setup variable */
+int setup_option=4;             // selected option
+ivec2 setup_p(1,1);             // position [x,y]
+ivec2 setup_size(32,0);         // size [w,h]
+ivec2 setup_color(0x678,0x234); // size [w,h]
+char const *setup_text[]={"remanency","blur","glow","deform","color","retrace","offset","noise","aberration","scanline"};
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
@@ -102,7 +108,7 @@ vec2 glow_mix(0.5f,0.5f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [normal,deform]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [normal,deform]
 //vec3 radial(2.0f,0.8f,0);     // radial [mix,strength,color mode]
-//---------------------------------[IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
+//------------------------------// [IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
 float postfx_deform = 0.625f;   // deformation ratio
 vec3 postfx_filter(0.875f,0.75f,1.0f);// color filter [red,green,blue]
 vec3 postfx_color(1.75f,1.75f,0.5f);  // color modifier [brightness,contrast,gray]
@@ -268,6 +274,9 @@ int Render::CreateGLWindow()
 
     caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
 
+    setup_size.y = 10;//sizeof setup_text;
+    setup_p = (canvas_char - setup_size) / 2;
+
     InitDraw();
     return true;
 }
@@ -277,6 +286,7 @@ Render::Render(caca_canvas_t *caca)
     m_ready(false),
     m_pause(false),
     m_polygon(true),
+    m_setup(true),
     m_shader(true),
     m_shader_remanency(true),
     m_shader_glow(true),
@@ -303,18 +313,24 @@ void Render::TickDraw(float seconds)
     /* keyboard manager */
     if (Input::GetButtonState(27/*SDLK_ESCAPE*/))
         Ticker::Shutdown();
-    //if (Input::GetButtonState(282/*SDLK_F1*/))
-    //    LEAULE();
-    if (Input::GetButtonState(283/*SDLK_F2*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::GetButtonState(282/*SDLK_F1*/) && (timer - timer_key > timer_key_repeat))
         {
+        m_setup = !m_setup;
+        timer_key = timer;
+        }
+    if (Input::GetButtonState(283/*SDLK_F2*/) && (timer - timer_key > timer_key_repeat))
+        {
+        /*
         m_polygon = !m_polygon;
         polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
         glPolygonMode(GL_FRONT, polygon_fillmode);
+        */
         timer_key = timer;
         }
-    if (Input::GetButtonState(284/*SDLK_F3*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::GetButtonState(284/*SDLK_F3*/) && (timer - timer_key > timer_key_repeat))
         {
-        m_shader = !m_shader;
+        m_shader_blur = !m_shader_blur;
+        m_shader_glow = !m_shader_glow;
         timer_key = timer;
         }
     if (Input::GetButtonState(285/*SDLK_F4*/)&&(timer-timer_key>timer_key_repeat))
@@ -325,6 +341,18 @@ void Render::TickDraw(float seconds)
     if (Input::GetButtonState(286/*SDLK_F5*/))
         {
         Pause();
+        }
+    if (Input::GetButtonState(273/*SDLK_UP*/)&&(timer-timer_key>timer_key_repeat))
+        {
+        setup_option--;
+        if (setup_option < 0) setup_option = setup_size.y - 1;
+        timer_key = timer;
+        }
+    if (Input::GetButtonState(274/*SDLK_DOWN*/)&&(timer-timer_key>timer_key_repeat))
+        {
+        setup_option++;
+        if (setup_option > setup_size.y - 1) setup_option = 0;
+        timer_key = timer;
         }
 
     Entity::TickDraw(seconds);
@@ -382,9 +410,36 @@ void Render::TickDraw(float seconds)
             fade_flag=false;
         }
     }
+    /* draw setup */
+    if (m_setup)
+    {
+        /* title */
+        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+        caca_draw_line(m_caca, setup_p.x, setup_p.y, setup_p.x + setup_size.x, setup_p.y,' ');
+        caca_put_str(m_caca, setup_p.x + setup_size.x / 2 - 3, setup_p.y, "SETUP");
+        /* entries */
+        caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
+        caca_fill_box(m_caca, setup_p.x, setup_p.y + 1, setup_size.x + 1, setup_size.y,' ');
+        for (int i = 0; i < setup_size.y; i++)
+        {
+            int y = setup_p.y + 1 + i;
+            if (setup_option != i)
+            {
+                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
+                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[i]);
+            }
+            else
+            {
+                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+                caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
+                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[i]);
+            }
+        }
+    }
 
     Draw2D();
     Draw3D();
+
 }
 
 void Render::Draw2D()

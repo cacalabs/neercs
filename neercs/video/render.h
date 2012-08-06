@@ -30,6 +30,7 @@ private:
     bool m_ready;
     bool m_pause;
     bool m_polygon;
+    bool m_setup;
     bool m_shader;
     bool m_shader_blur;
     bool m_shader_remanency;
