@@ -53,7 +53,7 @@ int polygon_fillmode = GL_FILL; // fill mode
 /* timer variable */
 float timer = 0;           // timer
 float timer_key = 0;       // key timer
-float timer_key_repeat = 0.125f;// key repeat delay
+float timer_key_repeat = 0.25f;// key repeat delay
 /* window variable */
 ivec2 screen_size;         // screen size
 vec3 screen_color = CR * vec3(32, 32, 32); // screen color
@@ -93,25 +93,83 @@ ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
 ivec2 canvas_size(0,0);    // caca size
 /* setup variable */
-int setup_option=4;             // selected option
+int setup_option=0;             // selected option
+int setup_option_n=6;           // option number
+int setup_item=-1;              // selected item
+int setup_item_n=8;             // item number
 ivec2 setup_p(1,1);             // position [x,y]
-ivec2 setup_size(32,0);         // size [w,h]
+ivec3 setup_size(30,0,12);      // size [w,h,split]
 ivec2 setup_color(0x678,0x234); // size [w,h]
-char const *setup_text[]={"remanency","blur","glow","deform","color","retrace","offset","noise","aberration","scanline"};
+char const *setup_text[] = {
+    "remanency",
+        "buffer new frame",
+        "buffer old frame",
+        "source",
+        "buffer",
+        "",
+        "",
+        "",
+        "",
+    "blur/glow",
+        "blur center",
+        "blur corner",
+        "glow large center",
+        "glow large corner",
+        "glow small center",
+        "glow small corner",
+        "",
+        "",
+    "color",
+        "filter red",
+        "filter green",
+        "filter blue",
+        "brightness",
+        "contrast",
+        "grayscale",
+        "",
+        "",
+    "modifier",
+        "deform ratio",
+        "retrace color",
+        "retrace length",
+        "retrace speed",
+        "offset h",
+        "offset v",
+        "noise",
+        "aberration",
+    "moire",
+        "h base",
+        "h variable",
+        "h repeat x",
+        "h repeat y",
+        "v base",
+        "v variable",
+        "v repeat x",
+        "v repeat y",
+    "scanline",
+        "h base",
+        "h variable",
+        "h repeat x",
+        "h repeat y",
+        "v base",
+        "v variable",
+        "v repeat x",
+        "v repeat y"
+    };
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
 vec2 buffer(0.75f,0.25f);       // [new frame mix,old frame mix]
 vec2 remanency(0.25f,0.75f);    // remanency [source mix,buffer mix]
-vec2 blur(0.25f,0.75f);         // glow radius [normal,deform]
+vec2 blur(0.25f,0.75f);         // glow radius [center,corner]
 vec2 glow_mix(0.5f,0.5f);       // glow mix [source mix,glow mix]
-vec2 glow_large(2.0f,2.0f);     // large glow radius [normal,deform]
-vec2 glow_small(1.0f,1.0f);     // small glow radius [normal,deform]
+vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
+vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
 //vec3 radial(2.0f,0.8f,0);     // radial [mix,strength,color mode]
 //------------------------------// [IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
 float postfx_deform = 0.625f;   // deformation ratio
 vec3 postfx_filter(0.875f,0.75f,1.0f);// color filter [red,green,blue]
-vec3 postfx_color(1.75f,1.75f,0.5f);  // color modifier [brightness,contrast,gray]
+vec3 postfx_color(1.75f,1.75f,0.5f);  // color modifier [brightness,contrast,grayscale]
 vec3 postfx_retrace(0.025f,2.0f,4.0f);// retrace [color,length,speed]
 vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
 float postfx_noise = 0.125f;    // noise
@@ -274,8 +332,8 @@ int Render::CreateGLWindow()
 
     caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
 
-    setup_size.y = 10;//sizeof setup_text;
-    setup_p = (canvas_char - setup_size) / 2;
+    setup_size.y = ((setup_option_n > setup_item_n) ? setup_option_n : setup_item_n) + 1;
+    setup_p = (canvas_char - setup_size.xy) / 2;
 
     InitDraw();
     return true;
@@ -314,46 +372,72 @@ void Render::TickDraw(float seconds)
     if (Input::GetButtonState(27/*SDLK_ESCAPE*/))
         Ticker::Shutdown();
     if (Input::GetButtonState(282/*SDLK_F1*/) && (timer - timer_key > timer_key_repeat))
-        {
+    {
         m_setup = !m_setup;
         timer_key = timer;
-        }
+    }
     if (Input::GetButtonState(283/*SDLK_F2*/) && (timer - timer_key > timer_key_repeat))
-        {
+    {
         /*
         m_polygon = !m_polygon;
         polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
         glPolygonMode(GL_FRONT, polygon_fillmode);
         */
         timer_key = timer;
-        }
+    }
     if (Input::GetButtonState(284/*SDLK_F3*/) && (timer - timer_key > timer_key_repeat))
-        {
+    {
         m_shader_blur = !m_shader_blur;
         m_shader_glow = !m_shader_glow;
         timer_key = timer;
-        }
+    }
     if (Input::GetButtonState(285/*SDLK_F4*/)&&(timer-timer_key>timer_key_repeat))
-        {
+    {
         m_shader_postfx = !m_shader_postfx;
         timer_key = timer;
-        }
+    }
     if (Input::GetButtonState(286/*SDLK_F5*/))
-        {
+    {
         Pause();
-        }
+    }
     if (Input::GetButtonState(273/*SDLK_UP*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        if (setup_item == -1)
         {
-        setup_option--;
-        if (setup_option < 0) setup_option = setup_size.y - 1;
-        timer_key = timer;
+            setup_option--;
+            if (setup_option < 0) setup_option = setup_option_n - 1;
         }
+        else
+        {
+            setup_item--;
+            if (setup_item < 0) setup_item = setup_item_n - 1;
+        }
+        timer_key = timer;
+    }
     if (Input::GetButtonState(274/*SDLK_DOWN*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        if (setup_item == -1)
         {
-        setup_option++;
-        if (setup_option > setup_size.y - 1) setup_option = 0;
-        timer_key = timer;
+            setup_option++;
+            if (setup_option > setup_option_n - 1) setup_option = 0;
         }
+        else
+        {
+            setup_item++;
+            if (setup_item > setup_item_n - 1) setup_item = 0;
+        }
+        timer_key = timer;
+    }
+    if (Input::GetButtonState(276/*SDLK_LEFT*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        setup_item = -1;
+        timer_key = timer;
+    }
+    if (Input::GetButtonState(275/*SDLK_RIGHT*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        setup_item = 0;
+        timer_key = timer;
+    }
 
     Entity::TickDraw(seconds);
 
@@ -413,26 +497,46 @@ void Render::TickDraw(float seconds)
     /* draw setup */
     if (m_setup)
     {
+        /* background */
+        caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
+        caca_fill_box(m_caca, setup_p.x, setup_p.y, setup_size.x + 1, setup_size.y,' ');
+        caca_draw_line(m_caca, setup_p.x + setup_size.z - 1, setup_p.y + 1, setup_p.x + setup_size.z - 1, setup_p.y + setup_size.y - 1,'|');
         /* title */
         caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
         caca_draw_line(m_caca, setup_p.x, setup_p.y, setup_p.x + setup_size.x, setup_p.y,' ');
         caca_put_str(m_caca, setup_p.x + setup_size.x / 2 - 3, setup_p.y, "SETUP");
-        /* entries */
-        caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-        caca_fill_box(m_caca, setup_p.x, setup_p.y + 1, setup_size.x + 1, setup_size.y,' ');
-        for (int i = 0; i < setup_size.y; i++)
+        /* display option */
+        for (int i = 0; i < setup_option_n; i++)
         {
             int y = setup_p.y + 1 + i;
+            int k = i * (setup_item_n + 1);
             if (setup_option != i)
             {
                 caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[i]);
+                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
             }
             else
             {
                 caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-                caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
-                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[i]);
+                caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.z - 2, y,' ');
+                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
+            }
+        }
+        /* display item */
+        for (int i = 0; i < setup_item_n; i++)
+        {
+            int y = setup_p.y + 1 + i;
+            int k = setup_option * (setup_item_n + 1) + 1;
+            if (setup_option != i)
+            {
+                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
+                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k + i]);
+            }
+            else
+            {
+                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+                caca_draw_line(m_caca, setup_p.x + setup_size.z + 1, y, setup_p.x + setup_size.x, y,' ');
+                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k + i]);
             }
         }
     }

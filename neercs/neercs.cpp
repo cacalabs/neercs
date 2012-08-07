@@ -131,6 +131,15 @@ void Neercs::TickGame(float seconds)
     caca_set_color_argb(m_caca, hex_color(0.6f + 0.4f * lol::cos(m_time * 2), 0.2f, 0.2f), bg_color);
     caca_put_str(m_caca, w - 12, h - 2, "CACA RULEZ");
 
+/*
+  _______
+ /      /|
+/______/ |
+|      | |
+|  :D  | /
+|______|/
+*/
+
     int lolcube_x = w / 2 - 5 + (w - 10) * lol::cos(m_time / 2);
     int lolcube_y = h - 5 - abs ((h - 5) * lol::sin(m_time * 4));
 
