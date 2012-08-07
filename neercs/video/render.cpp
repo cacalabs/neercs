@@ -93,15 +93,17 @@ ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
 ivec2 canvas_size(0,0);    // caca size
 /* setup variable */
+bool setup_switch=false;        // switch [option/item]
 int setup_option=0;             // selected option
 int setup_option_n=6;           // option number
-int setup_item=-1;              // selected item
+int setup_item=0;               // selected item
 int setup_item_n=8;             // item number
 ivec2 setup_p(1,1);             // position [x,y]
 ivec3 setup_size(30,0,12);      // size [w,h,split]
 ivec2 setup_color(0x678,0x234); // size [w,h]
 char const *setup_text[] = {
     "remanency",
+        "enable",
         "buffer new frame",
         "buffer old frame",
         "source",
@@ -109,16 +111,15 @@ char const *setup_text[] = {
         "",
         "",
         "",
-        "",
-    "blur/glow",
-        "blur center",
-        "blur corner",
+    "glow/blur",
+        "glow enable",
         "glow large center",
         "glow large corner",
         "glow small center",
         "glow small corner",
-        "",
-        "",
+        "blur enable",
+        "blur center",
+        "blur corner",
     "color",
         "filter red",
         "filter green",
@@ -161,10 +162,10 @@ float value, angle, radius, scale, speed;
 /* shader variable */
 vec2 buffer(0.75f,0.25f);       // [new frame mix,old frame mix]
 vec2 remanency(0.25f,0.75f);    // remanency [source mix,buffer mix]
-vec2 blur(0.25f,0.75f);         // glow radius [center,corner]
 vec2 glow_mix(0.5f,0.5f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
+vec2 blur(0.25f,0.75f);         // glow radius [center,corner]
 //vec3 radial(2.0f,0.8f,0);     // radial [mix,strength,color mode]
 //------------------------------// [IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
 float postfx_deform = 0.625f;   // deformation ratio
@@ -180,22 +181,46 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);
 bool postfx_scanline = true;    // scanline
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f);// vertical scanline [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f);// horizontal scanline [base,variable,repeat x,repeat y]
+//------------------------------//
+//00:29 <@sam> Array<vec4> toto;
+//00:29 <@sam> toto << vec4(1.f, 2.f, 3.f, 4.f);
+vec4 setup_var[]={
+    vec4(0), /* remanency */
+        vec4(0, 1, 1, 1),
+        vec4(0.0f, 1.0f, 0.1f, buffer.x),
+        vec4(0.0f, 1.0f, 0.1f, buffer.y),
+        vec4(0.0f, 1.0f, 0.1f, remanency.x),
+        vec4(0.0f, 1.0f, 0.1f, remanency.y),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+    vec4(0), /* glow/blur */
+        vec4(0, 1, 1, 0),
+        vec4(0.0f, 8.0f, 0.1f, glow_large.x),
+        vec4(0.0f, 8.0f, 0.1f, glow_large.y),
+        vec4(0.0f, 4.0f, 0.1f, glow_small.x),
+        vec4(0.0f, 4.0f, 0.1f, glow_small.y),
+        vec4(0, 1, 1, 0),
+        vec4(0.0f, 2.0f, 0.1f, blur.x),
+        vec4(0.0f, 2.0f, 0.1f, blur.y),
+    vec4(0) /* color */
+    };
 
 Shader *shader_simple;
 Shader *shader_blur_h, *shader_blur_v;
 Shader *shader_remanency, *shader_glow, *shader_radial, *shader_postfx;
 // shader variables
 ShaderUniform shader_simple_texture;
-ShaderUniform shader_blur_h_texture,
-              shader_blur_h_radius,
-              shader_blur_v_texture,
-              shader_blur_v_radius;
 ShaderUniform shader_remanency_source,
               shader_remanency_buffer,
               shader_remanency_mix;
 ShaderUniform shader_glow_glow,
               shader_glow_source,
               shader_glow_mix;
+ShaderUniform shader_blur_h_texture,
+              shader_blur_h_radius,
+              shader_blur_v_texture,
+              shader_blur_v_radius;
 ShaderUniform shader_radial_texture,
               shader_radial_screen_size,
               shader_radial_time,
@@ -269,14 +294,6 @@ int Render::InitDraw(void)
     // shader simple
     shader_simple = Shader::Create(lolfx_simple);
     shader_simple_texture = shader_simple->GetUniformLocation("texture");
-    // shader blur horizontal
-    shader_blur_h = Shader::Create(lolfx_blurh);
-    shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
-    shader_blur_h_radius = shader_blur_h->GetUniformLocation("radius");
-    // shader blur vertical
-    shader_blur_v = Shader::Create(lolfx_blurv);
-    shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
-    shader_blur_v_radius = shader_blur_v->GetUniformLocation("radius");
     // shader remanency
     shader_remanency = Shader::Create(lolfx_remanency);
     shader_remanency_source = shader_remanency->GetUniformLocation("source");
@@ -287,6 +304,14 @@ int Render::InitDraw(void)
     shader_glow_glow = shader_glow->GetUniformLocation("glow");
     shader_glow_source = shader_glow->GetUniformLocation("source");
     shader_glow_mix = shader_glow->GetUniformLocation("mix");
+    // shader blur horizontal
+    shader_blur_h = Shader::Create(lolfx_blurh);
+    shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
+    shader_blur_h_radius = shader_blur_h->GetUniformLocation("radius");
+    // shader blur vertical
+    shader_blur_v = Shader::Create(lolfx_blurv);
+    shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
+    shader_blur_v_radius = shader_blur_v->GetUniformLocation("radius");
     // shader radial
     shader_radial = Shader::Create(lolfx_radial);
     shader_radial_texture = shader_radial->GetUniformLocation("texture");
@@ -347,10 +372,9 @@ Render::Render(caca_canvas_t *caca)
     m_setup(true),
     m_shader(true),
     m_shader_remanency(true),
-    m_shader_glow(true),
-    m_shader_blur(true),
-    m_shader_fx(true),
-    m_shader_postfx(true),
+    m_shader_glow(false),
+    m_shader_blur(false),
+    m_shader_postfx(false),
     m_border(false)
 {
     text_render = new TextRender(m_caca, font_size);
@@ -387,8 +411,8 @@ void Render::TickDraw(float seconds)
     }
     if (Input::GetButtonState(284/*SDLK_F3*/) && (timer - timer_key > timer_key_repeat))
     {
-        m_shader_blur = !m_shader_blur;
         m_shader_glow = !m_shader_glow;
+        m_shader_blur = !m_shader_blur;
         timer_key = timer;
     }
     if (Input::GetButtonState(285/*SDLK_F4*/)&&(timer-timer_key>timer_key_repeat))
@@ -402,40 +426,66 @@ void Render::TickDraw(float seconds)
     }
     if (Input::GetButtonState(273/*SDLK_UP*/)&&(timer-timer_key>timer_key_repeat))
     {
-        if (setup_item == -1)
+        if (m_setup)
         {
-            setup_option--;
-            if (setup_option < 0) setup_option = setup_option_n - 1;
-        }
-        else
-        {
-            setup_item--;
-            if (setup_item < 0) setup_item = setup_item_n - 1;
+            if (!setup_switch)
+            {
+                setup_option--;
+                if (setup_option < 0) setup_option = setup_option_n - 1;
+                setup_item = 0;
+            }
+            else
+            {
+                setup_item--;
+                if (setup_item < 0) setup_item = setup_item_n - 1;
+            }
         }
         timer_key = timer;
     }
     if (Input::GetButtonState(274/*SDLK_DOWN*/)&&(timer-timer_key>timer_key_repeat))
     {
-        if (setup_item == -1)
+        if (m_setup)
         {
-            setup_option++;
-            if (setup_option > setup_option_n - 1) setup_option = 0;
-        }
-        else
-        {
-            setup_item++;
-            if (setup_item > setup_item_n - 1) setup_item = 0;
+            if (!setup_switch)
+            {
+                setup_option++;
+                if (setup_option > setup_option_n - 1) setup_option = 0;
+                setup_item = 0;
+            }
+            else
+            {
+                setup_item++;
+                if (setup_item > setup_item_n - 1) setup_item = 0;
+            }
         }
         timer_key = timer;
     }
     if (Input::GetButtonState(276/*SDLK_LEFT*/)&&(timer-timer_key>timer_key_repeat))
     {
-        setup_item = -1;
+        if (m_setup && setup_switch)
+        {
+            int k = setup_option * (setup_item_n + 1) + 1 + setup_item;
+            setup_var[k].w -= setup_var[k].z;
+            if (setup_var[k].w < setup_var[k].x) setup_var[k].w = setup_var[k].x;
+        }
         timer_key = timer;
     }
     if (Input::GetButtonState(275/*SDLK_RIGHT*/)&&(timer-timer_key>timer_key_repeat))
     {
-        setup_item = 0;
+        if (m_setup && setup_switch)
+        {
+            int k = setup_option * (setup_item_n + 1) + 1 + setup_item;
+            setup_var[k].w += setup_var[k].z;
+            if (setup_var[k].w > setup_var[k].y) setup_var[k].w = setup_var[k].y;
+        }
+        timer_key = timer;
+    }
+    if (Input::GetButtonState(13/*SDLK_RETURN*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        if (m_setup)
+        {
+            setup_switch = !setup_switch;
+        }
         timer_key = timer;
     }
 
@@ -510,7 +560,7 @@ void Render::TickDraw(float seconds)
         {
             int y = setup_p.y + 1 + i;
             int k = i * (setup_item_n + 1);
-            if (setup_option != i)
+            if (setup_option != i || setup_switch)
             {
                 caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
                 caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
@@ -527,7 +577,7 @@ void Render::TickDraw(float seconds)
         {
             int y = setup_p.y + 1 + i;
             int k = setup_option * (setup_item_n + 1) + 1;
-            if (setup_option != i)
+            if (setup_item != i || !setup_switch)
             {
                 caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
                 caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k + i]);
@@ -535,9 +585,21 @@ void Render::TickDraw(float seconds)
             else
             {
                 caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-                caca_draw_line(m_caca, setup_p.x + setup_size.z + 1, y, setup_p.x + setup_size.x, y,' ');
+                caca_draw_line(m_caca, setup_p.x + setup_size.z, y, setup_p.x + setup_size.x, y,' ');
                 caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k + i]);
             }
+        }
+        /* display variable */
+        int y = setup_p.y + setup_size.y;
+        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+        caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
+        if (setup_switch)
+        {
+            int k = setup_option * (setup_item_n + 1) + 1 + setup_item;
+            int w = setup_size.x - 3 - 4;
+            caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[k].w);
+            caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + w, y,'-');
+            if(setup_var[k].w > setup_var[k].x) caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + int(w / (setup_var[k].y - setup_var[k].x) * setup_var[k].w), y,'X');
         }
     }
 
@@ -636,7 +698,7 @@ void Render::Draw3D()
     }
 
     // shader glow
-    if (m_shader_fx && m_shader_glow)
+    if (m_shader_glow)
     {
         // shader blur horizontal
         fbo_blur_h->Bind();
@@ -688,7 +750,7 @@ void Render::Draw3D()
         fbo_front->Unbind();
     }
 
-    if (m_shader_fx && m_shader_blur)
+    if (m_shader_blur)
     {
         // shader blur horizontal
         fbo_ping->Bind();
