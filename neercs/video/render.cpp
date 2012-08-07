@@ -95,9 +95,10 @@ ivec2 canvas_size(0,0);    // caca size
 /* setup variable */
 bool setup_switch=false;        // switch [option/item]
 int setup_option=0;             // selected option
-int setup_option_n=6;           // option number
+int setup_option_n=7;           // option number
 int setup_item=0;               // selected item
 int setup_item_n=8;             // item number
+int setup_item_key=0;           // item array key
 ivec2 setup_p(1,1);             // position [x,y]
 ivec3 setup_size(30,0,12);      // size [w,h,split]
 ivec2 setup_color(0x678,0x234); // size [w,h]
@@ -106,20 +107,29 @@ char const *setup_text[] = {
         "enable",
         "buffer new frame",
         "buffer old frame",
-        "source",
-        "buffer",
+        "source mix",
+        "buffer mix",
         "",
         "",
         "",
-    "glow/blur",
-        "glow enable",
-        "glow large center",
-        "glow large corner",
-        "glow small center",
-        "glow small corner",
+    "glow",
+        "enable",
+        "source mix",
+        "glow mix",
+        "large center",
+        "large corner",
+        "small center",
+        "small corner",
+        "",
+    "blur",
         "blur enable",
         "blur center",
         "blur corner",
+        "",
+        "",
+        "",
+        "",
+        "",
     "color",
         "filter red",
         "filter green",
@@ -160,8 +170,8 @@ char const *setup_text[] = {
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
-vec2 buffer(0.75f,0.25f);       // [new frame mix,old frame mix]
-vec2 remanency(0.25f,0.75f);    // remanency [source mix,buffer mix]
+vec2 buffer(0.8f,0.2f);         // [new frame mix,old frame mix]
+vec2 remanency(0.2f,0.8f);      // remanency [source mix,buffer mix]
 vec2 glow_mix(0.5f,0.5f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
@@ -170,8 +180,8 @@ vec2 blur(0.25f,0.75f);         // glow radius [center,corner]
 //------------------------------// [IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
 float postfx_deform = 0.625f;   // deformation ratio
 vec3 postfx_filter(0.875f,0.75f,1.0f);// color filter [red,green,blue]
-vec3 postfx_color(1.75f,1.75f,0.5f);  // color modifier [brightness,contrast,grayscale]
-vec3 postfx_retrace(0.025f,2.0f,4.0f);// retrace [color,length,speed]
+vec3 postfx_color(1.8f,1.8f,0.5f);    // color modifier [brightness,contrast,grayscale]
+vec3 postfx_retrace(0.04f,2.0f,4.0f); // retrace [color,length,speed]
 vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
 float postfx_noise = 0.125f;    // noise
 float postfx_aberration = 3.0f; // chromatic aberration
@@ -182,8 +192,6 @@ bool postfx_scanline = true;    // scanline
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f);// vertical scanline [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f);// horizontal scanline [base,variable,repeat x,repeat y]
 //------------------------------//
-//00:29 <@sam> Array<vec4> toto;
-//00:29 <@sam> toto << vec4(1.f, 2.f, 3.f, 4.f);
 vec4 setup_var[]={
     vec4(0), /* remanency */
         vec4(0, 1, 1, 1),
@@ -194,17 +202,27 @@ vec4 setup_var[]={
         vec4(0),
         vec4(0),
         vec4(0),
-    vec4(0), /* glow/blur */
+    vec4(0), /* glow */
         vec4(0, 1, 1, 0),
+        vec4(0.0f, 1.0f, 0.1f, glow_mix.x),
+        vec4(0.0f, 1.0f, 0.1f, glow_mix.y),
         vec4(0.0f, 8.0f, 0.1f, glow_large.x),
         vec4(0.0f, 8.0f, 0.1f, glow_large.y),
         vec4(0.0f, 4.0f, 0.1f, glow_small.x),
         vec4(0.0f, 4.0f, 0.1f, glow_small.y),
+    vec4(0), /* blur */
         vec4(0, 1, 1, 0),
         vec4(0.0f, 2.0f, 0.1f, blur.x),
         vec4(0.0f, 2.0f, 0.1f, blur.y),
     vec4(0) /* color */
     };
+
+void Render::UpdateVar(int key)
+{
+    int k = key;
+    m_shader_remanency = (setup_var[k].w == 1) ? true : false; k += 8;
+    m_shader_glow = (setup_var[k].w == 1) ? true : false;
+}
 
 Shader *shader_simple;
 Shader *shader_blur_h, *shader_blur_v;
@@ -402,11 +420,9 @@ void Render::TickDraw(float seconds)
     }
     if (Input::GetButtonState(283/*SDLK_F2*/) && (timer - timer_key > timer_key_repeat))
     {
-        /*
         m_polygon = !m_polygon;
         polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
         glPolygonMode(GL_FRONT, polygon_fillmode);
-        */
         timer_key = timer;
     }
     if (Input::GetButtonState(284/*SDLK_F3*/) && (timer - timer_key > timer_key_repeat))
@@ -423,6 +439,14 @@ void Render::TickDraw(float seconds)
     if (Input::GetButtonState(286/*SDLK_F5*/))
     {
         Pause();
+    }
+   if (Input::GetButtonState(9/*SDLK_TAB*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        if (m_setup)
+        {
+            setup_switch = !setup_switch;
+        }
+        timer_key = timer;
     }
     if (Input::GetButtonState(273/*SDLK_UP*/)&&(timer-timer_key>timer_key_repeat))
     {
@@ -464,9 +488,9 @@ void Render::TickDraw(float seconds)
     {
         if (m_setup && setup_switch)
         {
-            int k = setup_option * (setup_item_n + 1) + 1 + setup_item;
-            setup_var[k].w -= setup_var[k].z;
-            if (setup_var[k].w < setup_var[k].x) setup_var[k].w = setup_var[k].x;
+            setup_var[setup_item_key].w -= setup_var[setup_item_key].z;
+            if (setup_var[setup_item_key].w < setup_var[setup_item_key].x) setup_var[setup_item_key].w = setup_var[setup_item_key].x;
+            Render::UpdateVar(setup_item_key);
         }
         timer_key = timer;
     }
@@ -474,18 +498,14 @@ void Render::TickDraw(float seconds)
     {
         if (m_setup && setup_switch)
         {
-            int k = setup_option * (setup_item_n + 1) + 1 + setup_item;
-            setup_var[k].w += setup_var[k].z;
-            if (setup_var[k].w > setup_var[k].y) setup_var[k].w = setup_var[k].y;
+            setup_var[setup_item_key].w += setup_var[setup_item_key].z;
+            if (setup_var[setup_item_key].w > setup_var[setup_item_key].y) setup_var[setup_item_key].w = setup_var[setup_item_key].y;
+            Render::UpdateVar(setup_item_key);
         }
         timer_key = timer;
     }
     if (Input::GetButtonState(13/*SDLK_RETURN*/)&&(timer-timer_key>timer_key_repeat))
     {
-        if (m_setup)
-        {
-            setup_switch = !setup_switch;
-        }
         timer_key = timer;
     }
 
@@ -595,11 +615,11 @@ void Render::TickDraw(float seconds)
         caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
         if (setup_switch)
         {
-            int k = setup_option * (setup_item_n + 1) + 1 + setup_item;
+            setup_item_key = setup_option * (setup_item_n + 1) + 1 + setup_item;
             int w = setup_size.x - 3 - 4;
-            caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[k].w);
-            caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + w, y,'-');
-            if(setup_var[k].w > setup_var[k].x) caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + int(w / (setup_var[k].y - setup_var[k].x) * setup_var[k].w), y,'X');
+            caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
+            caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + w, y,'.');
+            if(setup_var[setup_item_key].w > setup_var[setup_item_key].x) caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + int(w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x) * setup_var[setup_item_key].w), y,'x');
         }
     }
 
