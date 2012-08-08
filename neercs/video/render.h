@@ -25,7 +25,7 @@ private:
     int InitDraw();
     void Pause();
     void Shader();
-    void UpdateVar(int key);
+    void UpdateVar();
 
     caca_canvas_t *m_caca;
     bool m_ready;

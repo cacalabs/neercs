@@ -170,8 +170,8 @@ char const *setup_text[] = {
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
-vec2 buffer(0.8f,0.2f);         // [new frame mix,old frame mix]
-vec2 remanency(0.2f,0.8f);      // remanency [source mix,buffer mix]
+vec2 buffer(0.7f,0.3f);         // [new frame mix,old frame mix]
+vec2 remanency(0.3f,0.7f);      // remanency [source mix,buffer mix]
 vec2 glow_mix(0.5f,0.5f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
@@ -206,22 +206,33 @@ vec4 setup_var[]={
         vec4(0, 1, 1, 0),
         vec4(0.0f, 1.0f, 0.1f, glow_mix.x),
         vec4(0.0f, 1.0f, 0.1f, glow_mix.y),
-        vec4(0.0f, 8.0f, 0.1f, glow_large.x),
-        vec4(0.0f, 8.0f, 0.1f, glow_large.y),
-        vec4(0.0f, 4.0f, 0.1f, glow_small.x),
-        vec4(0.0f, 4.0f, 0.1f, glow_small.y),
+        vec4(0.0f, 4.0f, 0.05f, glow_large.x),
+        vec4(0.0f, 4.0f, 0.05f, glow_large.y),
+        vec4(0.0f, 2.0f, 0.05f, glow_small.x),
+        vec4(0.0f, 2.0f, 0.05f, glow_small.y),
+        vec4(0),
     vec4(0), /* blur */
         vec4(0, 1, 1, 0),
-        vec4(0.0f, 2.0f, 0.1f, blur.x),
-        vec4(0.0f, 2.0f, 0.1f, blur.y),
+        vec4(0.0f, 2.0f, 0.05f, blur.x),
+        vec4(0.0f, 2.0f, 0.05f, blur.y),
     vec4(0) /* color */
     };
 
-void Render::UpdateVar(int key)
+void Render::UpdateVar()
 {
-    int k = key;
-    m_shader_remanency = (setup_var[k].w == 1) ? true : false; k += 8;
-    m_shader_glow = (setup_var[k].w == 1) ? true : false;
+    int k = 1;
+    m_shader_remanency = (setup_var[k].w == 1) ? true : false; k++;
+    buffer = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    remanency = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    k += 4;
+    m_shader_glow = (setup_var[k].w == 1) ? true : false; k++;
+    glow_mix = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    glow_large = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    glow_small = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    k += 2;
+    m_shader_blur = (setup_var[k].w == 1) ? true : false; k++;
+    blur = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    k += 6;
 }
 
 Shader *shader_simple;
@@ -490,7 +501,7 @@ void Render::TickDraw(float seconds)
         {
             setup_var[setup_item_key].w -= setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w < setup_var[setup_item_key].x) setup_var[setup_item_key].w = setup_var[setup_item_key].x;
-            Render::UpdateVar(setup_item_key);
+            Render::UpdateVar();
         }
         timer_key = timer;
     }
@@ -500,7 +511,7 @@ void Render::TickDraw(float seconds)
         {
             setup_var[setup_item_key].w += setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w > setup_var[setup_item_key].y) setup_var[setup_item_key].w = setup_var[setup_item_key].y;
-            Render::UpdateVar(setup_item_key);
+            Render::UpdateVar();
         }
         timer_key = timer;
     }
