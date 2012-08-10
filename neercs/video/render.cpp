@@ -122,7 +122,7 @@ char const *setup_text[] = {
         "small corner",
         "",
     "blur",
-        "blur enable",
+        "enable",
         "blur center",
         "blur corner",
         "",
@@ -131,6 +131,7 @@ char const *setup_text[] = {
         "",
         "",
     "color",
+        "postfx enable",
         "filter red",
         "filter green",
         "filter blue",
@@ -138,16 +139,24 @@ char const *setup_text[] = {
         "contrast",
         "grayscale",
         "",
-        "",
     "modifier",
         "deform ratio",
-        "retrace color",
+        "retrace strength",
         "retrace length",
         "retrace speed",
+        "",
+        "",
+        "",
+        "",
+    "noise",
         "offset h",
         "offset v",
         "noise",
         "aberration",
+        "",
+        "",
+        "",
+        "",
     "moire",
         "h base",
         "h variable",
@@ -175,15 +184,15 @@ vec2 remanency(0.3f,0.7f);      // remanency [source mix,buffer mix]
 vec2 glow_mix(0.5f,0.5f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
-vec2 blur(0.25f,0.75f);         // glow radius [center,corner]
+vec2 blur(0.25f,0.5f);          // glow radius [center,corner]
 //vec3 radial(2.0f,0.8f,0);     // radial [mix,strength,color mode]
 //------------------------------// [IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
-float postfx_deform = 0.625f;   // deformation ratio
-vec3 postfx_filter(0.875f,0.75f,1.0f);// color filter [red,green,blue]
+float postfx_deform = 0.7f;     // deformation ratio
+vec3 postfx_filter(0.8f,0.9f,0.4f);// color filter [red,green,blue]
 vec3 postfx_color(1.8f,1.8f,0.5f);    // color modifier [brightness,contrast,grayscale]
-vec3 postfx_retrace(0.04f,2.0f,4.0f); // retrace [color,length,speed]
+vec3 postfx_retrace(0.05f,2.0f,4.0f); // retrace [strength,length,speed]
 vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
-float postfx_noise = 0.125f;    // noise
+float postfx_noise = 0.15f;     // noise
 float postfx_aberration = 3.0f; // chromatic aberration
 bool postfx_moire = true;       // moire
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);
@@ -206,16 +215,48 @@ vec4 setup_var[]={
         vec4(0, 1, 1, 0),
         vec4(0.0f, 1.0f, 0.1f, glow_mix.x),
         vec4(0.0f, 1.0f, 0.1f, glow_mix.y),
-        vec4(0.0f, 4.0f, 0.05f, glow_large.x),
-        vec4(0.0f, 4.0f, 0.05f, glow_large.y),
-        vec4(0.0f, 2.0f, 0.05f, glow_small.x),
-        vec4(0.0f, 2.0f, 0.05f, glow_small.y),
+        vec4(0.0f, 4.0f, 0.1f, glow_large.x),
+        vec4(0.0f, 4.0f, 0.1f, glow_large.y),
+        vec4(0.0f, 2.0f, 0.1f, glow_small.x),
+        vec4(0.0f, 2.0f, 0.1f, glow_small.y),
         vec4(0),
     vec4(0), /* blur */
         vec4(0, 1, 1, 0),
-        vec4(0.0f, 2.0f, 0.05f, blur.x),
-        vec4(0.0f, 2.0f, 0.05f, blur.y),
-    vec4(0) /* color */
+        vec4(0.0f, 2.0f, 0.1f, blur.x),
+        vec4(0.0f, 2.0f, 0.1f, blur.y),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+    vec4(0), /* color */
+        vec4(0, 1, 1, 0),
+        vec4(0.0f, 1.0f, 0.1f, postfx_filter.x),
+        vec4(0.0f, 1.0f, 0.1f, postfx_filter.y),
+        vec4(0.0f, 1.0f, 0.1f, postfx_filter.z),
+        vec4(0.0f, 4.0f, 0.1f, postfx_color.x),
+        vec4(0.0f, 4.0f, 0.1f, postfx_color.y),
+        vec4(0.0f, 1.5f, 0.1f, postfx_color.z),
+        vec4(0),
+    vec4(0), /* modifier */
+        vec4(0.0f, 1.0f, 0.05f, postfx_deform),
+        vec4(0.0f, 1.0f, 0.05f, postfx_retrace.x),
+        vec4(0.0f, 8.0f, 1.0f, postfx_retrace.y),
+        vec4(0.0f, 8.0f, 1.0f, postfx_retrace.z),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+    vec4(0), /* noise */
+        vec4(0.0f, 4.0f, 0.5f, postfx_offset.x),
+        vec4(0.0f, 4.0f, 0.5f, postfx_offset.y),
+        vec4(0.0f, 1.0f, 0.05f, postfx_noise),
+        vec4(0.0f, 5.0f, 0.5f, postfx_aberration),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+    vec4(0)
     };
 
 void Render::UpdateVar()
@@ -233,6 +274,17 @@ void Render::UpdateVar()
     m_shader_blur = (setup_var[k].w == 1) ? true : false; k++;
     blur = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     k += 6;
+    m_shader_postfx = (setup_var[k].w == 1) ? true : false; k++;
+    postfx_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
+    postfx_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
+    k += 2;
+    postfx_deform = setup_var[k].w; k++;
+    postfx_retrace = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
+    k += 5;
+    postfx_offset = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    postfx_noise = setup_var[k].w; k++;
+    postfx_aberration = setup_var[k].w; k++;
+    k += 5;
 }
 
 Shader *shader_simple;
