@@ -37,7 +37,6 @@ private:
     bool m_shader_blur;
     bool m_shader_glow;
     bool m_shader_postfx;
-    bool m_border;
 };
 
 #endif // __VIDEO_RENDER_H__
