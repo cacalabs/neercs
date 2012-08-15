@@ -590,6 +590,37 @@ void Render::TickDraw(float seconds)
         }
         timer_key = timer;
     }
+    if (Input::GetButtonState(280/*SDLK_PAGEUP*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        if (m_setup)
+        {
+            if (!setup_switch)
+            {
+                setup_option = 0;
+            }
+            else
+            {
+                setup_item = 0;
+            }
+        }
+        timer_key = timer;
+    }
+    if (Input::GetButtonState(281/*SDLK_PAGEDOWN*/)&&(timer-timer_key>timer_key_repeat))
+    {
+        if (m_setup)
+        {
+            if (!setup_switch)
+            {
+                setup_option = setup_option_n - 1;
+                setup_item = 0;
+            }
+            else
+            {
+                setup_item = setup_item_n - 1;
+            }
+        }
+        timer_key = timer;
+    }
     if (Input::GetButtonState(276/*SDLK_LEFT*/)&&(timer-timer_key>timer_key_repeat))
     {
         if (m_setup && setup_switch)
