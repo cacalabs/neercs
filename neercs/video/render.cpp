@@ -84,6 +84,28 @@ bool beat_flag = false;    // flag
 float beat_angle = 0;      // angle
 float beat_value = 0;      // value
 float beat_speed = 2.0f;   // speed
+/* common variable */
+float value, angle, radius, scale, speed;
+/* shader variable */
+vec2 buffer(0.7f,0.3f);         // [new frame mix,old frame mix]
+vec2 remanency(0.3f,0.7f);      // remanency [source mix,buffer mix]
+vec2 glow_mix(0.6f,0.4f);       // glow mix [source mix,glow mix]
+vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
+vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
+vec2 blur(0.25f,0.5f);          // glow radius [center,corner]
+vec2 postfx_deform(0.7f,0.54f); // deformation [ratio,zoom]
+vec3 postfx_filter(0.8f,0.9f,0.4f);   // color filter [red,green,blue]
+vec3 postfx_color(1.8f,1.5f,0.5f);    // color modifier [brightness,contrast,grayscale]
+vec2 postfx_corner(0.75f,0.95f);      // corner [radius,blur]
+vec3 postfx_retrace(0.05f,2.0f,4.0f); // retrace [strength,length,speed]
+vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
+float postfx_noise = 0.15f;     // noise
+float postfx_aberration = 3.0f; // chromatic aberration
+vec4 postfx_ghost(0.1f,0.25f,0.1f,0.5f);        // ghost picture [distance,strength,distance,strength]
+vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
+vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
+vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
+vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat x,repeat y]
 /* window variable */
 ivec2 border;              // border width
 /* text variable */
@@ -93,16 +115,27 @@ ivec2 font_size(8,8);      // font size
 ivec2 canvas_char(0,0);    // canvas char number
 ivec2 canvas_size(0,0);    // caca size
 /* setup variable */
-bool setup_switch=false;        // switch [option/item]
-int setup_option=0;             // selected option
-int setup_option_n=9;           // option number
-int setup_item=0;               // selected item
-int setup_item_n=8;             // item number
-int setup_item_key=0;           // item array key
+bool setup_switch = false;      // switch [option/item]
+int setup_option = 0;           // selected option
+int setup_option_n = 10;        // option number
+int setup_item = 0;             // selected item
+int setup_item_n = 8;           // item number
+int setup_item_key = 0;         // item array key
+int setup_n = 0;                // contextual option/item number
 ivec2 setup_p(1,1);             // position [x,y]
 ivec3 setup_size(30,0,12);      // size [w,h,split]
-ivec2 setup_color(0x678,0x234); // size [w,h]
+ivec2 setup_color(0x678,0x234); // color [foreground,background]
+//vec3 radial(2.0f,0.8f,0);     // radial [mix,strength,color mode]
 char const *setup_text[] = {
+    "theme",
+        "default",
+        "ye olde monitor",
+        "green screen",
+        "",
+        "",
+        "",
+        "",
+        "",
     "remanency",
         "enable",
         "buffer new frame",
@@ -134,9 +167,9 @@ char const *setup_text[] = {
         "enable",
         "deform ratio",
         "zoom base",
-        "zoom variable",
         "corner radius",
         "corner blur",
+        "",
         "",
         "",
     "color",
@@ -185,32 +218,16 @@ char const *setup_text[] = {
         "v repeat x",
         "v repeat y"
     };
-/* common variable */
-float value, angle, radius, scale, speed;
-/* shader variable */
-vec2 buffer(0.7f,0.3f);         // [new frame mix,old frame mix]
-vec2 remanency(0.3f,0.7f);      // remanency [source mix,buffer mix]
-vec2 glow_mix(0.6f,0.4f);       // glow mix [source mix,glow mix]
-vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
-vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
-vec2 blur(0.25f,0.5f);          // glow radius [center,corner]
-//vec3 radial(2.0f,0.8f,0);     // radial [mix,strength,color mode]
-//------------------------------// [IDEAS] http://www.youtube.com/watch?v=d1qEP2vMe-I
-vec2 postfx_deform(0.7f,0.54f); // deformation [ratio,zoom]
-vec3 postfx_filter(0.8f,0.9f,0.4f);   // color filter [red,green,blue]
-vec3 postfx_color(1.8f,1.5f,0.5f);    // color modifier [brightness,contrast,grayscale]
-vec2 postfx_corner(0.75f,0.95f);      // corner [radius,blur]
-vec3 postfx_retrace(0.05f,2.0f,4.0f); // retrace [strength,length,speed]
-vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
-float postfx_noise = 0.15f;     // noise
-float postfx_aberration = 3.0f; // chromatic aberration
-vec4 postfx_ghost(0.1f,0.25f,0.1f,0.5f);        // ghost picture [distance,strength,distance,strength]
-vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
-vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
-vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
-vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat x,repeat y]
-//------------------------------//
-vec4 setup_var[]={
+vec4 setup_var[]={ // setup variable [start,end,step,value]
+    vec4(0), /* theme */
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
     vec4(0), /* remanency */
         vec4(0, 1, 1, 1),
         vec4(0.0f, 1.0f, 0.1f, buffer.x),
@@ -297,38 +314,51 @@ vec4 setup_var[]={
 
 void Render::UpdateVar()
 {
-    int k = 1;
+    int k = 1; /* theme */
+    k += 9; /* remanency */
     m_shader_remanency = (setup_var[k].w == 1) ? true : false; k++;
     buffer = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     remanency = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    k += 4;
+    k += 4; /* glow */
     m_shader_glow = (setup_var[k].w == 1) ? true : false; k++;
     glow_mix = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     glow_large = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     glow_small = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    k += 2;
+    k += 2; /* blur */
     m_shader_blur = (setup_var[k].w == 1) ? true : false; k++;
     blur = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    k += 6;
+    k += 6; /* screen */
     m_shader_postfx = (setup_var[k].w == 1) ? true : false; k++;
     postfx_deform = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_corner = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    k += 4;
+    k += 4; /* color */
     postfx_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
-    k += 3;
+    k += 3; /* noise */
     postfx_offset = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_noise = setup_var[k].w; k++;
     postfx_aberration = setup_var[k].w; k++;
     postfx_retrace = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
-    k += 2;
+    k += 2; /* ghost */
     postfx_ghost = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    k += 5;
+    k += 5; /* moire */
     postfx_moire_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_moire_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    k++;
+    k++; /* scanline */
     postfx_scanline_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_scanline_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+}
+
+int calc_item_length()
+{
+    int n = !setup_switch ? setup_option_n : setup_item_n;
+    int v = 0;
+    for (int i = 0; i < n; i++)
+    {
+        int k = !setup_switch ? (i * (setup_item_n + 1)) : (setup_option * (setup_item_n + 1) + 1 + i);
+        if (setup_text[k] == "") return i;
+    }
+    return n - 1;
 }
 
 Shader *shader_simple;
@@ -485,6 +515,8 @@ int Render::CreateGLWindow()
     setup_size.y = ((setup_option_n > setup_item_n) ? setup_option_n : setup_item_n) + 1;
     setup_p = (canvas_char - setup_size.xy) / 2;
 
+    setup_n = calc_item_length();
+
     InitDraw();
     return true;
 }
@@ -551,6 +583,7 @@ void Render::TickDraw(float seconds)
         if (m_setup)
         {
             setup_switch = !setup_switch;
+            setup_n = calc_item_length();
         }
         timer_key = timer;
     }
@@ -561,13 +594,13 @@ void Render::TickDraw(float seconds)
             if (!setup_switch)
             {
                 setup_option--;
-                if (setup_option < 0) setup_option = setup_option_n - 1;
+                if (setup_option < 0) setup_option = setup_n;
                 setup_item = 0;
             }
             else
             {
                 setup_item--;
-                if (setup_item < 0) setup_item = setup_item_n - 1;
+                if (setup_item < 0) setup_item = setup_n;
             }
         }
         timer_key = timer;
@@ -579,13 +612,13 @@ void Render::TickDraw(float seconds)
             if (!setup_switch)
             {
                 setup_option++;
-                if (setup_option > setup_option_n - 1) setup_option = 0;
+                if (setup_option > setup_n) setup_option = 0;
                 setup_item = 0;
             }
             else
             {
                 setup_item++;
-                if (setup_item > setup_item_n - 1) setup_item = 0;
+                if (setup_item > setup_n) setup_item = 0;
             }
         }
         timer_key = timer;
@@ -611,12 +644,12 @@ void Render::TickDraw(float seconds)
         {
             if (!setup_switch)
             {
-                setup_option = setup_option_n - 1;
+                setup_option = setup_n;
                 setup_item = 0;
             }
             else
             {
-                setup_item = setup_item_n - 1;
+                setup_item = setup_n;
             }
         }
         timer_key = timer;
@@ -733,17 +766,17 @@ void Render::TickDraw(float seconds)
         for (int i = 0; i < setup_item_n; i++)
         {
             int y = setup_p.y + 1 + i;
-            int k = setup_option * (setup_item_n + 1) + 1;
+            int k = setup_option * (setup_item_n + 1) + 1 + i;
             if (setup_item != i || !setup_switch)
             {
                 caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k + i]);
+                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
             }
             else
             {
                 caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
                 caca_draw_line(m_caca, setup_p.x + setup_size.z, y, setup_p.x + setup_size.x, y,' ');
-                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k + i]);
+                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
             }
         }
         /* display variable */
@@ -751,7 +784,7 @@ void Render::TickDraw(float seconds)
         setup_item_key = setup_option * (setup_item_n + 1) + 1 + setup_item;
         caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
         caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
-        if (setup_switch && setup_text[setup_item_key] != "")
+        if (setup_switch)
         {
             int w = setup_size.x - 3 - 4;
             int bar_w = (w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x) * setup_var[setup_item_key].w);
