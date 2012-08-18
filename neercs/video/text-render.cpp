@@ -150,9 +150,14 @@ void TextRender::Render()
 
 void TextRender::Blit(ivec2 pos, ivec2 size)
 {
+    /* FIXME: this is ugly! But we will get rid of it when we
+     * do the Direct3D port, so don't worry too much. */
+    ShaderTexture t = m_fbo->GetTexture();
+    uint64_t const &x = *(uint64_t const *)&t;
+
     glDisable(GL_BLEND);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, m_fbo->GetTexture());
+    glBindTexture(GL_TEXTURE_2D, (int)x);
     glColor3f(1.0f, 1.0f, 1.0f);
 
     vec2 tc = (vec2)m_canvas_size * m_font_size / m_fbo_size;
@@ -169,3 +174,4 @@ void TextRender::Blit(ivec2 pos, ivec2 size)
         glVertex2i(pos.x + size.x, pos.y + size.y);
     glEnd();
 }
+
