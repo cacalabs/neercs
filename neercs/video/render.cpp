@@ -818,10 +818,11 @@ void Render::Draw2D()
 
     /* Clear the back buffer */
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_COLOR,GL_DST_ALPHA);
-    glClearColor(screen_color.r, screen_color.g, screen_color.b, 1.0f);
-    glClearDepth(1.0f); // set depth buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
+
+    Video::SetClearColor(vec4(screen_color, 1.f));
+    Video::SetClearDepth(1.0f); // set depth buffer
+    Video::Clear(ClearMask::Color | ClearMask::Depth);
 
     text_render->Blit(border, canvas_size);
 
