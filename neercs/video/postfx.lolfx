@@ -60,16 +60,16 @@ void main(void)
 	vec2 p=-1.0+2.0*gl_FragCoord.xy/screen_size.xy;
 	p.y+=0.025*sync;
 	vec2 z =screen(p,deform.y);
-	vec2 z1=screen(p,deform.y-ghost.x*0.1);
-	vec2 z2=screen(p,deform.y+ghost.z*0.1);
+	vec2 z1=screen(p,deform.y+ghost.x*0.01);
+	vec2 z2=screen(p,deform.y+ghost.z*0.01);
 	float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);
 
 	vec2 rnd=vec2(rand(vec2(p.x+time,p.y-time)),rand(vec2(p.x-time,p.y+time)));
 
 	vec2 o=(offset-offset*2.0*rnd.x)/screen_size;			// offset
 	vec3 source=get_color(texture,z+o);						// offset added to source
-	vec3 glass1=get_color(texture,z1);
-	vec3 glass2=get_color(texture,z2);
+	vec3 glass1=get_color(texture,z1-vec2(0.25,0.0));
+	vec3 glass2=get_color(texture,z2-vec2(0.25,0.0));
 
 	float v=aberration/float(screen_size.x)+aberration/float(screen_size.x)*(2.0-mask);
 

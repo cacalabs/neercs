@@ -101,7 +101,7 @@ vec3 postfx_retrace(0.05f,2.0f,4.0f); // retrace [strength,length,speed]
 vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
 float postfx_noise = 0.15f;     // noise
 float postfx_aberration = 3.0f; // chromatic aberration
-vec4 postfx_ghost(0.1f,0.25f,0.1f,0.5f);        // ghost picture [distance,strength,distance,strength]
+vec4 postfx_ghost(0.1f,-0.25f,0.1f,0.5f);        // ghost picture [distance,strength,distance,strength]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
@@ -283,10 +283,10 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0.0f, 4.0f, 0.25f, postfx_retrace.z),
         vec4(0),
     vec4(0), /* ghost */
-        vec4(0.0f, 0.2f, 0.01f, postfx_ghost.x),
-        vec4(0.0f, 1.0f, 0.05f, postfx_ghost.y),
-        vec4(0.0f, 0.2f, 0.01f, postfx_ghost.z),
-        vec4(0.0f, 1.0f, 0.05f, postfx_ghost.w),
+        vec4(0.0f, 2.0f, 0.1f, postfx_ghost.x),
+        vec4(-1.0f, 1.0f, 0.1f, postfx_ghost.y),
+        vec4(0.0f, 2.0f, 0.1f, postfx_ghost.z),
+        vec4(-1.0f, 1.0f, 0.1f, postfx_ghost.w),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -296,8 +296,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(-0.5f, 0.5f, 0.05f, postfx_moire_h.y),
         vec4(0.0f, 4.0f, 0.5f, postfx_moire_h.z),
         vec4(0.0f, 4.0f, 0.5f, postfx_moire_h.w),
-        vec4(0.5f, 1.0f, 0.1f, postfx_moire_v.x),
-        vec4(-0.5f, 0.5f, 0.1f, postfx_moire_v.y),
+        vec4(0.5f, 1.0f, 0.05f, postfx_moire_v.x),
+        vec4(-0.5f, 0.5f, 0.05f, postfx_moire_v.y),
         vec4(0.0f, 4.0f, 0.5f, postfx_moire_v.z),
         vec4(0.0f, 4.0f, 0.5f, postfx_moire_v.w),
     vec4(0), /* scanline */
@@ -305,8 +305,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_h.y),
         vec4(0.0f, 4.0f, 0.5f, postfx_scanline_h.z),
         vec4(0.0f, 4.0f, 0.5f, postfx_scanline_h.w),
-        vec4(0.5f, 1.0f, 0.1f, postfx_scanline_v.x),
-        vec4(-0.5f, 0.5f, 0.1f, postfx_scanline_v.y),
+        vec4(0.5f, 1.0f, 0.05f, postfx_scanline_v.x),
+        vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_v.y),
         vec4(0.0f, 4.0f, 0.5f, postfx_scanline_v.z),
         vec4(0.0f, 4.0f, 0.5f, postfx_scanline_v.w),
     vec4(0)
@@ -356,7 +356,7 @@ int calc_item_length()
     for (int i = 0; i < n; i++)
     {
         int k = !setup_switch ? (i * (setup_item_n + 1)) : (setup_option * (setup_item_n + 1) + 1 + i);
-        if (setup_text[k] == "") return i;
+        if (setup_text[k] == "") return i - 1;
     }
     return n - 1;
 }
@@ -786,13 +786,15 @@ void Render::TickDraw(float seconds)
         caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
         if (setup_switch)
         {
+            int x = setup_p.x + 1;
             int w = setup_size.x - 3 - 4;
-            int bar_w = (w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x) * setup_var[setup_item_key].w);
+            int bar_w = w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x);
+            int bar_x = bar_w * setup_var[setup_item_key].x;
             if ((setup_var[setup_item_key].y - setup_var[setup_item_key].x) / setup_var[setup_item_key].z > 2)
             {
                 caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
-                caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + w, y,'.');
-                if(setup_var[setup_item_key].w > setup_var[setup_item_key].x) caca_draw_line(m_caca, setup_p.x + 1, y, setup_p.x + 1 + bar_w, y,'x');
+                caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].y, y,'.');
+                if(setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y,'x');
             }
             else
             {
