@@ -77,7 +77,7 @@ float fade_speed = 0.2f;   // speed
 /* sync variable */
 bool sync_flag = false;    // flagsh
 float sync_angle = 0;      // angle
-float sync_value = 1.0f;   // value
+float sync_value = 0;      // value
 float sync_speed = 1.0f;   // speed
 /* beat variable */
 bool beat_flag = false;    // flag
@@ -97,11 +97,13 @@ vec2 postfx_deform(0.7f,0.54f); // deformation [ratio,zoom]
 vec3 postfx_filter(0.8f,0.9f,0.4f);   // color filter [red,green,blue]
 vec3 postfx_color(1.8f,1.5f,0.5f);    // color modifier [brightness,contrast,grayscale]
 vec2 postfx_corner(0.75f,0.95f);      // corner [radius,blur]
+float postfx_vignetting = -0.5f;      // vignetting strength
 vec3 postfx_retrace(0.05f,2.0f,4.0f); // retrace [strength,length,speed]
 vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
 float postfx_noise = 0.15f;     // noise
-float postfx_aberration = 3.0f; // chromatic aberration
-vec4 postfx_ghost(0.1f,-0.25f,0.1f,0.5f);        // ghost picture [distance,strength,distance,strength]
+float postfx_aberration = 4.0f; // chromatic aberration
+vec4 postfx_ghost1(0.01f,0.0f,0.1f,-0.4f);      // ghost picture 1 [position x,position y,position z,strength]
+vec4 postfx_ghost2(0.02f,0.0f,0.1f,0.4f);       // ghost picture 2 [position x,position y,position z,strength]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
@@ -169,7 +171,7 @@ char const *setup_text[] = {
         "zoom base",
         "corner radius",
         "corner blur",
-        "",
+        "vignetting",
         "",
         "",
     "color",
@@ -191,14 +193,14 @@ char const *setup_text[] = {
         "retrace speed",
         "",
     "ghost",
-        "back distance",
+        "back x",
+        "back y",
+        "back z",
         "back strength",
-        "front distance",
+        "front x",
+        "front y",
+        "front z",
         "front strength",
-        "",
-        "",
-        "",
-        "",
     "moire",
         "h base",
         "h variable",
@@ -256,12 +258,12 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0),
         vec4(0),
     vec4(0), /* screen */
-        vec4(0, 1, 1, 1),
-        vec4(0.0f, 1.0f, 0.05f, postfx_deform.x),
-        vec4(0.5f, 0.7f, 0.01f, postfx_deform.y),
-        vec4(0.0f, 1.0f, 0.05f, postfx_corner.x),
-        vec4(0.0f, 1.0f, 0.05f, postfx_corner.y),
-        vec4(0),
+        vec4( 0, 1, 1, 1),
+        vec4( 0.0f, 1.0f, 0.05f, postfx_deform.x),
+        vec4( 0.5f, 0.7f, 0.01f, postfx_deform.y),
+        vec4( 0.0f, 1.0f, 0.05f, postfx_corner.x),
+        vec4( 0.0f, 1.0f, 0.05f, postfx_corner.y),
+        vec4(-1.0f, 1.0f, 0.10f, postfx_vignetting),
         vec4(0),
         vec4(0),
     vec4(0), /* color */
@@ -274,41 +276,41 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0),
         vec4(0),
     vec4(0), /* noise */
-        vec4(0.0f, 4.0f, 0.5f, postfx_offset.x),
-        vec4(0.0f, 4.0f, 0.5f, postfx_offset.y),
+        vec4(0.0f, 4.0f, 0.50f, postfx_offset.x),
+        vec4(0.0f, 4.0f, 0.50f, postfx_offset.y),
         vec4(0.0f, 1.0f, 0.05f, postfx_noise),
-        vec4(0.0f, 5.0f, 0.5f, postfx_aberration),
+        vec4(0.0f, 8.0f, 0.50f, postfx_aberration),
         vec4(0.0f, 0.2f, 0.01f, postfx_retrace.x),
-        vec4(0.0f, 8.0f, 0.5f, postfx_retrace.y),
+        vec4(0.0f, 8.0f, 0.50f, postfx_retrace.y),
         vec4(0.0f, 4.0f, 0.25f, postfx_retrace.z),
         vec4(0),
     vec4(0), /* ghost */
-        vec4(0.0f, 2.0f, 0.1f, postfx_ghost.x),
-        vec4(-1.0f, 1.0f, 0.1f, postfx_ghost.y),
-        vec4(0.0f, 2.0f, 0.1f, postfx_ghost.z),
-        vec4(-1.0f, 1.0f, 0.1f, postfx_ghost.w),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-        vec4(0),
+        vec4(-0.5f, 0.5f, 0.01f, postfx_ghost1.x),
+        vec4(-0.5f, 0.5f, 0.01f, postfx_ghost1.y),
+        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost1.z),
+        vec4(-1.0f, 1.0f, 0.05f, postfx_ghost1.w),
+        vec4(-0.5f, 0.5f, 0.01f, postfx_ghost2.x),
+        vec4(-0.5f, 0.5f, 0.01f, postfx_ghost2.y),
+        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.z),
+        vec4(-1.0f, 1.0f, 0.05f, postfx_ghost2.w),
     vec4(0), /* moire */
-        vec4(0.5f, 1.0f, 0.05f, postfx_moire_h.x),
+        vec4( 0.5f, 1.0f, 0.05f, postfx_moire_h.x),
         vec4(-0.5f, 0.5f, 0.05f, postfx_moire_h.y),
-        vec4(0.0f, 4.0f, 0.5f, postfx_moire_h.z),
-        vec4(0.0f, 4.0f, 0.5f, postfx_moire_h.w),
-        vec4(0.5f, 1.0f, 0.05f, postfx_moire_v.x),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_h.z),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_h.w),
+        vec4( 0.5f, 1.0f, 0.05f, postfx_moire_v.x),
         vec4(-0.5f, 0.5f, 0.05f, postfx_moire_v.y),
-        vec4(0.0f, 4.0f, 0.5f, postfx_moire_v.z),
-        vec4(0.0f, 4.0f, 0.5f, postfx_moire_v.w),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_v.z),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_v.w),
     vec4(0), /* scanline */
-        vec4(0.5f, 1.0f, 0.05f, postfx_scanline_h.x),
+        vec4( 0.5f, 1.0f, 0.05f, postfx_scanline_h.x),
         vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_h.y),
-        vec4(0.0f, 4.0f, 0.5f, postfx_scanline_h.z),
-        vec4(0.0f, 4.0f, 0.5f, postfx_scanline_h.w),
-        vec4(0.5f, 1.0f, 0.05f, postfx_scanline_v.x),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_h.z),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_h.w),
+        vec4( 0.5f, 1.0f, 0.05f, postfx_scanline_v.x),
         vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_v.y),
-        vec4(0.0f, 4.0f, 0.5f, postfx_scanline_v.z),
-        vec4(0.0f, 4.0f, 0.5f, postfx_scanline_v.w),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.z),
+        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
     vec4(0)
     };
 
@@ -331,7 +333,8 @@ void Render::UpdateVar()
     m_shader_postfx = (setup_var[k].w == 1) ? true : false; k++;
     postfx_deform = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_corner = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    k += 4; /* color */
+    postfx_vignetting = setup_var[k].w; k++;
+    k += 3; /* color */
     postfx_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     k += 3; /* noise */
@@ -340,8 +343,9 @@ void Render::UpdateVar()
     postfx_aberration = setup_var[k].w; k++;
     postfx_retrace = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     k += 2; /* ghost */
-    postfx_ghost = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    k += 5; /* moire */
+    postfx_ghost1 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+    postfx_ghost2 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+    k += 1; /* moire */
     postfx_moire_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_moire_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     k++; /* scanline */
@@ -387,10 +391,12 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_screen_size,
               shader_postfx_time,
               shader_postfx_deform,
-              shader_postfx_ghost,
+              shader_postfx_ghost1,
+              shader_postfx_ghost2,
               shader_postfx_filter,
               shader_postfx_color,
               shader_postfx_corner,
+              shader_postfx_vignetting,
               shader_postfx_retrace,
               shader_postfx_offset,
               shader_postfx_noise,
@@ -482,10 +488,12 @@ int Render::InitDraw(void)
     shader_postfx_screen_size = shader_postfx->GetUniformLocation("screen_size");
     shader_postfx_time = shader_postfx->GetUniformLocation("time");
     shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
-    shader_postfx_ghost = shader_postfx->GetUniformLocation("ghost");
+    shader_postfx_ghost1 = shader_postfx->GetUniformLocation("ghost1");
+    shader_postfx_ghost2 = shader_postfx->GetUniformLocation("ghost2");
     shader_postfx_filter = shader_postfx->GetUniformLocation("filter");
     shader_postfx_color = shader_postfx->GetUniformLocation("color");
     shader_postfx_corner = shader_postfx->GetUniformLocation("corner");
+    shader_postfx_vignetting = shader_postfx->GetUniformLocation("vignetting");
     shader_postfx_retrace = shader_postfx->GetUniformLocation("retrace");
     shader_postfx_offset = shader_postfx->GetUniformLocation("offset");
     shader_postfx_noise = shader_postfx->GetUniformLocation("noise");
@@ -554,6 +562,8 @@ void Render::TickDraw(float seconds)
     if (Input::GetButtonState(282/*SDLK_F1*/) && (timer - timer_key > timer_key_repeat))
     {
         m_setup = !m_setup;
+        sync_flag = true;
+        sync_angle = main_angle;
         timer_key = timer;
     }
     if (Input::GetButtonState(283/*SDLK_F2*/) && (timer - timer_key > timer_key_repeat))
@@ -676,6 +686,8 @@ void Render::TickDraw(float seconds)
     }
     if (Input::GetButtonState(13/*SDLK_RETURN*/)&&(timer-timer_key>timer_key_repeat))
     {
+        sync_flag = true;
+        sync_angle = main_angle;
         timer_key = timer;
     }
 
@@ -965,10 +977,12 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_screen_size, (vec2)screen_size);
         shader_postfx->SetUniform(shader_postfx_time, fx_angle);
         shader_postfx->SetUniform(shader_postfx_deform, postfx_deform);
-        shader_postfx->SetUniform(shader_postfx_ghost, postfx_ghost);
+        shader_postfx->SetUniform(shader_postfx_ghost1, postfx_ghost1);
+        shader_postfx->SetUniform(shader_postfx_ghost2, postfx_ghost2);
         shader_postfx->SetUniform(shader_postfx_filter, postfx_filter);
         shader_postfx->SetUniform(shader_postfx_color, postfx_color);
         shader_postfx->SetUniform(shader_postfx_corner, postfx_corner);
+        shader_postfx->SetUniform(shader_postfx_vignetting, postfx_vignetting);
         shader_postfx->SetUniform(shader_postfx_retrace, postfx_retrace);
         shader_postfx->SetUniform(shader_postfx_offset, postfx_offset);
         shader_postfx->SetUniform(shader_postfx_noise, postfx_noise);
@@ -978,7 +992,7 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_scanline_h, postfx_scanline_h);
         shader_postfx->SetUniform(shader_postfx_scanline_v, postfx_scanline_v);
         shader_postfx->SetUniform(shader_postfx_flash, flash_value);
-        shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(beat_value*cosf((main_angle-beat_angle)*8.0f)));
+        shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(sync_value*cosf((main_angle-sync_angle)*6.0f)));
         fs_quad();
         shader_postfx->Unbind();
     }

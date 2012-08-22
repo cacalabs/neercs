@@ -16,7 +16,8 @@ uniform sampler2D texture;
 uniform vec2 screen_size;
 uniform float time;
 uniform vec2 deform;
-uniform vec4 ghost;
+uniform vec4 ghost1;
+uniform vec4 ghost2;
 uniform vec3 filter;
 uniform vec3 color;
 uniform vec3 retrace;
@@ -28,6 +29,7 @@ uniform vec4 moire_v;
 uniform vec4 scanline_h;
 uniform vec4 scanline_v;
 uniform vec2 corner;
+uniform float vignetting;
 uniform float flash;
 uniform float sync;
 
@@ -60,16 +62,16 @@ void main(void)
 	vec2 p=-1.0+2.0*gl_FragCoord.xy/screen_size.xy;
 	p.y+=0.025*sync;
 	vec2 z =screen(p,deform.y);
-	vec2 z1=screen(p,deform.y+ghost.x*0.01);
-	vec2 z2=screen(p,deform.y+ghost.z*0.01);
+	vec2 z1=screen(p,deform.y+ghost1.z*0.01);
+	vec2 z2=screen(p,deform.y+ghost2.z*0.01);
 	float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);
 
 	vec2 rnd=vec2(rand(vec2(p.x+time,p.y-time)),rand(vec2(p.x-time,p.y+time)));
 
 	vec2 o=(offset-offset*2.0*rnd.x)/screen_size;			// offset
 	vec3 source=get_color(texture,z+o);						// offset added to source
-	vec3 glass1=get_color(texture,z1-vec2(0.25,0.0));
-	vec3 glass2=get_color(texture,z2-vec2(0.25,0.0));
+	vec3 g1=get_color(texture,z1-ghost1.xy);
+	vec3 g2=get_color(texture,z2-ghost2.xy);
 
 	float v=aberration/float(screen_size.x)+aberration/float(screen_size.x)*(2.0-mask);
 
@@ -78,7 +80,7 @@ void main(void)
 	ca.y=get_color(texture,vec2(z.x+o.x  ,z.y+o.y)).y;
 	ca.z=get_color(texture,vec2(z.x+o.x+v,z.y+o.y)).z;
 
-	vec3 c=source-glass1*glass1*ghost.y+glass2*glass2*ghost.w;
+	vec3 c=source+g1*g1*ghost1.w+g2*g2*ghost2.w;			// mix
 
 	float a=(c.x+c.y+c.z)/3.0;
 	vec3 g=vec3(a,a,a);
@@ -95,7 +97,7 @@ void main(void)
 	c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z))*sin(0.5+z.y*float(screen_size.y*moire_v.w));	// moire v
 	c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w));	// scanline h
 	c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w));	// scanline v
-	c*=mask;												// vignetting
+	c*=(mask-vignetting);									// vignetting
 	c*=letterbox(z,corner.x,corner.y);						// letterbox
 	gl_FragColor=vec4(c,1.0);
 	}
