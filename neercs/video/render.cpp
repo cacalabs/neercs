@@ -52,8 +52,6 @@ float farplane = 1000.0f;  // farplane
 int polygon_fillmode = GL_FILL; // fill mode
 /* timer variable */
 float timer = 0;           // timer
-float timer_key = 0;       // key timer
-float timer_key_repeat = 0.25f;// key repeat delay
 /* window variable */
 ivec2 screen_size;         // screen size
 vec3 screen_color = CR * vec3(32, 32, 32); // screen color
@@ -557,47 +555,44 @@ void Render::Pause()
 void Render::TickDraw(float seconds)
 {
     /* keyboard manager */
-    if (Input::GetButtonState(27/*SDLK_ESCAPE*/))
+    if (Input::WasReleased(Key::K_ESCAPE))
+    {
         Ticker::Shutdown();
-    if (Input::GetButtonState(282/*SDLK_F1*/) && (timer - timer_key > timer_key_repeat))
+    }
+    if (Input::WasPressed(Key::K_F1))
     {
         m_setup = !m_setup;
         sync_flag = true;
         sync_angle = main_angle;
-        timer_key = timer;
     }
-    if (Input::GetButtonState(283/*SDLK_F2*/) && (timer - timer_key > timer_key_repeat))
+    if (Input::WasPressed(Key::K_F2))
     {
         m_polygon = !m_polygon;
         polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
         glPolygonMode(GL_FRONT, polygon_fillmode);
-        timer_key = timer;
     }
-    if (Input::GetButtonState(284/*SDLK_F3*/) && (timer - timer_key > timer_key_repeat))
+    if (Input::WasPressed(Key::K_F3))
     {
         m_shader_glow = !m_shader_glow;
         m_shader_blur = !m_shader_blur;
-        timer_key = timer;
     }
-    if (Input::GetButtonState(285/*SDLK_F4*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_F4))
     {
         m_shader_postfx = !m_shader_postfx;
-        timer_key = timer;
     }
-    if (Input::GetButtonState(286/*SDLK_F5*/))
+    if (Input::WasPressed(Key::K_F5))
     {
         Pause();
     }
-   if (Input::GetButtonState(9/*SDLK_TAB*/)&&(timer-timer_key>timer_key_repeat))
+   if (Input::WasPressed(Key::K_TAB))
     {
         if (m_setup)
         {
             setup_switch = !setup_switch;
             setup_n = calc_item_length();
         }
-        timer_key = timer;
     }
-    if (Input::GetButtonState(273/*SDLK_UP*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_UP))
     {
         if (m_setup)
         {
@@ -613,9 +608,8 @@ void Render::TickDraw(float seconds)
                 if (setup_item < 0) setup_item = setup_n;
             }
         }
-        timer_key = timer;
     }
-    if (Input::GetButtonState(274/*SDLK_DOWN*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_DOWN))
     {
         if (m_setup)
         {
@@ -631,9 +625,8 @@ void Render::TickDraw(float seconds)
                 if (setup_item > setup_n) setup_item = 0;
             }
         }
-        timer_key = timer;
     }
-    if (Input::GetButtonState(280/*SDLK_PAGEUP*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_PAGEUP))
     {
         if (m_setup)
         {
@@ -646,9 +639,8 @@ void Render::TickDraw(float seconds)
                 setup_item = 0;
             }
         }
-        timer_key = timer;
     }
-    if (Input::GetButtonState(281/*SDLK_PAGEDOWN*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_PAGEDOWN))
     {
         if (m_setup)
         {
@@ -662,9 +654,8 @@ void Render::TickDraw(float seconds)
                 setup_item = setup_n;
             }
         }
-        timer_key = timer;
     }
-    if (Input::GetButtonState(276/*SDLK_LEFT*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_LEFT))
     {
         if (m_setup && setup_switch)
         {
@@ -672,9 +663,8 @@ void Render::TickDraw(float seconds)
             if (setup_var[setup_item_key].w < setup_var[setup_item_key].x) setup_var[setup_item_key].w = setup_var[setup_item_key].x;
             Render::UpdateVar();
         }
-        timer_key = timer;
     }
-    if (Input::GetButtonState(275/*SDLK_RIGHT*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_RIGHT))
     {
         if (m_setup && setup_switch)
         {
@@ -682,13 +672,11 @@ void Render::TickDraw(float seconds)
             if (setup_var[setup_item_key].w > setup_var[setup_item_key].y) setup_var[setup_item_key].w = setup_var[setup_item_key].y;
             Render::UpdateVar();
         }
-        timer_key = timer;
     }
-    if (Input::GetButtonState(13/*SDLK_RETURN*/)&&(timer-timer_key>timer_key_repeat))
+    if (Input::WasPressed(Key::K_RETURN))
     {
         sync_flag = true;
         sync_angle = main_angle;
-        timer_key = timer;
     }
 
     Entity::TickDraw(seconds);
