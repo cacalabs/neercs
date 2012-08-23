@@ -555,36 +555,36 @@ void Render::Pause()
 void Render::TickDraw(float seconds)
 {
     /* keyboard manager */
-    if (Input::WasReleased(Key::K_ESCAPE))
+    if (Input::WasReleased(Key::Escape))
     {
         Ticker::Shutdown();
     }
-    if (Input::WasPressed(Key::K_F1))
+    if (Input::WasPressed(Key::F1))
     {
         m_setup = !m_setup;
         sync_flag = true;
         sync_angle = main_angle;
     }
-    if (Input::WasPressed(Key::K_F2))
+    if (Input::WasPressed(Key::F2))
     {
         m_polygon = !m_polygon;
         polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
         glPolygonMode(GL_FRONT, polygon_fillmode);
     }
-    if (Input::WasPressed(Key::K_F3))
+    if (Input::WasPressed(Key::F3))
     {
         m_shader_glow = !m_shader_glow;
         m_shader_blur = !m_shader_blur;
     }
-    if (Input::WasPressed(Key::K_F4))
+    if (Input::WasPressed(Key::F4))
     {
         m_shader_postfx = !m_shader_postfx;
     }
-    if (Input::WasPressed(Key::K_F5))
+    if (Input::WasPressed(Key::F5))
     {
         Pause();
     }
-   if (Input::WasPressed(Key::K_TAB))
+   if (Input::WasPressed(Key::Tab))
     {
         if (m_setup)
         {
@@ -592,7 +592,7 @@ void Render::TickDraw(float seconds)
             setup_n = calc_item_length();
         }
     }
-    if (Input::WasPressed(Key::K_UP))
+    if (Input::WasPressed(Key::Up))
     {
         if (m_setup)
         {
@@ -609,7 +609,7 @@ void Render::TickDraw(float seconds)
             }
         }
     }
-    if (Input::WasPressed(Key::K_DOWN))
+    if (Input::WasPressed(Key::Down))
     {
         if (m_setup)
         {
@@ -626,7 +626,7 @@ void Render::TickDraw(float seconds)
             }
         }
     }
-    if (Input::WasPressed(Key::K_PAGEUP))
+    if (Input::WasPressed(Key::PageUp))
     {
         if (m_setup)
         {
@@ -640,7 +640,7 @@ void Render::TickDraw(float seconds)
             }
         }
     }
-    if (Input::WasPressed(Key::K_PAGEDOWN))
+    if (Input::WasPressed(Key::PageDown))
     {
         if (m_setup)
         {
@@ -655,7 +655,7 @@ void Render::TickDraw(float seconds)
             }
         }
     }
-    if (Input::WasPressed(Key::K_LEFT))
+    if (Input::WasPressed(Key::Left))
     {
         if (m_setup && setup_switch)
         {
@@ -664,7 +664,7 @@ void Render::TickDraw(float seconds)
             Render::UpdateVar();
         }
     }
-    if (Input::WasPressed(Key::K_RIGHT))
+    if (Input::WasPressed(Key::Right))
     {
         if (m_setup && setup_switch)
         {
@@ -673,7 +673,7 @@ void Render::TickDraw(float seconds)
             Render::UpdateVar();
         }
     }
-    if (Input::WasPressed(Key::K_RETURN))
+    if (Input::WasPressed(Key::Return))
     {
         sync_flag = true;
         sync_angle = main_angle;
