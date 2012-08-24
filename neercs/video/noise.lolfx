@@ -21,7 +21,7 @@ uniform vec3 retrace;
 
 float rand(in vec2 p,in float t,in float v)
 	{
-	return fract(sin(dot(p+t,vec2(12.9898,78.233)))*v);
+	return fract(sin(dot(p+mod(t,2.0),vec2(12.9898,78.2333)))*v);
 	}
 
 void main(void)
