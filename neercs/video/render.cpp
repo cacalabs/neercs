@@ -31,13 +31,14 @@ using namespace lol;
 #include "render.h"
 #include "text-render.h"
 
+extern char const *lolfx_simple;
+extern char const *lolfx_remanency;
 extern char const *lolfx_blurh;
 extern char const *lolfx_blurv;
-extern char const *lolfx_remanency;
 extern char const *lolfx_glow;
-extern char const *lolfx_postfx;
 extern char const *lolfx_radial;
-extern char const *lolfx_simple;
+extern char const *lolfx_noise;
+extern char const *lolfx_postfx;
 
 #define PID M_PI/180.0f    // pi ratio
 #define CR 1.0f/256.0f     // color ratio
@@ -91,17 +92,17 @@ vec2 glow_mix(0.6f,0.4f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
 vec2 blur(0.25f,0.5f);          // glow radius [center,corner]
-vec2 postfx_deform(0.7f,0.54f); // deformation [ratio,zoom]
+vec2 noise_offset(3.0f,3.0f);         // random line [horizontal,vertical]
+float noise_noise = 0.15f;            // noise
+vec3 noise_retrace(0.05f,2.0f,4.0f);  // retrace [strength,length,speed]
+vec2 postfx_deform(0.7f,0.54f);       // deformation [ratio,zoom]
 vec3 postfx_filter(0.8f,0.9f,0.4f);   // color filter [red,green,blue]
 vec3 postfx_color(1.8f,1.5f,0.5f);    // color modifier [brightness,contrast,grayscale]
 vec2 postfx_corner(0.75f,0.95f);      // corner [radius,blur]
 float postfx_vignetting = -0.5f;      // vignetting strength
-vec3 postfx_retrace(0.05f,2.0f,4.0f); // retrace [strength,length,speed]
-vec2 postfx_offset(3.0f,3.0f);  // random line [horizontal,vertical]
-float postfx_noise = 0.15f;     // noise
-float postfx_aberration = 4.0f; // chromatic aberration
 vec4 postfx_ghost1(0.01f,0.0f,0.1f,-0.4f);      // ghost picture 1 [position x,position y,position z,strength]
 vec4 postfx_ghost2(0.02f,0.0f,0.1f,0.4f);       // ghost picture 2 [position x,position y,position z,strength]
+float postfx_aberration = 4.0f;                 // chromatic aberration
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
@@ -179,16 +180,16 @@ char const *setup_text[] = {
         "brightness",
         "contrast",
         "grayscale",
-        "",
+        "aberration",
         "",
     "noise",
         "offset h",
         "offset v",
         "noise",
-        "aberration",
         "retrace strength",
         "retrace length",
         "retrace speed",
+        "",
         "",
     "ghost",
         "back x",
@@ -271,16 +272,16 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0.0f, 4.0f, 0.1f, postfx_color.x),
         vec4(0.0f, 4.0f, 0.1f, postfx_color.y),
         vec4(0.0f, 1.5f, 0.1f, postfx_color.z),
-        vec4(0),
+        vec4(0.0f, 8.0f, 0.5f, postfx_aberration),
         vec4(0),
     vec4(0), /* noise */
-        vec4(0.0f, 4.0f, 0.50f, postfx_offset.x),
-        vec4(0.0f, 4.0f, 0.50f, postfx_offset.y),
-        vec4(0.0f, 1.0f, 0.05f, postfx_noise),
-        vec4(0.0f, 8.0f, 0.50f, postfx_aberration),
-        vec4(0.0f, 0.2f, 0.01f, postfx_retrace.x),
-        vec4(0.0f, 8.0f, 0.50f, postfx_retrace.y),
-        vec4(0.0f, 4.0f, 0.25f, postfx_retrace.z),
+        vec4(0.0f, 4.0f, 0.50f, noise_offset.x),
+        vec4(0.0f, 4.0f, 0.50f, noise_offset.y),
+        vec4(0.0f, 1.0f, 0.05f, noise_noise),
+        vec4(0.0f, 0.2f, 0.01f, noise_retrace.x),
+        vec4(0.0f, 8.0f, 0.50f, noise_retrace.y),
+        vec4(0.0f, 4.0f, 0.25f, noise_retrace.z),
+        vec4(0),
         vec4(0),
     vec4(0), /* ghost */
         vec4(-0.5f, 0.5f, 0.01f, postfx_ghost1.x),
@@ -335,12 +336,12 @@ void Render::UpdateVar()
     k += 3; /* color */
     postfx_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
-    k += 3; /* noise */
-    postfx_offset = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    postfx_noise = setup_var[k].w; k++;
     postfx_aberration = setup_var[k].w; k++;
-    postfx_retrace = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
-    k += 2; /* ghost */
+    k += 2; /* noise */
+    noise_offset = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    noise_noise = setup_var[k].w; k++;
+    noise_retrace = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
+    k += 3; /* ghost */
     postfx_ghost1 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_ghost2 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     k += 1; /* moire */
@@ -364,26 +365,33 @@ int calc_item_length()
 }
 
 Shader *shader_simple;
-Shader *shader_blur_h, *shader_blur_v;
-Shader *shader_remanency, *shader_glow, *shader_radial, *shader_postfx;
+Shader *shader_remanency;
+Shader *shader_blur_h, *shader_blur_v, *shader_glow, *shader_radial;
+Shader *shader_noise, *shader_postfx;
 // shader variables
 ShaderUniform shader_simple_texture;
 ShaderUniform shader_remanency_source,
               shader_remanency_buffer,
               shader_remanency_mix;
-ShaderUniform shader_glow_glow,
-              shader_glow_source,
-              shader_glow_mix;
 ShaderUniform shader_blur_h_texture,
               shader_blur_h_radius,
               shader_blur_v_texture,
               shader_blur_v_radius;
+ShaderUniform shader_glow_glow,
+              shader_glow_source,
+              shader_glow_mix;
 ShaderUniform shader_radial_texture,
               shader_radial_screen_size,
               shader_radial_time,
               shader_radial_value1,
               shader_radial_value2,
               shader_radial_color;
+ShaderUniform shader_noise_texture,
+              shader_noise_screen_size,
+              shader_noise_time,
+              shader_noise_offset,
+              shader_noise_noise,
+              shader_noise_retrace;
 ShaderUniform shader_postfx_texture,
               shader_postfx_texture_2d,
               shader_postfx_screen_size,
@@ -395,9 +403,6 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_color,
               shader_postfx_corner,
               shader_postfx_vignetting,
-              shader_postfx_retrace,
-              shader_postfx_offset,
-              shader_postfx_noise,
               shader_postfx_aberration,
               shader_postfx_moire_h,
               shader_postfx_moire_v,
@@ -479,6 +484,14 @@ int Render::InitDraw(void)
     shader_radial_value1 = shader_radial->GetUniformLocation("value1");
     shader_radial_value2 = shader_radial->GetUniformLocation("value2");
     shader_radial_color = shader_radial->GetUniformLocation("color");
+    // shader noise
+    shader_noise = Shader::Create(lolfx_noise);
+    shader_noise_texture = shader_noise->GetUniformLocation("texture");
+    shader_noise_screen_size = shader_noise->GetUniformLocation("screen_size");
+    shader_noise_time = shader_noise->GetUniformLocation("time");
+    shader_noise_offset = shader_noise->GetUniformLocation("offset");
+    shader_noise_noise = shader_noise->GetUniformLocation("noise");
+    shader_noise_retrace = shader_noise->GetUniformLocation("retrace");
     // shader postfx
     shader_postfx = Shader::Create(lolfx_postfx);
     shader_postfx_texture = shader_postfx->GetUniformLocation("texture");
@@ -492,10 +505,7 @@ int Render::InitDraw(void)
     shader_postfx_color = shader_postfx->GetUniformLocation("color");
     shader_postfx_corner = shader_postfx->GetUniformLocation("corner");
     shader_postfx_vignetting = shader_postfx->GetUniformLocation("vignetting");
-    shader_postfx_retrace = shader_postfx->GetUniformLocation("retrace");
-    shader_postfx_offset = shader_postfx->GetUniformLocation("offset");
-    shader_postfx_noise = shader_postfx->GetUniformLocation("noise");
-    shader_postfx_aberration = shader_postfx->GetUniformLocation("aberration");
+    shader_postfx_aberration = shader_noise->GetUniformLocation("aberration");
     shader_postfx_moire_h = shader_postfx->GetUniformLocation("moire_h");
     shader_postfx_moire_v = shader_postfx->GetUniformLocation("moire_v");
     shader_postfx_scanline_h = shader_postfx->GetUniformLocation("scanline_h");
@@ -537,6 +547,7 @@ Render::Render(caca_canvas_t *caca)
     m_shader_remanency(true),
     m_shader_glow(true),
     m_shader_blur(true),
+    m_shader_noise(true),
     m_shader_postfx(true)
 {
     text_render = new TextRender(m_caca, font_size);
@@ -570,19 +581,6 @@ void Render::TickDraw(float seconds)
         m_polygon = !m_polygon;
         polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
         glPolygonMode(GL_FRONT, polygon_fillmode);
-    }
-    if (Input::WasPressed(Key::F3))
-    {
-        m_shader_glow = !m_shader_glow;
-        m_shader_blur = !m_shader_blur;
-    }
-    if (Input::WasPressed(Key::F4))
-    {
-        m_shader_postfx = !m_shader_postfx;
-    }
-    if (Input::WasPressed(Key::F5))
-    {
-        Pause();
     }
    if (Input::WasPressed(Key::Tab))
     {
@@ -673,10 +671,26 @@ void Render::TickDraw(float seconds)
             Render::UpdateVar();
         }
     }
+    if (Input::WasPressed(Key::Home))
+    {
+        if (m_setup && setup_switch)
+        {
+            setup_var[setup_item_key].w = setup_var[setup_item_key].x;
+            Render::UpdateVar();
+        }
+    }
+    if (Input::WasPressed(Key::End))
+    {
+        if (m_setup && setup_switch)
+        {
+            setup_var[setup_item_key].w = setup_var[setup_item_key].y;
+            Render::UpdateVar();
+        }
+    }
     if (Input::WasPressed(Key::Return))
     {
-        sync_flag = true;
-        sync_angle = main_angle;
+        fade_flag = true;
+        fade_angle = main_angle;
     }
 
     Entity::TickDraw(seconds);
@@ -957,6 +971,26 @@ void Render::Draw3D()
         fbo_front->Unbind();
     }
 
+    if (m_shader_noise)
+    {
+        // shader noise
+        fbo_ping->Bind();
+        shader_noise->Bind();
+        shader_noise->SetUniform(shader_noise_texture, fbo_front->GetTexture(), 0);
+        shader_noise->SetUniform(shader_noise_screen_size, (vec2)screen_size);
+        shader_noise->SetUniform(shader_noise_time, fx_angle);
+        shader_noise->SetUniform(shader_noise_offset, noise_offset);
+        shader_noise->SetUniform(shader_noise_noise, noise_noise);
+        shader_noise->SetUniform(shader_noise_retrace, noise_retrace);
+        fs_quad();
+        shader_noise->Unbind();
+        fbo_ping->Unbind();
+        // shader simple
+        fbo_front->Bind();
+        draw_shader_simple(fbo_ping, 0);
+        fbo_front->Unbind();
+    }
+
     if (m_shader_postfx)
     {
         // shader postfx
@@ -971,9 +1005,6 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_color, postfx_color);
         shader_postfx->SetUniform(shader_postfx_corner, postfx_corner);
         shader_postfx->SetUniform(shader_postfx_vignetting, postfx_vignetting);
-        shader_postfx->SetUniform(shader_postfx_retrace, postfx_retrace);
-        shader_postfx->SetUniform(shader_postfx_offset, postfx_offset);
-        shader_postfx->SetUniform(shader_postfx_noise, postfx_noise);
         shader_postfx->SetUniform(shader_postfx_aberration, postfx_aberration);
         shader_postfx->SetUniform(shader_postfx_moire_h, postfx_moire_h);
         shader_postfx->SetUniform(shader_postfx_moire_v, postfx_moire_v);

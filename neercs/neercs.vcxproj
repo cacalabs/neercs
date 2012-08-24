@@ -78,14 +78,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <LolFxCompile Include="video\simple.lolfx" />
+    <LolFxCompile Include="video\text.lolfx" />
     <LolFxCompile Include="video\blurh.lolfx" />
     <LolFxCompile Include="video\blurv.lolfx" />
     <LolFxCompile Include="video\glow.lolfx" />
-    <LolFxCompile Include="video\postfx.lolfx" />
     <LolFxCompile Include="video\radial.lolfx" />
     <LolFxCompile Include="video\remanency.lolfx" />
-    <LolFxCompile Include="video\simple.lolfx" />
-    <LolFxCompile Include="video\text.lolfx" />
+    <LolFxCompile Include="video\noise.lolfx" />
+    <LolFxCompile Include="video\postfx.lolfx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{587FCCE9-1D8D-4398-B8B6-E8F4E9A92233}</ProjectGuid>

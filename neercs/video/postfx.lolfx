@@ -20,9 +20,6 @@ uniform vec4 ghost1;
 uniform vec4 ghost2;
 uniform vec3 filter;
 uniform vec3 color;
-uniform vec3 retrace;
-uniform vec2 offset;
-uniform float noise;
 uniform float aberration;
 uniform vec4 moire_h;
 uniform vec4 moire_v;
@@ -33,8 +30,6 @@ uniform float vignetting;
 uniform float flash;
 uniform float sync;
 
-const float PI=3.14159265358979323846;
-
 vec2 screen(in vec2 p,in float radius)
 	{
 	float d=deform.x+sync*0.0625;
@@ -44,11 +39,6 @@ vec2 screen(in vec2 p,in float radius)
 vec3 get_color(in sampler2D tex,in vec2 p)
 	{
 	return texture2D(tex,clamp(p,-1.0,0.0)).xyz;
-	}
-
-float rand(in vec2 p)
-	{
-	return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);
 	}
 
 float letterbox(in vec2 p,in float radius,in float smooth)
@@ -66,19 +56,16 @@ void main(void)
 	vec2 z2=screen(p,deform.y+ghost2.z*0.01);
 	float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);
 
-	vec2 rnd=vec2(rand(vec2(p.x+time,p.y-time)),rand(vec2(p.x-time,p.y+time)));
-
-	vec2 o=(offset-offset*2.0*rnd.x)/screen_size;			// offset
-	vec3 source=get_color(texture,z+o);						// offset added to source
+	vec3 source=get_color(texture,z);
 	vec3 g1=get_color(texture,z1-ghost1.xy);
 	vec3 g2=get_color(texture,z2-ghost2.xy);
 
 	float v=aberration/float(screen_size.x)+aberration/float(screen_size.x)*(2.0-mask);
 
 	vec3 ca;
-	ca.x=get_color(texture,vec2(z.x+o.x-v,z.y+o.y)).x;
-	ca.y=get_color(texture,vec2(z.x+o.x  ,z.y+o.y)).y;
-	ca.z=get_color(texture,vec2(z.x+o.x+v,z.y+o.y)).z;
+	ca.x=get_color(texture,vec2(z.x-v,z.y)).x;
+	ca.y=get_color(texture,vec2(z.x  ,z.y)).y;
+	ca.z=get_color(texture,vec2(z.x+v,z.y)).z;
 
 	vec3 c=source+g1*g1*ghost1.w+g2*g2*ghost2.w;			// mix
 
@@ -91,8 +78,6 @@ void main(void)
 
 	c+=flash;												// flash
 	c+=ca;													// chromatic aberration
-	c-=retrace.x*mod(z.y*retrace.y+time*retrace.z,1.0);		// retrace
-	c-=(vec3(rnd.x-rnd.y))*noise;							// noise
 	c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w));	// moire h
 	c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z))*sin(0.5+z.y*float(screen_size.y*moire_v.w));	// moire v
 	c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w));	// scanline h

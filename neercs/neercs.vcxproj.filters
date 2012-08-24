@@ -114,6 +114,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <LolFxCompile Include="video\simple.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
+    <LolFxCompile Include="video\text.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
     <LolFxCompile Include="video\blurh.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
@@ -123,19 +129,16 @@
     <LolFxCompile Include="video\glow.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
-    <LolFxCompile Include="video\postfx.lolfx">
-      <Filter>video</Filter>
-    </LolFxCompile>
     <LolFxCompile Include="video\radial.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
     <LolFxCompile Include="video\remanency.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
-    <LolFxCompile Include="video\simple.lolfx">
+    <LolFxCompile Include="video\noise.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
-    <LolFxCompile Include="video\text.lolfx">
+    <LolFxCompile Include="video\postfx.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
   </ItemGroup>

@@ -36,6 +36,8 @@ private:
     bool m_shader_remanency;
     bool m_shader_blur;
     bool m_shader_glow;
+    bool m_shader_radial;
+    bool m_shader_noise;
     bool m_shader_postfx;
 };
 
