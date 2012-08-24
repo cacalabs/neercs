@@ -979,7 +979,7 @@ void Render::Draw3D()
         shader_noise->Bind();
         shader_noise->SetUniform(shader_noise_texture, fbo_front->GetTexture(), 0);
         shader_noise->SetUniform(shader_noise_screen_size, (vec2)screen_size);
-        shader_noise->SetUniform(shader_noise_time, fx_angle);
+        shader_noise->SetUniform(shader_noise_time, fmodf(fx_angle, 1.0f));
         shader_noise->SetUniform(shader_noise_offset, noise_offset);
         shader_noise->SetUniform(shader_noise_noise, noise_noise);
         shader_noise->SetUniform(shader_noise_retrace, noise_retrace);
