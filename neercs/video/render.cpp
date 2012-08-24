@@ -92,9 +92,9 @@ vec2 glow_mix(0.6f,0.4f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
 vec2 blur(0.25f,0.5f);          // glow radius [center,corner]
-vec2 noise_offset(3.0f,3.0f);         // random line [horizontal,vertical]
+vec2 noise_offset(1.5f,1.5f);         // random line [horizontal,vertical]
 float noise_noise = 0.15f;            // noise
-vec3 noise_retrace(0.05f,2.0f,4.0f);  // retrace [strength,length,speed]
+vec3 noise_retrace(0.02f,1.0f,0.5f);  // retrace [strength,length,speed]
 vec2 postfx_deform(0.7f,0.54f);       // deformation [ratio,zoom]
 vec3 postfx_filter(0.8f,0.9f,0.4f);   // color filter [red,green,blue]
 vec3 postfx_color(1.8f,1.5f,0.5f);    // color modifier [brightness,contrast,grayscale]
@@ -183,13 +183,13 @@ char const *setup_text[] = {
         "aberration",
         "",
     "noise",
+        "enable",
         "offset h",
         "offset v",
         "noise",
         "retrace strength",
         "retrace length",
         "retrace speed",
-        "",
         "",
     "ghost",
         "back x",
@@ -249,8 +249,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0),
     vec4(0), /* blur */
         vec4(0, 1, 1, 1),
-        vec4(0.0f, 2.0f, 0.1f, blur.x),
-        vec4(0.0f, 2.0f, 0.1f, blur.y),
+        vec4(0.0f, 2.0f, 0.05f, blur.x),
+        vec4(0.0f, 2.0f, 0.05f, blur.y),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -275,13 +275,13 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0.0f, 8.0f, 0.5f, postfx_aberration),
         vec4(0),
     vec4(0), /* noise */
+        vec4( 0, 1, 1, 1),
         vec4(0.0f, 4.0f, 0.50f, noise_offset.x),
         vec4(0.0f, 4.0f, 0.50f, noise_offset.y),
-        vec4(0.0f, 1.0f, 0.05f, noise_noise),
+        vec4(0.0f, 0.5f, 0.25f, noise_noise),
         vec4(0.0f, 0.2f, 0.01f, noise_retrace.x),
         vec4(0.0f, 8.0f, 0.50f, noise_retrace.y),
         vec4(0.0f, 4.0f, 0.25f, noise_retrace.z),
-        vec4(0),
         vec4(0),
     vec4(0), /* ghost */
         vec4(-0.5f, 0.5f, 0.01f, postfx_ghost1.x),
@@ -338,10 +338,11 @@ void Render::UpdateVar()
     postfx_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_aberration = setup_var[k].w; k++;
     k += 2; /* noise */
+    m_shader_noise = (setup_var[k].w == 1) ? true : false; k++;
     noise_offset = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     noise_noise = setup_var[k].w; k++;
     noise_retrace = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
-    k += 3; /* ghost */
+    k += 2; /* ghost */
     postfx_ghost1 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_ghost2 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     k += 1; /* moire */

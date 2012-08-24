@@ -19,20 +19,21 @@ uniform vec2 offset;
 uniform float noise;
 uniform vec3 retrace;
 
-float rand(in vec2 p)
+float rand(in vec2 p,in float t,in float v)
 	{
-	return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);
+	return fract(sin(dot(p+t,vec2(12.9898,78.233)))*v);
 	}
 
 void main(void)
 	{
 	vec2 p=gl_FragCoord.xy/screen_size.xy;
 
-	float rnd=rand(p+time);
-	vec2 o=(offset-offset*2.0*rnd)/screen_size;
+	float r1=rand(p,time,43758.5453);
+	float r2=rand(p,time,70425.2854);
+	vec2 o=(offset-offset*2.0*r1)/screen_size;
 
 	vec3 c=texture2D(texture,p+o).xyz;						// offset
-	c-=rnd*noise;											// noise
+	c*=1.0+(noise-noise*2.0*r1);							// noise
 	c-=retrace.x*mod(p.y*retrace.y+time*retrace.z,1.0);		// retrace
 	gl_FragColor=vec4(c,1.0);
 	}

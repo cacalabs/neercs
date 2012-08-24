@@ -83,6 +83,6 @@ void main(void)
 	c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w));	// scanline h
 	c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w));	// scanline v
 	c*=(mask-vignetting);									// vignetting
-	c*=letterbox(z,corner.x,corner.y);						// letterbox
+	c*=letterbox(z,corner.x,corner.y);						// corner
 	gl_FragColor=vec4(c,1.0);
 	}
