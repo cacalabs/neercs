@@ -67,7 +67,7 @@ float fs_quad_tex[] = {0, 1.0f, 0, 0, 1.0f, 0, 1.0f, 1.0f};
 bool flash_flag = false;   // flag
 float flash_angle = 0;     // angle
 float flash_value = 0;     // value
-float flash_speed = 1.5f;  // speed
+float flash_speed = 2.0f;  // speed
 /* fade variable */
 bool fade_flag = false;    // flag
 float fade_angle = 0;      // angle
@@ -681,8 +681,8 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::Return))
     {
-        fade_flag = true;
-        fade_angle = main_angle;
+        flash_flag = true;
+        flash_angle = main_angle;
     }
 
     Entity::TickDraw(seconds);
@@ -702,42 +702,42 @@ void Render::TickDraw(float seconds)
     }
     if (sync_flag)
     {
-        angle=(main_angle-sync_angle)*sync_speed;
-        sync_value=1.0f-sinf(angle);
-        if (angle>90.0f*PID)
+        angle = (main_angle - sync_angle) * sync_speed;
+        sync_value = 1.0f - sinf(angle);
+        if (angle > 90.0f * PID)
         {
-            sync_value=0;
-            sync_flag=false;
+            sync_value = 0;
+            sync_flag = false;
         }
     }
     if (beat_flag)
     {
-        angle=(main_angle-beat_angle)*beat_speed;
-        beat_value=1.0f-sinf(angle);
-        if (angle>90.0f*PID)
+        angle = (main_angle - beat_angle) * beat_speed;
+        beat_value = 1.0f - sinf(angle);
+        if (angle > 90.0f * PID)
         {
-            beat_value=0;
-            beat_flag=false;
+            beat_value = 0;
+            beat_flag = false;
         }
     }
     if (flash_flag)
     {
-        angle=(main_angle-flash_angle)*flash_speed;
-        flash_value=1.0f-sinf(angle);
-        if (angle>90.0f*PID)
+        angle = (main_angle - flash_angle) * flash_speed;
+        flash_value = 1.0f - sinf(angle);
+        if (angle > 90.0f * PID)
         {
-            flash_value=0;
-            flash_flag=false;
+            flash_value = 0;
+            flash_flag = false;
         }
     }
     if (fade_flag)
     {
-        angle=(main_angle-fade_angle)*fade_speed;
-        fade_value=1.0f-sinf(angle);
-        if (angle>90.0f*PID)
+        angle = (main_angle - fade_angle) * fade_speed;
+        fade_value = 1.0f - sinf(angle);
+        if (angle > 90.0f * PID)
         {
-            fade_value=0;
-            fade_flag=false;
+            fade_value = 0;
+            fade_flag = false;
         }
     }
     /* draw setup */
