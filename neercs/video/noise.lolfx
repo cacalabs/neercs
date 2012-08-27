@@ -32,8 +32,8 @@ void main(void)
 	float r2=rand(p,time,70425.2854);
 	vec2 o=(offset-offset*2.0*r1)/screen_size;
 
-	vec3 c=texture2D(texture,p+o).xyz;						// offset
-	c*=1.0+(noise-noise*2.0*r1);							// noise
-	c-=retrace.x*mod(p.y*retrace.y+time*retrace.z,1.0);		// retrace
+	vec3 c=texture2D(texture,p+o).xyz;							// offset
+	c*=1.0+(noise-noise*2.0*r1);								// noise
+	c-=retrace.x*0.01*mod(p.y*retrace.y+time*retrace.z,1.0);	// retrace
 	gl_FragColor=vec4(c,1.0);
 	}

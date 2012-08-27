@@ -129,7 +129,7 @@
     <LolFxCompile Include="video\glow.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
-    <LolFxCompile Include="video\radial.lolfx">
+    <LolFxCompile Include="video\color.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
     <LolFxCompile Include="video\remanency.lolfx">
