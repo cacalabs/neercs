@@ -92,16 +92,16 @@ vec2 glow_mix(0.6f,0.4f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.5f);           // blur radius [center,corner]
-vec3 color_filter(0.9f,1.0f,0.7f);    // color filter [red,green,blue]
-vec3 color_color(1.1f,1.1f,0.25f);    // color modifier [brightness,contrast,grayscale]
+vec3 color_filter(0.9f,0.9f,1.0f);    // color filter [red,green,blue]
+vec3 color_color(1.2f,1.1f,0.25f);    // color modifier [brightness,contrast,grayscale]
 vec2 noise_offset(2.0f,2.0f);         // random line [horizontal,vertical]
 float noise_noise = 0.25f;            // noise
 vec3 noise_retrace(1.0f,1.0f,0.5f);   // retrace [strength,length,speed]
 vec2 postfx_deform(0.7f,0.54f);       // deformation [ratio,zoom]
 float postfx_vignetting = -0.5f;      // vignetting strength
 float postfx_aberration = 4.0f;       // chromatic aberration
-vec4 postfx_ghost1(0.01f,0.0f,0.1f,-0.4f);      // ghost picture 1 [position x,position y,position z,strength]
-vec4 postfx_ghost2(0.02f,0.0f,0.1f,0.4f);       // ghost picture 2 [position x,position y,position z,strength]
+vec4 postfx_ghost1(0.01f,0.0f,0.1f,-0.25f);     // ghost picture 1 [position x,position y,position z,strength]
+vec4 postfx_ghost2(0.02f,0.0f,0.1f,0.25f);      // ghost picture 2 [position x,position y,position z,strength]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
@@ -381,6 +381,7 @@ ShaderUniform shader_glow_glow,
               shader_glow_mix;
 ShaderUniform shader_color_texture,
               shader_color_screen_size,
+              shader_color_time,
               shader_color_filter,
               shader_color_color,
               shader_color_flash;
@@ -475,6 +476,7 @@ int Render::InitDraw(void)
     shader_color = Shader::Create(lolfx_color);
     shader_color_texture = shader_color->GetUniformLocation("texture");
     shader_color_screen_size = shader_color->GetUniformLocation("screen_size");
+    shader_color_time = shader_color->GetUniformLocation("time");
     shader_color_filter = shader_color->GetUniformLocation("filter");
     shader_color_color = shader_color->GetUniformLocation("color");
     shader_color_flash = shader_color->GetUniformLocation("flash");
@@ -950,6 +952,7 @@ void Render::Draw3D()
         shader_color->Bind();
         shader_color->SetUniform(shader_color_texture, fbo_front->GetTexture(), 0);
         shader_color->SetUniform(shader_color_screen_size, (vec2)screen_size);
+        shader_color->SetUniform(shader_color_time, fx_angle);
         shader_color->SetUniform(shader_color_filter, color_filter);
         shader_color->SetUniform(shader_color_color, color_color);
         shader_color->SetUniform(shader_color_flash, flash_value);

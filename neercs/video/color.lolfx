@@ -14,6 +14,7 @@ void main()
 
 uniform sampler2D texture;
 uniform vec2 screen_size;
+uniform float time;
 uniform vec3 filter;
 uniform vec3 color;
 uniform float flash;
@@ -22,6 +23,17 @@ void main(void)
 	{
 	vec2 p=gl_FragCoord.xy/screen_size.xy;
 	vec3 c=texture2D(texture,p).xyz;
+	vec3 o=c;
+
+	float sinus=0.125+0.125*sin(p.x*float(screen_size.x/32)+time)+0.125*cos(p.y*float(screen_size.x/32)+time);
+	vec3 copper=vec3(0.5+sinus);
+	copper.x+=0.5*cos(p.y*float(screen_size.y/64)+time);
+	copper.z+=0.5*sin(p.y*float(screen_size.y/64)+time);
+	copper*=0.5+0.25*cos(p.y*float(screen_size.x/6)-time*2.0);
+
+	copper.x=float(int(copper.x*8.0)*32)/256.0;
+	copper.y=float(int(copper.y*8.0)*32)/256.0;
+	copper.z=float(int(copper.z*8.0)*32)/256.0;
 
 	float a=(c.x+c.y+c.z)/3.0;
 	c=mix(c,vec3(a),color.z);								// grayscale
@@ -30,5 +42,6 @@ void main(void)
 	c=0.5+(c-0.5)*color.y;									// contrast
 	c+=flash;												// flash
 
-	gl_FragColor=vec4(c,1.0);
+	//gl_FragColor=vec4(c,1.0);
+	gl_FragColor=vec4((o.x>0.5&&o.y>0.5&&o.z>0.5)?copper:c,1.0);
 	}
