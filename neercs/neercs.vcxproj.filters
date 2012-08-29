@@ -129,6 +129,9 @@
     <LolFxCompile Include="video\glow.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
+    <LolFxCompile Include="video\copper.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
     <LolFxCompile Include="video\color.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>

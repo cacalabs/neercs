@@ -83,6 +83,7 @@
     <LolFxCompile Include="video\blurh.lolfx" />
     <LolFxCompile Include="video\blurv.lolfx" />
     <LolFxCompile Include="video\glow.lolfx" />
+    <LolFxCompile Include="video\copper.lolfx" />
     <LolFxCompile Include="video\color.lolfx" />
     <LolFxCompile Include="video\remanency.lolfx" />
     <LolFxCompile Include="video\noise.lolfx" />

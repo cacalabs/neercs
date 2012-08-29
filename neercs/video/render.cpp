@@ -32,10 +32,11 @@ using namespace lol;
 #include "text-render.h"
 
 extern char const *lolfx_simple;
-extern char const *lolfx_remanency;
 extern char const *lolfx_blurh;
 extern char const *lolfx_blurv;
 extern char const *lolfx_glow;
+extern char const *lolfx_remanency;
+extern char const *lolfx_copper;
 extern char const *lolfx_color;
 extern char const *lolfx_noise;
 extern char const *lolfx_postfx;
@@ -92,6 +93,7 @@ vec2 glow_mix(0.6f,0.4f);       // glow mix [source mix,glow mix]
 vec2 glow_large(2.0f,2.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.5f);           // blur radius [center,corner]
+vec4 copper(0.125,0.125,32,64); // copper [base,variable,repeat x,repeat y]
 vec3 color_filter(0.9f,0.9f,1.0f);    // color filter [red,green,blue]
 vec3 color_color(1.2f,1.1f,0.25f);    // color modifier [brightness,contrast,grayscale]
 vec2 noise_offset(2.0f,2.0f);         // random line [horizontal,vertical]
@@ -364,14 +366,11 @@ int calc_item_length()
 }
 
 Shader *shader_simple;
-Shader *shader_remanency;
-Shader *shader_blur_h, *shader_blur_v, *shader_glow, *shader_color;
+Shader *shader_blur_h, *shader_blur_v, *shader_glow;
+Shader *shader_remanency, *shader_copper, *shader_color;
 Shader *shader_noise, *shader_postfx;
 // shader variables
 ShaderUniform shader_simple_texture;
-ShaderUniform shader_remanency_source,
-              shader_remanency_buffer,
-              shader_remanency_mix;
 ShaderUniform shader_blur_h_texture,
               shader_blur_h_radius,
               shader_blur_v_texture,
@@ -379,9 +378,15 @@ ShaderUniform shader_blur_h_texture,
 ShaderUniform shader_glow_glow,
               shader_glow_source,
               shader_glow_mix;
+ShaderUniform shader_remanency_source,
+              shader_remanency_buffer,
+              shader_remanency_mix;
+ShaderUniform shader_copper_texture,
+              shader_copper_screen_size,
+              shader_copper_time,
+              shader_copper_copper;
 ShaderUniform shader_color_texture,
               shader_color_screen_size,
-              shader_color_time,
               shader_color_filter,
               shader_color_color,
               shader_color_flash;
@@ -408,7 +413,7 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_sync;
 
 FrameBuffer *fbo_back, *fbo_front, *fbo_buffer;
-FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_ping, *fbo_pong;
+FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_tmp;
 
 TextRender *text_render;
 
@@ -449,16 +454,10 @@ int Render::InitDraw(void)
     fbo_buffer = new FrameBuffer(screen_size);
     fbo_blur_h = new FrameBuffer(screen_size);
     fbo_blur_v = new FrameBuffer(screen_size);
-    fbo_ping = new FrameBuffer(screen_size);
-    fbo_pong = new FrameBuffer(screen_size);
+    fbo_tmp = new FrameBuffer(screen_size);
     // shader simple
     shader_simple = Shader::Create(lolfx_simple);
     shader_simple_texture = shader_simple->GetUniformLocation("texture");
-    // shader remanency
-    shader_remanency = Shader::Create(lolfx_remanency);
-    shader_remanency_source = shader_remanency->GetUniformLocation("source");
-    shader_remanency_buffer = shader_remanency->GetUniformLocation("buffer");
-    shader_remanency_mix = shader_remanency->GetUniformLocation("mix");
     // shader glow
     shader_glow = Shader::Create(lolfx_glow);
     shader_glow_glow = shader_glow->GetUniformLocation("glow");
@@ -472,11 +471,21 @@ int Render::InitDraw(void)
     shader_blur_v = Shader::Create(lolfx_blurv);
     shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
     shader_blur_v_radius = shader_blur_v->GetUniformLocation("radius");
+    // shader remanency
+    shader_remanency = Shader::Create(lolfx_remanency);
+    shader_remanency_source = shader_remanency->GetUniformLocation("source");
+    shader_remanency_buffer = shader_remanency->GetUniformLocation("buffer");
+    shader_remanency_mix = shader_remanency->GetUniformLocation("mix");
+    // shader copper
+    shader_copper = Shader::Create(lolfx_copper);
+    shader_copper_texture = shader_copper->GetUniformLocation("texture");
+    shader_copper_screen_size = shader_copper->GetUniformLocation("screen_size");
+    shader_copper_time = shader_copper->GetUniformLocation("time");
+    shader_copper_copper = shader_copper->GetUniformLocation("copper");
     // shader color
     shader_color = Shader::Create(lolfx_color);
     shader_color_texture = shader_color->GetUniformLocation("texture");
     shader_color_screen_size = shader_color->GetUniformLocation("screen_size");
-    shader_color_time = shader_color->GetUniformLocation("time");
     shader_color_filter = shader_color->GetUniformLocation("filter");
     shader_color_color = shader_color->GetUniformLocation("color");
     shader_color_flash = shader_color->GetUniformLocation("flash");
@@ -537,9 +546,10 @@ Render::Render(caca_canvas_t *caca)
     m_polygon(true),
     m_setup(true),
     m_shader(true),
-    m_shader_remanency(true),
     m_shader_glow(true),
     m_shader_blur(true),
+    m_shader_remanency(true),
+    m_shader_copper(true),
     m_shader_color(true),
     m_shader_noise(true),
     m_shader_postfx(true)
@@ -862,33 +872,51 @@ void Render::Draw3D()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2, GL_FLOAT, 0, fs_quad_tex);
 
+    if (m_shader_copper)
+    {
+        // shader copper
+        fbo_tmp->Bind();
+        shader_copper->Bind();
+        shader_copper->SetUniform(shader_copper_texture, fbo_back->GetTexture(), 0);
+        shader_copper->SetUniform(shader_copper_screen_size, (vec2)screen_size);
+        shader_copper->SetUniform(shader_copper_time, fx_angle);
+        shader_copper->SetUniform(shader_copper_copper, copper);
+        fs_quad();
+        shader_color->Unbind();
+        fbo_tmp->Unbind();
+        // shader simple
+        fbo_back->Bind();
+        draw_shader_simple(fbo_tmp, 0);
+        fbo_back->Unbind();
+    }
+
     if (m_shader_remanency)
     {
         // shader remanency
-        fbo_ping->Bind();
+        fbo_tmp->Bind();
         shader_remanency->Bind();
         shader_remanency->SetUniform(shader_remanency_source, fbo_back->GetTexture(), 0);
         shader_remanency->SetUniform(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanency->SetUniform(shader_remanency_mix, remanency);
         fs_quad();
         shader_remanency->Unbind();
-        fbo_ping->Unbind();
+        fbo_tmp->Unbind();
         // shader simple
         fbo_back->Bind();
-        draw_shader_simple(fbo_ping, 0);
+        draw_shader_simple(fbo_tmp, 0);
         fbo_back->Unbind();
         // save previous fbo
-        fbo_ping->Bind();
+        fbo_tmp->Bind();
         shader_remanency->Bind();
         shader_remanency->SetUniform(shader_remanency_source, fbo_front->GetTexture(), 0);
         shader_remanency->SetUniform(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanency->SetUniform(shader_remanency_mix, buffer);
         fs_quad();
         shader_remanency->Unbind();
-        fbo_ping->Unbind();
+        fbo_tmp->Unbind();
         // shader simple
         fbo_buffer->Bind();
-        draw_shader_simple(fbo_ping, 0);
+        draw_shader_simple(fbo_tmp, 0);
         fbo_buffer->Unbind();
     }
 
@@ -948,27 +976,26 @@ void Render::Draw3D()
     if (m_shader_color)
     {
         // shader color
-        fbo_ping->Bind();
+        fbo_tmp->Bind();
         shader_color->Bind();
         shader_color->SetUniform(shader_color_texture, fbo_front->GetTexture(), 0);
         shader_color->SetUniform(shader_color_screen_size, (vec2)screen_size);
-        shader_color->SetUniform(shader_color_time, fx_angle);
         shader_color->SetUniform(shader_color_filter, color_filter);
         shader_color->SetUniform(shader_color_color, color_color);
         shader_color->SetUniform(shader_color_flash, flash_value);
         fs_quad();
         shader_color->Unbind();
-        fbo_ping->Unbind();
+        fbo_tmp->Unbind();
         // shader simple
         fbo_front->Bind();
-        draw_shader_simple(fbo_ping, 0);
+        draw_shader_simple(fbo_tmp, 0);
         fbo_front->Unbind();
     }
 
     if (m_shader_noise)
     {
         // shader noise
-        fbo_ping->Bind();
+        fbo_tmp->Bind();
         shader_noise->Bind();
         shader_noise->SetUniform(shader_noise_texture, fbo_front->GetTexture(), 0);
         shader_noise->SetUniform(shader_noise_screen_size, (vec2)screen_size);
@@ -978,27 +1005,27 @@ void Render::Draw3D()
         shader_noise->SetUniform(shader_noise_retrace, noise_retrace);
         fs_quad();
         shader_noise->Unbind();
-        fbo_ping->Unbind();
+        fbo_tmp->Unbind();
         // shader simple
         fbo_front->Bind();
-        draw_shader_simple(fbo_ping, 0);
+        draw_shader_simple(fbo_tmp, 0);
         fbo_front->Unbind();
     }
 
     if (m_shader_blur)
     {
         // shader blur horizontal
-        fbo_ping->Bind();
+        fbo_tmp->Bind();
         shader_blur_h->Bind();
         shader_blur_h->SetUniform(shader_blur_h_texture, fbo_front->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, blur / screen_size.x);
         fs_quad();
         shader_blur_h->Unbind();
-        fbo_ping->Unbind();
+        fbo_tmp->Unbind();
         // shader blur vertical
         fbo_front->Bind();
         shader_blur_v->Bind();
-        shader_blur_v->SetUniform(shader_blur_v_texture, fbo_ping->GetTexture(), 0);
+        shader_blur_v->SetUniform(shader_blur_v_texture, fbo_tmp->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, blur / screen_size.y);
         fs_quad();
         shader_blur_v->Unbind();
