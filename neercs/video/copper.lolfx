@@ -34,5 +34,5 @@ void main(void)
 	copper.z=float(int(copper.z*8.0)*32)/256.0;
 	*/
 
-	gl_FragColor=vec4((color==1.0)?copper:color,1.0);
+	gl_FragColor=vec4((dot(color,color)==1.0)?copper:color,1.0);
 	}
