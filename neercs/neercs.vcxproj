@@ -41,6 +41,8 @@
     <ClInclude Include="old\neercs.h" />
     <ClInclude Include="old\python\py_module.h" />
     <ClInclude Include="old\widgets.h" />
+    <ClInclude Include="term\pty.h" />
+    <ClInclude Include="term\term.h" />
     <ClInclude Include="video\render.h" />
     <ClInclude Include="video\text-render.h" />
   </ItemGroup>
@@ -69,6 +71,8 @@
     <ClCompile Include="old\term.c" />
     <ClCompile Include="old\widgets.c" />
     <ClCompile Include="old\wm.cpp" />
+    <ClInclude Include="term\pty.cpp" />
+    <ClInclude Include="term\term.cpp" />
     <ClCompile Include="video\render.cpp" />
     <ClCompile Include="video\text-render.cpp" />
   </ItemGroup>

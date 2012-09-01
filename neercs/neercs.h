@@ -10,6 +10,7 @@
 #include <caca.h>
 
 #include "video/render.h"
+#include "term/term.h"
 
 extern "C"
 {
@@ -24,21 +25,15 @@ public:
 
     char const *GetName() { return "<neercs>"; }
 
-    int hex_color(float r, float g, float b);
-
 protected:
     virtual void TickGame(float seconds);
     virtual void TickDraw(float seconds);
 
 private:
-    bool m_ready;
-    caca_canvas_t *m_caca;
+    Term *m_term;
     Render *m_render;
-    float m_time;
 
-    /* Old neercs stuff */
-    char *m_buf;
-    struct screen_list *m_screen_list;
+    bool m_ready;
 };
 
 #endif // __NEERCS_H__
