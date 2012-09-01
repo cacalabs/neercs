@@ -62,9 +62,6 @@
     <ClCompile Include="old\server.c">
       <Filter>old</Filter>
     </ClCompile>
-    <ClCompile Include="old\term.c">
-      <Filter>old</Filter>
-    </ClCompile>
     <ClCompile Include="old\widgets.c">
       <Filter>old</Filter>
     </ClCompile>
@@ -76,6 +73,12 @@
     </ClCompile>
     <ClCompile Include="old\python\py_module.c">
       <Filter>old\python</Filter>
+    </ClCompile>
+    <ClCompile Include="term\pty.cpp">
+      <Filter>term</Filter>
+    </ClCompile>
+    <ClCompile Include="term\term.cpp">
+      <Filter>term</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +103,12 @@
     </ClInclude>
     <ClInclude Include="old\python\py_module.h">
       <Filter>old\python</Filter>
+    </ClInclude>
+    <ClInclude Include="term\term.h">
+      <Filter>term</Filter>
+    </ClInclude>
+    <ClInclude Include="term\pty.h">
+      <Filter>term</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

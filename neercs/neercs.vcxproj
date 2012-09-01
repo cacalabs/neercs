@@ -68,7 +68,6 @@
     <ClCompile Include="old\screensaver.c" />
     <ClCompile Include="old\screen_list.c" />
     <ClCompile Include="old\server.c" />
-    <ClCompile Include="old\term.c" />
     <ClCompile Include="old\widgets.c" />
     <ClCompile Include="old\wm.cpp" />
     <ClInclude Include="term\pty.cpp" />
