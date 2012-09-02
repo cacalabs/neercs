@@ -74,6 +74,9 @@
     <ClCompile Include="old\python\py_module.c">
       <Filter>old\python</Filter>
     </ClCompile>
+    <ClCompile Include="term\ansi.cpp">
+      <Filter>term</Filter>
+    </ClCompile>
     <ClCompile Include="term\pty.cpp">
       <Filter>term</Filter>
     </ClCompile>

@@ -70,6 +70,7 @@
     <ClCompile Include="old\server.c" />
     <ClCompile Include="old\widgets.c" />
     <ClCompile Include="old\wm.cpp" />
+    <ClInclude Include="term\ansi.cpp" />
     <ClInclude Include="term\pty.cpp" />
     <ClInclude Include="term\term.cpp" />
     <ClCompile Include="video\render.cpp" />

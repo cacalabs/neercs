@@ -7,7 +7,6 @@
 #endif
 
 #include "core.h"
-#include "lolgl.h"
 
 using namespace std;
 using namespace lol;
@@ -19,6 +18,14 @@ Term::Term(ivec2 size)
   : m_time(0.f)
 {
     m_caca = caca_create_canvas(size.x, size.y);
+
+#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+    m_pty = new Pty(size);
+    char const *shell = getenv("SHELL");
+    if (!shell)
+        shell = "/bin/sh";
+    m_pty->Run(shell);
+#endif
 }
 
 void Term::TickGame(float seconds)
@@ -29,7 +36,15 @@ void Term::TickGame(float seconds)
     /* This is the real terminal code */
     /* XXX: for now we draw fancy shit */
     m_time += seconds;
-    DrawFancyShit();
+
+    for (;;)
+    {
+        char buf[BUFSIZ];
+        size_t bytes = m_pty->ReadData(buf, BUFSIZ);
+        if (bytes <= 0)
+            break;
+        ReadAnsi(buf, bytes);
+    }
 #else
     /* Unsupported platform - draw some fancy shit instead */
     m_time += seconds;
@@ -44,6 +59,10 @@ void Term::TickDraw(float seconds)
 
 Term::~Term()
 {
+#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+    delete m_pty;
+#endif
+    caca_free_canvas(m_caca);
 }
 
 /*

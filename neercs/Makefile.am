@@ -8,8 +8,8 @@ neercs_SOURCES = \
     \
     $(old_sources) \
     \
-    term/term.cpp term/term.h \
-    term/pty.cpp term/pty.h \
+    term/term.h term/term.cpp term/ansi.cpp \
+    term/pty.h term/pty.cpp \
     \
     video/render.cpp video/render.h \
     video/text-render.cpp video/text-render.h \

@@ -42,14 +42,19 @@ using namespace lol;
 #include "neercs.h"
 
 Pty::Pty(ivec2 size)
-  : m_size(size)
+  : m_fd(-1),
+    m_pid(-1),
+    m_size(size)
 {
     ;
 }
 
 Pty::~Pty()
 {
-
+    if (m_fd >= 0)
+    {
+        close((int)m_fd);
+    }
 }
 
 void Pty::Run(char const *command)
@@ -58,8 +63,8 @@ void Pty::Run(char const *command)
     int fd;
     pid_t pid;
 
-    m_pid = 0;
-    m_fd = 0;
+    m_pid = -1;
+    m_fd = -1;
 
     pid = forkpty(&fd, NULL, NULL, NULL);
     if (pid < 0)
@@ -92,6 +97,45 @@ void Pty::Run(char const *command)
     m_pid = pid;
     m_fd = fd;
 #endif
+}
+
+size_t Pty::ReadData(char *data, size_t maxlen)
+{
+    fd_set fdset;
+    int maxfd = -1;
+
+    FD_ZERO(&fdset);
+    if (m_fd >= 0)
+    {
+        FD_SET((int)m_fd, &fdset);
+        maxfd = std::max(maxfd, (int)m_fd);
+    }
+
+    if (maxfd >= 0)
+    {
+        struct timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 50000;
+        int ret = select(maxfd + 1, &fdset, NULL, NULL, &tv);
+
+        if (ret < 0)
+        {
+            Log::Error("cannot read from PTY\n");
+            return 0;
+        }
+
+        if (ret)
+        {
+            if (FD_ISSET((int)m_fd, &fdset))
+            {
+                ssize_t nr = read((int)m_fd, data, maxlen);
+                if (nr >= 0)
+                    return nr;
+            }
+        }
+    }
+
+    return 0;
 }
 
 void Pty::SetWindowSize(ivec2 size)
