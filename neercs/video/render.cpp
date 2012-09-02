@@ -364,7 +364,7 @@ int calc_item_length()
     for (int i = 0; i < n; i++)
     {
         int k = !setup_switch ? (i * (setup_item_n + 1)) : (setup_option_i * (setup_item_n + 1) + 1 + i);
-        if (setup_text[k] == "") return i - 1;
+        if (setup_text[k][0] == '\0') return i - 1;
     }
     return n - 1;
 }
@@ -594,6 +594,7 @@ void Render::TickDraw(float seconds)
         {
             setup_switch = !setup_switch;
             setup_n = calc_item_length();
+            setup_cursor = (!setup_switch?setup_option_i:setup_item_i) - (!setup_switch?setup_option_p:setup_item_p);
         }
     }
     if (Input::WasPressed(Key::Up))
@@ -657,8 +658,24 @@ void Render::TickDraw(float seconds)
             }
             else
             {
-                setup_item_i++;
-                if (setup_item_i > setup_n) setup_item_i = 0;
+                if (setup_cursor < setup_h - 1)
+                {
+                    setup_cursor++;
+                }
+                else
+                {
+                    if ((setup_item_p + setup_h < setup_n) && setup_cursor == setup_h - 1) setup_item_p++;
+                }
+                if (setup_item_i < setup_n)
+                {
+                    setup_item_i++;
+                }
+                else
+                {
+                    setup_item_i = 0;
+                    setup_item_p = 0;
+                    setup_cursor = 0;
+                }
             }
         }
     }
@@ -674,6 +691,8 @@ void Render::TickDraw(float seconds)
             }
             else
             {
+                setup_item_i -= setup_cursor;
+                setup_cursor = 0;
             }
         }
     }
@@ -689,7 +708,8 @@ void Render::TickDraw(float seconds)
             }
             else
             {
-                setup_item_i = setup_n;
+                setup_item_i += setup_n - setup_cursor - 1;
+                setup_cursor = setup_h - 1;
             }
         }
     }
@@ -821,7 +841,7 @@ void Render::TickDraw(float seconds)
         {
             int y = setup_p.y + 1 + i;
             int k = setup_option_i * (setup_item_n + 1) + 1 + setup_item_p + i;
-            if (setup_item_i != i || !setup_switch)
+            if (setup_item_i != setup_item_p + i || !setup_switch)
             {
                 caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
                 caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
