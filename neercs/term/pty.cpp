@@ -44,6 +44,8 @@ using namespace lol;
 Pty::Pty(ivec2 size)
   : m_fd(-1),
     m_pid(-1),
+    m_unread_data(0),
+    m_unread_len(0),
     m_size(size)
 {
     ;
@@ -51,6 +53,8 @@ Pty::Pty(ivec2 size)
 
 Pty::~Pty()
 {
+    delete m_unread_data;
+
     if (m_fd >= 0)
     {
         close((int)m_fd);
@@ -101,6 +105,20 @@ void Pty::Run(char const *command)
 
 size_t Pty::ReadData(char *data, size_t maxlen)
 {
+    /* Do we have data from previous call? */
+    if (m_unread_len)
+    {
+        /* FIXME: check that m_unread_len < maxlen */
+        memcpy(data, m_unread_data, m_unread_len);
+
+        data += m_unread_len;
+        maxlen -= m_unread_len;
+
+        delete[] m_unread_data;
+        m_unread_data = 0;
+        m_unread_len = 0;
+    }
+
     fd_set fdset;
     int maxfd = -1;
 
@@ -136,6 +154,25 @@ size_t Pty::ReadData(char *data, size_t maxlen)
     }
 
     return 0;
+}
+
+void Pty::UnreadData(char *data, size_t len)
+{
+    char *new_data;
+
+    if (m_unread_data)
+    {
+        new_data = new char[m_unread_len + len];
+        memcpy(new_data + len, m_unread_data, m_unread_len);
+        delete[] m_unread_data;
+    }
+    else
+    {
+        new_data = new char[len];
+    }
+
+    memcpy(new_data, data, len);
+    m_unread_data = new_data;
 }
 
 void Pty::SetWindowSize(ivec2 size)

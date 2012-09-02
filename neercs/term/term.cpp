@@ -24,6 +24,9 @@ Term::Term(ivec2 size)
     char const *shell = getenv("SHELL");
     if (!shell)
         shell = "/bin/sh";
+    shell = "cacaclock";
+    shell = "cacademo";
+    shell = "cacafire";
     m_pty->Run(shell);
 #endif
 }
@@ -37,13 +40,21 @@ void Term::TickGame(float seconds)
     /* XXX: for now we draw fancy shit */
     m_time += seconds;
 
+    size_t total = 0;
     for (;;)
     {
         char buf[BUFSIZ];
-        size_t bytes = m_pty->ReadData(buf, BUFSIZ);
-        if (bytes <= 0)
+        size_t current = m_pty->ReadData(buf, BUFSIZ);
+        if (current <= 0)
             break;
-        ReadAnsi(buf, bytes);
+        total += current;
+        size_t processed = ReadAnsi(buf, current);
+        if (processed < current)
+            m_pty->UnreadData(buf + processed, current - processed);
+        if (current < BUFSIZ)
+            break;
+//        if (total > 10000)
+//            break;
     }
 #else
     /* Unsupported platform - draw some fancy shit instead */
