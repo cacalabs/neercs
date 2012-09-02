@@ -119,14 +119,18 @@ ivec2 canvas_char(0,0);    // canvas char number
 ivec2 canvas_size(0,0);    // caca size
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
-int setup_option = 0;           // selected option
+int setup_n = 0;                // item/option number
+int setup_h = 6;                // height
+int setup_cursor = 0;           // cursor position
+int setup_option_i = 0;         // selected option
 int setup_option_n = 10;        // option number
-int setup_item = 0;             // selected item
+int setup_option_p = 0;         // option position
+int setup_item_i = 0;           // selected item
 int setup_item_n = 8;           // item number
+int setup_item_p = 0;           // item position
 int setup_item_key = 0;         // item array key
-int setup_n = 0;                // contextual option/item number
 ivec2 setup_p(1,1);             // position [x,y]
-ivec3 setup_size(30,0,12);      // size [w,h,split]
+ivec3 setup_size(30,7,12);      // size [w,h,split]
 ivec2 setup_color(0x678,0x234); // color [foreground,background]
 char const *setup_text[] = {
     "theme",
@@ -359,7 +363,7 @@ int calc_item_length()
     int n = !setup_switch ? setup_option_n : setup_item_n;
     for (int i = 0; i < n; i++)
     {
-        int k = !setup_switch ? (i * (setup_item_n + 1)) : (setup_option * (setup_item_n + 1) + 1 + i);
+        int k = !setup_switch ? (i * (setup_item_n + 1)) : (setup_option_i * (setup_item_n + 1) + 1 + i);
         if (setup_text[k] == "") return i - 1;
     }
     return n - 1;
@@ -530,9 +534,7 @@ int Render::CreateGLWindow()
 
     caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
 
-    setup_size.y = ((setup_option_n > setup_item_n) ? setup_option_n : setup_item_n) + 1;
     setup_p = (canvas_char - setup_size.xy) / 2;
-
     setup_n = calc_item_length();
 
     InitDraw();
@@ -600,14 +602,30 @@ void Render::TickDraw(float seconds)
         {
             if (!setup_switch)
             {
-                setup_option--;
-                if (setup_option < 0) setup_option = setup_n;
-                setup_item = 0;
+                if (setup_cursor > 0)
+                {
+                    setup_cursor--;
+                }
+                else
+                {
+                    if ((setup_option_p > 0) && setup_cursor == 0) setup_option_p--;
+                }
+                if (setup_option_i > 0)
+                {
+                    setup_option_i--;
+                }
+                else
+                {
+                    setup_option_i = setup_option_n - 1;
+                    setup_option_p = setup_option_n - setup_h;
+                    setup_cursor = setup_h - 1;
+                }
+                setup_item_i = 0;
             }
             else
             {
-                setup_item--;
-                if (setup_item < 0) setup_item = setup_n;
+                setup_item_i--;
+                if (setup_item_i < 0) setup_item_i = setup_n;
             }
         }
     }
@@ -617,14 +635,30 @@ void Render::TickDraw(float seconds)
         {
             if (!setup_switch)
             {
-                setup_option++;
-                if (setup_option > setup_n) setup_option = 0;
-                setup_item = 0;
+                if (setup_cursor < setup_h - 1)
+                {
+                    setup_cursor++;
+                }
+                else
+                {
+                    if ((setup_option_p + setup_h < setup_option_n) && setup_cursor == setup_h - 1) setup_option_p++;
+                }
+                if (setup_option_i < setup_option_n - 1)
+                {
+                    setup_option_i++;
+                }
+                else
+                {
+                    setup_option_i = 0;
+                    setup_option_p = 0;
+                    setup_cursor = 0;
+                }
+                setup_item_i = 0;
             }
             else
             {
-                setup_item++;
-                if (setup_item > setup_n) setup_item = 0;
+                setup_item_i++;
+                if (setup_item_i > setup_n) setup_item_i = 0;
             }
         }
     }
@@ -634,11 +668,12 @@ void Render::TickDraw(float seconds)
         {
             if (!setup_switch)
             {
-                setup_option = 0;
+                setup_option_i -= setup_cursor;
+                setup_cursor = 0;
+                setup_item_i = 0;
             }
             else
             {
-                setup_item = 0;
             }
         }
     }
@@ -648,12 +683,13 @@ void Render::TickDraw(float seconds)
         {
             if (!setup_switch)
             {
-                setup_option = setup_n;
-                setup_item = 0;
+                setup_option_i += setup_h - setup_cursor - 1;
+                setup_cursor = setup_h - 1;
+                setup_item_i = 0;
             }
             else
             {
-                setup_item = setup_n;
+                setup_item_i = setup_n;
             }
         }
     }
@@ -764,11 +800,11 @@ void Render::TickDraw(float seconds)
         caca_draw_line(m_caca, setup_p.x, setup_p.y, setup_p.x + setup_size.x, setup_p.y,' ');
         caca_put_str(m_caca, setup_p.x + setup_size.x / 2 - 3, setup_p.y, "SETUP");
         /* display option */
-        for (int i = 0; i < setup_option_n; i++)
+        for (int i = 0; i < setup_h; i++)
         {
             int y = setup_p.y + 1 + i;
-            int k = i * (setup_item_n + 1);
-            if (setup_option != i || setup_switch)
+            int k = (setup_option_p + i) * (setup_item_n + 1);
+            if (setup_option_i != setup_option_p + i || setup_switch)
             {
                 caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
                 caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
@@ -781,11 +817,11 @@ void Render::TickDraw(float seconds)
             }
         }
         /* display item */
-        for (int i = 0; i < setup_item_n; i++)
+        for (int i = 0; i < setup_h; i++)
         {
             int y = setup_p.y + 1 + i;
-            int k = setup_option * (setup_item_n + 1) + 1 + i;
-            if (setup_item != i || !setup_switch)
+            int k = setup_option_i * (setup_item_n + 1) + 1 + setup_item_p + i;
+            if (setup_item_i != i || !setup_switch)
             {
                 caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
                 caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
@@ -799,7 +835,7 @@ void Render::TickDraw(float seconds)
         }
         /* display variable */
         int y = setup_p.y + setup_size.y;
-        setup_item_key = setup_option * (setup_item_n + 1) + 1 + setup_item;
+        setup_item_key = setup_option_i * (setup_item_n + 1) + 1 + setup_item_i;
         caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
         caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
         if (setup_switch)
