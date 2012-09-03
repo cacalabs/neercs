@@ -78,7 +78,7 @@ void Pty::Run(char const *command)
     }
     else if (pid == 0)
     {
-        SetWindowSize(m_size);
+        SetWindowSize(0, m_size);
 
         /* putenv() eats the string, they need to be writable */
         static char tmp1[] = "CACA_DRIVER=slang";
@@ -175,7 +175,7 @@ void Pty::UnreadData(char *data, size_t len)
     m_unread_data = new_data;
 }
 
-void Pty::SetWindowSize(ivec2 size)
+void Pty::SetWindowSize(int64_t fd, ivec2 size)
 {
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
     m_size = size;
@@ -185,7 +185,7 @@ void Pty::SetWindowSize(ivec2 size)
     memset(&ws, 0, sizeof(ws));
     ws.ws_row = size.y;
     ws.ws_col = size.x;
-    ioctl((int)m_fd, TIOCSWINSZ, (char *)&ws);
+    ioctl((int)fd, TIOCSWINSZ, (char *)&ws);
 #endif
 }
 

@@ -25,8 +25,8 @@ Term::Term(ivec2 size)
     if (!shell)
         shell = "/bin/sh";
     shell = "cacaclock";
-    shell = "cacademo";
     shell = "cacafire";
+    shell = "cacademo";
     m_pty->Run(shell);
 #endif
 }
