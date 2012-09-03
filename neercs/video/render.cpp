@@ -115,7 +115,7 @@ ivec2 border;              // border width
 ivec2 ratio_2d(2,4);       // 2d ratio
 ivec2 map_size(256,256);   // texture map size
 ivec2 font_size(8,8);      // font size
-ivec2 canvas_char(0,0);    // canvas char number
+ivec2 canvas_char(45,16);  // canvas char number
 ivec2 canvas_size(0,0);    // caca size
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
@@ -171,13 +171,13 @@ char const *setup_text[] = {
         "",
     "screen",
         "enable",
+        "char number w",
+        "char number h",
         "deform ratio",
         "zoom base",
         "corner radius",
         "corner blur",
         "vignetting",
-        "",
-        "",
     "color",
         "filter red",
         "filter green",
@@ -263,13 +263,13 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0),
     vec4(0), /* screen */
         vec4( 0, 1, 1, 1),
+        vec4( 0.0f, 80.0f, 1.0f, canvas_char.x),
+        vec4( 0.0f, 50.0f, 1.0f, canvas_char.y),
         vec4( 0.0f, 1.0f, 0.05f, postfx_deform.x),
         vec4( 0.5f, 0.7f, 0.01f, postfx_deform.y),
         vec4( 0.0f, 1.0f, 0.05f, postfx_corner.x),
         vec4( 0.0f, 1.0f, 0.05f, postfx_corner.y),
         vec4(-1.0f, 1.0f, 0.10f, postfx_vignetting),
-        vec4(0),
-        vec4(0),
     vec4(0), /* color */
         vec4(0.0f, 1.0f, 0.05f, color_filter.x),
         vec4(0.0f, 1.0f, 0.05f, color_filter.y),
@@ -335,10 +335,11 @@ void Render::UpdateVar()
     blur = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     k += 6; /* screen */
     m_shader_postfx = (setup_var[k].w == 1) ? true : false; k++;
+    canvas_char = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_deform = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_corner = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_vignetting = setup_var[k].w; k++;
-    k += 3; /* color */
+    k += 1; /* color */
     color_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     color_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_aberration = setup_var[k].w; k++;
@@ -353,9 +354,11 @@ void Render::UpdateVar()
     k += 1; /* moire */
     postfx_moire_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_moire_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    k++; /* scanline */
+    k += 1; /* scanline */
     postfx_scanline_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_scanline_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+
+    caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
 }
 
 int calc_item_length()
@@ -875,6 +878,11 @@ void Render::TickDraw(float seconds)
                 caca_put_str(m_caca, setup_p.x + setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
             }
         }
+    /* informations */
+    int w = caca_get_canvas_width(m_caca);
+    int h = caca_get_canvas_height(m_caca);
+    caca_set_color_argb(m_caca, 0xfff, 0x000);
+    caca_printf(m_caca, 1, 1, "W=%i*%i", w, h);
     }
 
     Draw2D();
