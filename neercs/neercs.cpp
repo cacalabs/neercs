@@ -45,7 +45,7 @@ extern "C"
 }
 
 Neercs::Neercs(int argc, char **argv)
-  : m_term(new Term(ivec2(80, 25))),
+  : m_term(new Term(ivec2(45, 16))),
     m_render(new Render(m_term->GetCaca())),
     m_ready(false)
 {
