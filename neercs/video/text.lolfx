@@ -2,7 +2,7 @@
 
 #version 130
 
-#define HAVE_UINT 0
+#define HAVE_UINT 1
 
 attribute vec2 in_Position;
 #if HAVE_UINT
