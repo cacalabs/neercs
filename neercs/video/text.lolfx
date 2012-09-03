@@ -2,8 +2,14 @@
 
 #version 130
 
+#define HAVE_UINT 0
+
 attribute vec2 in_Position;
+#if HAVE_UINT
 attribute uint in_Char, in_Attr;
+#else
+attribute vec4 in_Char, in_Attr;
+#endif
 
 varying vec4 pass_Foreground;
 varying vec4 pass_Background;
@@ -13,10 +19,16 @@ uniform mat4 in_Transform;
 
 void main()
 {
+#if HAVE_UINT
     float u = float(in_Char & 0xfu) / 32.0 + 0.0;
     float v = float((in_Char >> 4u) & 0xfu) / 32.0 + 0.5;
+#else
+    float u = 3.0 / 32.0;
+    float v = 3.0 / 32.0 + 0.5;
+#endif
     pass_UV = vec2(u, v);
 
+#if HAVE_UINT
     float A = float(in_Attr >> 29u) / 7.0;
     float B = float((in_Attr >> 25u) & 0xfu) / 15.0;
     float C = float((in_Attr >> 21u) & 0xfu) / 15.0;
@@ -26,6 +38,17 @@ void main()
     float F = float((in_Attr >> 11u) & 0xfu) / 15.0;
     float G = float((in_Attr >> 7u) & 0xfu) / 15.0;
     float H = float((in_Attr >> 4u) & 0x7u) / 7.0;
+#else
+    float A = 0.0;
+    float B = 0.0;
+    float C = 0.0;
+    float D = 0.0;
+
+    float E = 0.0;
+    float F = 1.0;
+    float G = 1.0;
+    float H = 1.0;
+#endif
 
     pass_Background = vec4(B, C, D, 1.0 - A);
     pass_Foreground = vec4(F, G, H, 1.0 - E);
