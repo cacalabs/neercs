@@ -109,14 +109,14 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat x,repeat y]
 vec2 postfx_corner(0.75f,0.95f);      // corner [radius,blur]
-/* window variable */
-ivec2 border;              // border width
 /* text variable */
-ivec2 ratio_2d(2,4);       // 2d ratio
-ivec2 map_size(256,256);   // texture map size
-ivec2 font_size(8,8);      // font size
-ivec2 canvas_char(45,16);  // canvas char number
-ivec2 canvas_size(0,0);    // caca size
+ivec2 ratio_2d(2,4);            // 2d ratio
+ivec2 map_size(256,256);        // texture map size
+ivec2 font_size(8,8);           // font size
+ivec2 canvas_char(0,0);         // canvas char number
+ivec2 canvas_size(0,0);         // caca size
+/* window variable */
+ivec2 border = 18 * ratio_2d;   // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -133,11 +133,11 @@ ivec2 setup_p(1,1);             // position [x,y]
 ivec3 setup_size(30,7,12);      // size [w,h,split]
 ivec2 setup_color(0x678,0x234); // color [foreground,background]
 char const *setup_text[] = {
-    "theme",
-        "default",
-        "ye olde monitor",
-        "green screen",
-        "",
+    "main",
+        "2d ratio w",
+        "2d ratio h",
+        "border w",
+        "border h",
         "",
         "",
         "",
@@ -171,13 +171,13 @@ char const *setup_text[] = {
         "",
     "screen",
         "enable",
-        "char number w",
-        "char number h",
         "deform ratio",
         "zoom base",
         "corner radius",
         "corner blur",
         "vignetting",
+        "",
+        "",
     "color",
         "filter red",
         "filter green",
@@ -224,12 +224,13 @@ char const *setup_text[] = {
         "v repeat x",
         "v repeat y"
     };
+
 vec4 setup_var[]={ // setup variable [start,end,step,value]
-    vec4(0), /* theme */
-        vec4(0),
-        vec4(0),
-        vec4(0),
-        vec4(0),
+    vec4(0), /* main */
+        vec4( 1,  8, 1, ratio_2d.x),
+        vec4( 1,  8, 1, ratio_2d.y),
+        vec4( 0, 64, 1, border.x / ratio_2d.x),
+        vec4( 0, 64, 1, border.y / ratio_2d.y),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -263,13 +264,13 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0),
     vec4(0), /* screen */
         vec4( 0, 1, 1, 1),
-        vec4( 0.0f, 80.0f, 1.0f, canvas_char.x),
-        vec4( 0.0f, 50.0f, 1.0f, canvas_char.y),
         vec4( 0.0f, 1.0f, 0.05f, postfx_deform.x),
         vec4( 0.5f, 0.7f, 0.01f, postfx_deform.y),
         vec4( 0.0f, 1.0f, 0.05f, postfx_corner.x),
         vec4( 0.0f, 1.0f, 0.05f, postfx_corner.y),
         vec4(-1.0f, 1.0f, 0.10f, postfx_vignetting),
+        vec4(0),
+        vec4(0),
     vec4(0), /* color */
         vec4(0.0f, 1.0f, 0.05f, color_filter.x),
         vec4(0.0f, 1.0f, 0.05f, color_filter.y),
@@ -320,8 +321,11 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
 
 void Render::UpdateVar()
 {
-    int k = 1; /* theme */
-    k += 9; /* remanency */
+    int k = 1; /* main */
+    //ratio_2d = vec2(setup_var[k].w, setup_var[k + 1].w);
+    k += 2;
+    border = vec2(setup_var[k].w, setup_var[k + 1].w) * ratio_2d; k += 2;
+    k += 5; /* remanency */
     m_shader_remanency = (setup_var[k].w == 1) ? true : false; k++;
     buffer = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     remanency = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
@@ -335,11 +339,10 @@ void Render::UpdateVar()
     blur = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     k += 6; /* screen */
     m_shader_postfx = (setup_var[k].w == 1) ? true : false; k++;
-    canvas_char = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_deform = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_corner = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_vignetting = setup_var[k].w; k++;
-    k += 1; /* color */
+    k += 3; /* color */
     color_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     color_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_aberration = setup_var[k].w; k++;
@@ -358,7 +361,21 @@ void Render::UpdateVar()
     postfx_scanline_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_scanline_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
 
+    UpdateSize();
+}
+
+void Render::UpdateSize()
+{
+    screen_size = Video::GetSize();
+    //border.y = border.x; // enabled to get same border everywhere
+    canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
+    canvas_size = canvas_char * font_size * ratio_2d;
+
+    border = (screen_size - canvas_size) / 2;
+
     caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
+
+    setup_p = (canvas_char - setup_size.xy) / 2;
 }
 
 int calc_item_length()
@@ -424,29 +441,18 @@ FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_tmp;
 
 TextRender *text_render;
 
-void fs_quad()
+void Render::TraceQuad()
 {
     glLoadIdentity();
     glDrawArrays(GL_QUADS, 0, 4);
 }
 
-void draw_shader_simple(FrameBuffer *fbo_output, int n)
+void Render::ShaderSimple(FrameBuffer *fbo_output, int n)
 {
     shader_simple->Bind();
     shader_simple->SetUniform(shader_simple_texture, fbo_output->GetTexture(), n);
-    fs_quad();
+    TraceQuad();
     shader_simple->Unbind();
-}
-
-void rectangle(int x, int y, int w, int h)
-{
-    glLoadIdentity();
-    glBegin(GL_QUADS);
-        glVertex2i(x+w, y  );
-        glVertex2i(x  , y  );
-        glVertex2i(x  , y+h);
-        glVertex2i(x+w, y+h);
-    glEnd();
 }
 
 int Render::InitDraw(void)
@@ -527,19 +533,7 @@ int Render::InitDraw(void)
 
 int Render::CreateGLWindow()
 {
-    screen_size = Video::GetSize();
-    border = 18 * ratio_2d;
-    border.y = border.x; // enabled to get same border everywhere
-    canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
-    canvas_size = canvas_char * font_size * ratio_2d;
-
-    border = (screen_size - canvas_size) / 2;
-
-    caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
-
-    setup_p = (canvas_char - setup_size.xy) / 2;
-    setup_n = calc_item_length();
-
+    UpdateSize();
     InitDraw();
     return true;
 }
@@ -582,6 +576,7 @@ void Render::TickDraw(float seconds)
     if (Input::WasPressed(Key::F1))
     {
         m_setup = !m_setup;
+        if (m_setup) setup_n = calc_item_length();
         sync_flag = true;
         sync_angle = main_angle;
     }
@@ -722,7 +717,7 @@ void Render::TickDraw(float seconds)
         {
             setup_var[setup_item_key].w -= setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w < setup_var[setup_item_key].x) setup_var[setup_item_key].w = setup_var[setup_item_key].x;
-            Render::UpdateVar();
+            UpdateVar();
         }
     }
     if (Input::WasPressed(Key::Right))
@@ -731,7 +726,7 @@ void Render::TickDraw(float seconds)
         {
             setup_var[setup_item_key].w += setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w > setup_var[setup_item_key].y) setup_var[setup_item_key].w = setup_var[setup_item_key].y;
-            Render::UpdateVar();
+            UpdateVar();
         }
     }
     if (Input::WasPressed(Key::Home))
@@ -739,7 +734,7 @@ void Render::TickDraw(float seconds)
         if (m_setup && setup_switch)
         {
             setup_var[setup_item_key].w = setup_var[setup_item_key].x;
-            Render::UpdateVar();
+            UpdateVar();
         }
     }
     if (Input::WasPressed(Key::End))
@@ -747,7 +742,7 @@ void Render::TickDraw(float seconds)
         if (m_setup && setup_switch)
         {
             setup_var[setup_item_key].w = setup_var[setup_item_key].y;
-            Render::UpdateVar();
+            UpdateVar();
         }
     }
     if (Input::WasPressed(Key::Return))
@@ -871,18 +866,21 @@ void Render::TickDraw(float seconds)
             {
                 caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
                 caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].y, y,'.');
-                if(setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y,'x');
+                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y,'x');
             }
             else
             {
-                caca_put_str(m_caca, setup_p.x + setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
+                if (setup_var[setup_item_key] != vec4(0))
+                {
+                    caca_put_str(m_caca, setup_p.x + setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
+                }
             }
         }
     /* informations */
     int w = caca_get_canvas_width(m_caca);
     int h = caca_get_canvas_height(m_caca);
     caca_set_color_argb(m_caca, 0xfff, 0x000);
-    caca_printf(m_caca, 1, 1, "W=%i*%i", w, h);
+    caca_printf(m_caca, 0, 0, "%i*%i", w, h);
     }
 
     Draw2D();
@@ -945,12 +943,12 @@ void Render::Draw3D()
         shader_copper->SetUniform(shader_copper_screen_size, (vec2)screen_size);
         shader_copper->SetUniform(shader_copper_time, fx_angle);
         shader_copper->SetUniform(shader_copper_copper, copper);
-        fs_quad();
+        TraceQuad();
         shader_color->Unbind();
         fbo_tmp->Unbind();
         // shader simple
         fbo_back->Bind();
-        draw_shader_simple(fbo_tmp, 0);
+        ShaderSimple(fbo_tmp, 0);
         fbo_back->Unbind();
     }
 
@@ -962,12 +960,12 @@ void Render::Draw3D()
         shader_remanency->SetUniform(shader_remanency_source, fbo_back->GetTexture(), 0);
         shader_remanency->SetUniform(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanency->SetUniform(shader_remanency_mix, remanency);
-        fs_quad();
+        TraceQuad();
         shader_remanency->Unbind();
         fbo_tmp->Unbind();
         // shader simple
         fbo_back->Bind();
-        draw_shader_simple(fbo_tmp, 0);
+        ShaderSimple(fbo_tmp, 0);
         fbo_back->Unbind();
         // save previous fbo
         fbo_tmp->Bind();
@@ -975,12 +973,12 @@ void Render::Draw3D()
         shader_remanency->SetUniform(shader_remanency_source, fbo_front->GetTexture(), 0);
         shader_remanency->SetUniform(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanency->SetUniform(shader_remanency_mix, buffer);
-        fs_quad();
+        TraceQuad();
         shader_remanency->Unbind();
         fbo_tmp->Unbind();
         // shader simple
         fbo_buffer->Bind();
-        draw_shader_simple(fbo_tmp, 0);
+        ShaderSimple(fbo_tmp, 0);
         fbo_buffer->Unbind();
     }
 
@@ -992,7 +990,7 @@ void Render::Draw3D()
         shader_blur_h->Bind();
         shader_blur_h->SetUniform(shader_blur_h_texture, fbo_back->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, glow_large / screen_size.x);
-        fs_quad();
+        TraceQuad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
         // shader blur vertical
@@ -1000,7 +998,7 @@ void Render::Draw3D()
         shader_blur_v->Bind();
         shader_blur_v->SetUniform(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, glow_large / screen_size.y);
-        fs_quad();
+        TraceQuad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
         // shader blur horizontal
@@ -1008,7 +1006,7 @@ void Render::Draw3D()
         shader_blur_h->Bind();
         shader_blur_h->SetUniform(shader_blur_h_texture, fbo_blur_v->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, glow_small / screen_size.x);
-        fs_quad();
+        TraceQuad();
         shader_blur_h->Unbind();
         fbo_blur_h->Unbind();
         // shader blur vertical
@@ -1016,7 +1014,7 @@ void Render::Draw3D()
         shader_blur_v->Bind();
         shader_blur_v->SetUniform(shader_blur_v_texture, fbo_blur_h->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, glow_small / screen_size.y);
-        fs_quad();
+        TraceQuad();
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
         // shader glow
@@ -1025,7 +1023,7 @@ void Render::Draw3D()
         shader_glow->SetUniform(shader_glow_glow, fbo_blur_v->GetTexture(), 0);
         shader_glow->SetUniform(shader_glow_source, fbo_back->GetTexture(), 1);
         shader_glow->SetUniform(shader_glow_mix, glow_mix);
-        fs_quad();
+        TraceQuad();
         shader_glow->Unbind();
         fbo_front->Unbind();
     }
@@ -1033,7 +1031,7 @@ void Render::Draw3D()
     {
         // shader simple
         fbo_front->Bind();
-        draw_shader_simple(fbo_back, 0);
+        ShaderSimple(fbo_back, 0);
         fbo_front->Unbind();
     }
 
@@ -1047,12 +1045,12 @@ void Render::Draw3D()
         shader_color->SetUniform(shader_color_filter, color_filter);
         shader_color->SetUniform(shader_color_color, color_color);
         shader_color->SetUniform(shader_color_flash, flash_value);
-        fs_quad();
+        TraceQuad();
         shader_color->Unbind();
         fbo_tmp->Unbind();
         // shader simple
         fbo_front->Bind();
-        draw_shader_simple(fbo_tmp, 0);
+        ShaderSimple(fbo_tmp, 0);
         fbo_front->Unbind();
     }
 
@@ -1067,12 +1065,12 @@ void Render::Draw3D()
         shader_noise->SetUniform(shader_noise_offset, noise_offset);
         shader_noise->SetUniform(shader_noise_noise, noise_noise);
         shader_noise->SetUniform(shader_noise_retrace, noise_retrace);
-        fs_quad();
+        TraceQuad();
         shader_noise->Unbind();
         fbo_tmp->Unbind();
         // shader simple
         fbo_front->Bind();
-        draw_shader_simple(fbo_tmp, 0);
+        ShaderSimple(fbo_tmp, 0);
         fbo_front->Unbind();
     }
 
@@ -1083,7 +1081,7 @@ void Render::Draw3D()
         shader_blur_h->Bind();
         shader_blur_h->SetUniform(shader_blur_h_texture, fbo_front->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, blur / screen_size.x);
-        fs_quad();
+        TraceQuad();
         shader_blur_h->Unbind();
         fbo_tmp->Unbind();
         // shader blur vertical
@@ -1091,7 +1089,7 @@ void Render::Draw3D()
         shader_blur_v->Bind();
         shader_blur_v->SetUniform(shader_blur_v_texture, fbo_tmp->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, blur / screen_size.y);
-        fs_quad();
+        TraceQuad();
         shader_blur_v->Unbind();
         fbo_front->Unbind();
     }
@@ -1114,13 +1112,13 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_scanline_v, postfx_scanline_v);
         shader_postfx->SetUniform(shader_postfx_corner, postfx_corner);
         shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(sync_value*cosf((main_angle-sync_angle)*6.0f)));
-        fs_quad();
+        TraceQuad();
         shader_postfx->Unbind();
     }
     else
     {
         // shader simple
-        draw_shader_simple(fbo_front, 0);
+        ShaderSimple(fbo_front, 0);
     }
 
     glDisableClientState(GL_VERTEX_ARRAY);

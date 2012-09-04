@@ -23,9 +23,12 @@ protected:
 private:
     int CreateGLWindow();
     int InitDraw();
+    void ShaderSimple(FrameBuffer *fbo_output, int n);
+    void TraceQuad();
     void Pause();
     void Shader();
     void UpdateVar();
+    void UpdateSize();
 
     caca_canvas_t *m_caca;
     bool m_ready;
