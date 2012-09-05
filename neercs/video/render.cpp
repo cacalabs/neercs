@@ -116,7 +116,7 @@ ivec2 font_size(8,8);           // font size
 ivec2 canvas_char(0,0);         // canvas char number
 ivec2 canvas_size(0,0);         // caca size
 /* window variable */
-ivec2 border = 18 * ratio_2d;   // border width
+ivec2 border = vec2(3,1) * ratio_2d * font_size; // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -229,8 +229,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
     vec4(0), /* main */
         vec4( 1,  8, 1, ratio_2d.x),
         vec4( 1,  8, 1, ratio_2d.y),
-        vec4( 0, 64, 1, border.x / ratio_2d.x),
-        vec4( 0, 64, 1, border.y / ratio_2d.y),
+        vec4( 0, 64, 1, border.x / ratio_2d.x / font_size.x),
+        vec4( 0, 64, 1, border.y / ratio_2d.y / font_size.y),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -323,7 +323,7 @@ void Render::UpdateVar()
 {
     int k = 1; /* main */
     ratio_2d = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    border = vec2(setup_var[k].w, setup_var[k + 1].w) * ratio_2d; k += 2;
+    border = vec2(setup_var[k].w, setup_var[k + 1].w) * ratio_2d * font_size; k += 2;
     k += 5; /* remanency */
     m_shader_remanency = (setup_var[k].w == 1) ? true : false; k++;
     buffer = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
