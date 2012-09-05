@@ -8,13 +8,13 @@
 class Pty
 {
 public:
-    Pty(ivec2 size);
+    Pty();
     ~Pty();
 
-    void Run(char const *command);
+    void Run(char const *command, ivec2 size);
     size_t ReadData(char *data, size_t maxlen);
     void UnreadData(char *data, size_t len);
-    void SetWindowSize(int64_t fd, ivec2 size);
+    void SetWindowSize(ivec2 size, int64_t fd = -1);
 
 private:
     int64_t m_fd;

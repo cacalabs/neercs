@@ -20,14 +20,14 @@ Term::Term(ivec2 size)
     m_caca = caca_create_canvas(size.x, size.y);
 
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
-    m_pty = new Pty(size);
+    m_pty = new Pty();
     char const *shell = getenv("SHELL");
     if (!shell)
         shell = "/bin/sh";
     shell = "cacaclock";
     shell = "cacafire";
     shell = "cacademo";
-    m_pty->Run(shell);
+    m_pty->Run(shell, size);
 #endif
 }
 
@@ -39,6 +39,9 @@ void Term::TickGame(float seconds)
     /* This is the real terminal code */
     /* XXX: for now we draw fancy shit */
     m_time += seconds;
+
+    m_pty->SetWindowSize(ivec2(caca_get_canvas_width(m_caca),
+                               caca_get_canvas_height(m_caca)));
 
     size_t total = 0;
     for (;;)

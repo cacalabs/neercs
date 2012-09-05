@@ -41,12 +41,11 @@ using namespace lol;
 
 #include "neercs.h"
 
-Pty::Pty(ivec2 size)
+Pty::Pty()
   : m_fd(-1),
     m_pid(-1),
     m_unread_data(0),
-    m_unread_len(0),
-    m_size(size)
+    m_unread_len(0)
 {
     ;
 }
@@ -61,7 +60,7 @@ Pty::~Pty()
     }
 }
 
-void Pty::Run(char const *command)
+void Pty::Run(char const *command, ivec2 size)
 {
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
     int fd;
@@ -78,7 +77,7 @@ void Pty::Run(char const *command)
     }
     else if (pid == 0)
     {
-        SetWindowSize(0, m_size);
+        SetWindowSize(size, 0);
 
         /* putenv() eats the string, they need to be writable */
         static char tmp1[] = "CACA_DRIVER=slang";
@@ -175,9 +174,15 @@ void Pty::UnreadData(char *data, size_t len)
     m_unread_data = new_data;
 }
 
-void Pty::SetWindowSize(int64_t fd, ivec2 size)
+void Pty::SetWindowSize(ivec2 size, int64_t fd /* = -1 */)
 {
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+    if (m_size == size)
+        return;
+
+    if (fd < 0)
+        fd = m_fd;
+
     m_size = size;
 
     struct winsize ws;
