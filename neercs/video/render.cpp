@@ -322,8 +322,7 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
 void Render::UpdateVar()
 {
     int k = 1; /* main */
-    //ratio_2d = vec2(setup_var[k].w, setup_var[k + 1].w);
-    k += 2;
+    ratio_2d = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     border = vec2(setup_var[k].w, setup_var[k + 1].w) * ratio_2d; k += 2;
     k += 5; /* remanency */
     m_shader_remanency = (setup_var[k].w == 1) ? true : false; k++;
