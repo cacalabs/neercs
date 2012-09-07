@@ -11,9 +11,6 @@
     <ClCompile Include="old\actions.c">
       <Filter>old</Filter>
     </ClCompile>
-    <ClCompile Include="old\ansi.c">
-      <Filter>old</Filter>
-    </ClCompile>
     <ClCompile Include="old\attach.c">
       <Filter>old</Filter>
     </ClCompile>
@@ -107,10 +104,10 @@
     <ClInclude Include="old\python\py_module.h">
       <Filter>old\python</Filter>
     </ClInclude>
-    <ClInclude Include="term\term.h">
+    <ClInclude Include="term\pty.h">
       <Filter>term</Filter>
     </ClInclude>
-    <ClInclude Include="term\pty.h">
+    <ClInclude Include="term\term.h">
       <Filter>term</Filter>
     </ClInclude>
   </ItemGroup>
@@ -123,6 +120,9 @@
     </Filter>
     <Filter Include="old\python">
       <UniqueIdentifier>{9140687d-c5b2-4302-8121-9b12ebf3908e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="term">
+      <UniqueIdentifier>{17f5f0be-6afb-4e39-8cb1-07df59d7ba9b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -39,7 +39,7 @@
 using namespace std;
 using namespace lol;
 
-#include "neercs.h"
+#include "../neercs.h"
 
 Pty::Pty()
   : m_fd(-1),
@@ -52,12 +52,14 @@ Pty::Pty()
 
 Pty::~Pty()
 {
+#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
     delete m_unread_data;
 
     if (m_fd >= 0)
     {
         close((int)m_fd);
     }
+#endif
 }
 
 void Pty::Run(char const *command, ivec2 size)
@@ -104,6 +106,7 @@ void Pty::Run(char const *command, ivec2 size)
 
 size_t Pty::ReadData(char *data, size_t maxlen)
 {
+#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
     /* Do we have data from previous call? */
     if (m_unread_len)
     {
@@ -151,12 +154,14 @@ size_t Pty::ReadData(char *data, size_t maxlen)
             }
         }
     }
+#endif
 
     return 0;
 }
 
 void Pty::UnreadData(char *data, size_t len)
 {
+#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
     char *new_data;
 
     if (m_unread_data)
@@ -172,6 +177,7 @@ void Pty::UnreadData(char *data, size_t len)
 
     memcpy(new_data, data, len);
     m_unread_data = new_data;
+#endif
 }
 
 void Pty::SetWindowSize(ivec2 size, int64_t fd /* = -1 */)
@@ -193,34 +199,3 @@ void Pty::SetWindowSize(ivec2 size, int64_t fd /* = -1 */)
     ioctl((int)fd, TIOCSWINSZ, (char *)&ws);
 #endif
 }
-
-#if 0
-int update_terms(struct screen_list *screen_list)
-{
-    int i, refresh = 0;
-    for (i = 0; i < screen_list->count; i++)
-    {
-        if (screen_list->screen[i]->total && !screen_list->dont_update_coords)
-        {
-            unsigned long int bytes;
-
-            bytes = import_term(screen_list,
-                                screen_list->screen[i],
-                                screen_list->screen[i]->buf,
-                                screen_list->screen[i]->total);
-
-            if (bytes > 0)
-            {
-                screen_list->screen[i]->total -= bytes;
-                memmove(screen_list->screen[i]->buf,
-                        screen_list->screen[i]->buf + bytes,
-                        screen_list->screen[i]->total);
-                if (screen_list->screen[i]->visible || screen_list->modals.mini)
-                    refresh = 1;
-            }
-        }
-    }
-    return refresh;
-}
-#endif
-

@@ -61,7 +61,8 @@ void resize_screen(struct screen *s, int w, int h)
     s->cv = newc;
     caca_gotoxy(newc, caca_get_cursor_x(oldc), caca_get_cursor_y(oldc));
     caca_free_canvas(oldc);
-    set_tty_size(s->fd, w, h);
+    /* FIXME: disabled */
+    //set_tty_size(s->fd, w, h);
 
     s->orig_w = s->w;
     s->orig_h = s->h;

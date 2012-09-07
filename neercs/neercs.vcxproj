@@ -49,7 +49,6 @@
   <ItemGroup>
     <ClCompile Include="neercs.cpp" />
     <ClCompile Include="old\actions.c" />
-    <ClCompile Include="old\ansi.c" />
     <ClCompile Include="old\attach.c" />
     <ClCompile Include="old\client.c" />
     <ClCompile Include="old\configuration.c" />
@@ -70,9 +69,9 @@
     <ClCompile Include="old\server.c" />
     <ClCompile Include="old\widgets.c" />
     <ClCompile Include="old\wm.cpp" />
-    <ClInclude Include="term\ansi.cpp" />
-    <ClInclude Include="term\pty.cpp" />
-    <ClInclude Include="term\term.cpp" />
+    <ClCompile Include="term\pty.cpp" />
+    <ClCompile Include="term\term.cpp" />
+    <ClCompile Include="term\ansi.cpp" />
     <ClCompile Include="video\render.cpp" />
     <ClCompile Include="video\text-render.cpp" />
   </ItemGroup>
