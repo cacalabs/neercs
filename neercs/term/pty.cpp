@@ -53,7 +53,7 @@ Pty::Pty()
 Pty::~Pty()
 {
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
-    delete m_unread_data;
+    delete[] m_unread_data;
 
     if (m_fd >= 0)
     {

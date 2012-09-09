@@ -864,7 +864,9 @@ void Render::TickDraw(float seconds)
             int bar_x = bar_w * setup_var[setup_item_key].x;
             if ((setup_var[setup_item_key].y - setup_var[setup_item_key].x) / setup_var[setup_item_key].z > 1)
             {
-                caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
+                /* Work around a bug in libcaca */
+                if (setup_p.x + setup_size.x - 4 < caca_get_canvas_width(m_caca))
+                    caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
                 caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].y, y,'.');
                 if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y,'x');
             }
