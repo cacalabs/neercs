@@ -12,8 +12,11 @@ public:
     ~Pty();
 
     void Run(char const *command, ivec2 size);
+
     size_t ReadData(char *data, size_t maxlen);
     void UnreadData(char *data, size_t len);
+    size_t WriteData(char const *data, size_t len);
+
     void SetWindowSize(ivec2 size, int64_t fd = -1);
 
 private:

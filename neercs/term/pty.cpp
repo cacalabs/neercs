@@ -180,6 +180,16 @@ void Pty::UnreadData(char *data, size_t len)
 #endif
 }
 
+size_t Pty::WriteData(char const *data, size_t len)
+{
+#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+    /* FIXME: can we be more naive than that? */
+    return write((int)m_fd, data, len);
+#endif
+
+    return 0;
+}
+
 void Pty::SetWindowSize(ivec2 size, int64_t fd /* = -1 */)
 {
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
