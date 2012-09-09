@@ -108,7 +108,7 @@ vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat x,repeat y]
-vec2 postfx_corner(0.75f,0.95f);      // corner [radius,blur]
+vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
 /* text variable */
 ivec2 ratio_2d(2,4);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
@@ -173,10 +173,10 @@ char const *setup_text[] = {
         "enable",
         "deform ratio",
         "zoom base",
+        "corner width",
         "corner radius",
         "corner blur",
         "vignetting",
-        "",
         "",
     "color",
         "filter red",
@@ -229,8 +229,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
     vec4(0), /* main */
         vec4( 1,  8, 1, ratio_2d.x),
         vec4( 1,  8, 1, ratio_2d.y),
-        vec4( 0, 64, 1, border.x / ratio_2d.x / font_size.x),
-        vec4( 0, 64, 1, border.y / ratio_2d.y / font_size.y),
+        vec4( 0, 16, 1, border.x / ratio_2d.x / font_size.x),
+        vec4( 0, 16, 1, border.y / ratio_2d.y / font_size.y),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -266,10 +266,10 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4( 0, 1, 1, 1),
         vec4( 0.0f, 1.0f, 0.05f, postfx_deform.x),
         vec4( 0.5f, 0.7f, 0.01f, postfx_deform.y),
-        vec4( 0.0f, 1.0f, 0.05f, postfx_corner.x),
+        vec4( 0.0f, 4.0f, 0.10f, postfx_corner.x),
         vec4( 0.0f, 1.0f, 0.05f, postfx_corner.y),
+        vec4( 0.0f, 1.0f, 0.05f, postfx_corner.z),
         vec4(-1.0f, 1.0f, 0.10f, postfx_vignetting),
-        vec4(0),
         vec4(0),
     vec4(0), /* color */
         vec4(0.0f, 1.0f, 0.05f, color_filter.x),
@@ -339,9 +339,9 @@ void Render::UpdateVar()
     k += 6; /* screen */
     m_shader_postfx = (setup_var[k].w == 1) ? true : false; k++;
     postfx_deform = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    postfx_corner = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    postfx_corner = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_vignetting = setup_var[k].w; k++;
-    k += 3; /* color */
+    k += 2; /* color */
     color_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     color_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_aberration = setup_var[k].w; k++;

@@ -24,7 +24,7 @@ uniform vec4 moire_h;
 uniform vec4 moire_v;
 uniform vec4 scanline_h;
 uniform vec4 scanline_v;
-uniform vec2 corner;
+uniform vec3 corner;
 uniform float sync;
 
 vec2 screen(in vec2 p,in float radius)
@@ -38,9 +38,9 @@ vec3 get_color(in sampler2D tex,in vec2 p)
 	return texture2D(tex,clamp(p,-1.0,0.0)).xyz;
 	}
 
-float letterbox(in vec2 p,in float radius,in float smooth)
+float letterbox(in vec2 p,in float w,in float radius,in float smooth)
 	{
-	return 1.0-smoothstep(smooth,1.0,length(max(abs(p*2.0+1.0)-vec2(radius),0.0))+radius);
+	return 1.0-smoothstep(smooth,1.0,length(max(abs(p*w+w/2.0)-vec2(radius),0.0))+radius);
 	}
 
 void main(void)
@@ -69,6 +69,6 @@ void main(void)
 	c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w));	// scanline h
 	c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w));	// scanline v
 	c*=(mask-vignetting);									// vignetting
-	c*=letterbox(z,corner.x,corner.y);						// corner
+	c*=letterbox(z,corner.x+2.0,corner.y,corner.z);			// corner
 	gl_FragColor=vec4(c,1.0);
 	}
