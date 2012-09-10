@@ -26,10 +26,11 @@ uniform vec4 scanline_h;
 uniform vec4 scanline_v;
 uniform vec3 corner;
 uniform float sync;
+uniform float beat;
 
 vec2 screen(in vec2 p,in float radius)
     {
-    float d=deform.x+sync*0.0625;
+    float d=deform.x+sync*0.0625+beat*0.0375;
     return p*(1.5-(radius*cos(p.x*d)+radius*cos(p.y*d)))-0.5;
     }
 

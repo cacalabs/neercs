@@ -95,15 +95,15 @@ vec2 glow_small(1.0f,1.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.5f);           // blur radius [center,corner]
 vec4 copper(0.125,0.125,32,64); // copper [base,variable,repeat x,repeat y]
 vec3 color_filter(0.9f,0.9f,1.0f);    // color filter [red,green,blue]
-vec3 color_color(1.2f,1.1f,0.25f);    // color modifier [brightness,contrast,grayscale]
+vec3 color_color(1.0f,1.0f,0.40f);    // color modifier [brightness,contrast,grayscale]
 vec2 noise_offset(2.0f,2.0f);         // random line [horizontal,vertical]
 float noise_noise = 0.25f;            // noise
 vec3 noise_retrace(1.0f,1.0f,0.5f);   // retrace [strength,length,speed]
 vec2 postfx_deform(0.7f,0.54f);       // deformation [ratio,zoom]
 float postfx_vignetting = -0.5f;      // vignetting strength
 float postfx_aberration = 3.0f;       // chromatic aberration
-vec4 postfx_ghost1(0.01f,0.0f,0.1f,-0.25f);     // ghost picture 1 [position x,position y,position z,strength]
-vec4 postfx_ghost2(0.02f,0.0f,0.1f,0.25f);      // ghost picture 2 [position x,position y,position z,strength]
+vec4 postfx_ghost1(0.0f,0.0f,-2.0f,-0.15f);     // ghost picture 1 [position x,position y,position z,strength]
+vec4 postfx_ghost2(0.0f,0.0f,2.0f,0.15f);       // ghost picture 2 [position x,position y,position z,strength]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
 vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
@@ -434,7 +434,8 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_scanline_h,
               shader_postfx_scanline_v,
               shader_postfx_corner,
-              shader_postfx_sync;
+              shader_postfx_sync,
+              shader_postfx_beat;
 
 FrameBuffer *fbo_back, *fbo_front, *fbo_buffer;
 FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_tmp;
@@ -527,6 +528,7 @@ int Render::InitDraw(void)
     shader_postfx_scanline_v = shader_postfx->GetUniformLocation("scanline_v");
     shader_postfx_corner = shader_postfx->GetUniformLocation("corner");
     shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
+    shader_postfx_beat = shader_postfx->GetUniformLocation("beat");
 
     return true;
 }
@@ -662,9 +664,16 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::F2))
     {
-        m_polygon = !m_polygon;
-        polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
-        glPolygonMode(GL_FRONT, polygon_fillmode);
+        m_shader_glow = !m_shader_glow;
+        m_shader_blur = !m_shader_blur;
+        m_shader_remanency = !m_shader_remanency;
+        m_shader_copper = !m_shader_copper;
+        m_shader_color = !m_shader_color;
+        m_shader_noise = !m_shader_noise;
+        m_shader_postfx = !m_shader_postfx;
+        //m_polygon = !m_polygon;
+        //polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
+        //glPolygonMode(GL_FRONT, polygon_fillmode);
     }
    if (Input::WasPressed(Key::Tab))
     {
@@ -827,8 +836,10 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::Return))
     {
-        flash_flag = true;
-        flash_angle = main_angle;
+        beat_flag = true;
+        beat_angle = main_angle;
+        //flash_flag = true;
+        //flash_angle = main_angle;
     }
 
     Entity::TickDraw(seconds);
@@ -1116,6 +1127,7 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_scanline_v, postfx_scanline_v);
         shader_postfx->SetUniform(shader_postfx_corner, postfx_corner);
         shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(sync_value*cosf((main_angle-sync_angle)*6.0f)));
+        shader_postfx->SetUniform(shader_postfx_beat, (float)fabs(beat_value*cosf((main_angle-beat_angle)*6.0f)));
         TraceQuad();
         shader_postfx->Unbind();
     }
