@@ -24,18 +24,17 @@ using namespace lol;
 #include "term.h"
 
 Term::Term(ivec2 size)
-  : m_time(0.f)
+  : m_pty(0),
+    m_caca(caca_create_canvas(size.x, size.y)),
+    m_size(size),
+    m_title(0),
+    m_time(0.f)
 {
-    m_caca = caca_create_canvas(size.x, size.y);
-
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
     m_pty = new Pty();
     char const *shell = getenv("SHELL");
     if (!shell)
         shell = "/bin/sh";
-    shell = "cacaclock";
-    shell = "cacafire";
-    shell = "cacademo";
     m_pty->Run(shell, size);
 #endif
 }
@@ -45,6 +44,33 @@ void Term::TickGame(float seconds)
     Entity::TickGame(seconds);
 
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+    bool have_ctrl = Input::GetStatus(Key::LeftCtrl)
+                      || Input::GetStatus(Key::RightCtrl);
+    bool have_shift = Input::GetStatus(Key::LeftShift)
+                       || Input::GetStatus(Key::RightShift);
+
+    for (int i = 0x0; i < 0x7f; ++i)
+    {
+        if (Input::WasPressed((Key::Value)i))
+        {
+            if (have_ctrl && i >= 'a' && i <= 'z')
+            {
+                char c = i + 1 - 'a';
+                m_pty->WriteData(&c, 1);
+            }
+            else if (have_shift && i >= 'a' && i <= 'z')
+            {
+                char c = i + 'A' - 'a';
+                m_pty->WriteData(&c, 1);
+            }
+            else
+            {
+                char c = i;
+                m_pty->WriteData(&c, 1);
+            }
+        }
+    }
+
     /* This is the real terminal code */
     /* XXX: for now we draw fancy shit */
     m_time += seconds;
