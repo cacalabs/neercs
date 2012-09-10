@@ -3,10 +3,10 @@
 #version 120
 
 void main()
-	{
-	gl_Position=gl_Vertex;
-	gl_TexCoord[0]=gl_MultiTexCoord0;
-	}
+    {
+    gl_Position=gl_Vertex;
+    gl_TexCoord[0]=gl_MultiTexCoord0;
+    }
 
 -- GLSL.Frag --
 
@@ -18,20 +18,20 @@ uniform float time;
 uniform vec4 copper;
 
 void main(void)
-	{
-	vec2 p=gl_TexCoord[0].xy;
-	vec3 color=texture2D(texture,p).xyz;
+    {
+    vec2 p=gl_TexCoord[0].xy;
+    vec3 color=texture2D(texture,p).xyz;
 
-	vec3 copper=vec3(0.5);
+    vec3 copper=vec3(0.5);
 
-	copper.x+=0.5*cos(p.y*float(screen_size.y/64)+time*2.0);
-	copper.z+=0.5*sin(p.y*float(screen_size.y/64)+time*2.0);
+    copper.x+=0.5*cos(p.y*float(screen_size.y/64)+time*2.0);
+    copper.z+=0.5*sin(p.y*float(screen_size.y/64)+time*2.0);
 
-	copper*=0.75+0.375*cos(p.y*float(screen_size.x/8)-time*2.0);
+    copper*=0.75+0.375*cos(p.y*float(screen_size.x/8)-time*2.0);
 
-	copper.x=float(int(copper.x*8.0)*32)/256.0;
-	copper.y=float(int(copper.y*8.0)*32)/256.0;
-	copper.z=float(int(copper.z*8.0)*32)/256.0;
+    copper.x=float(int(copper.x*8.0)*32)/256.0;
+    copper.y=float(int(copper.y*8.0)*32)/256.0;
+    copper.z=float(int(copper.z*8.0)*32)/256.0;
 
-	gl_FragColor=vec4((dot(color,color)==1.0)?copper:color,1.0);
-	}
+    gl_FragColor=vec4((dot(color,color)==1.0)?copper:color,1.0);
+    }

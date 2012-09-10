@@ -3,10 +3,10 @@
 #version 120
 
 void main()
-	{
-	gl_Position=gl_Vertex;
-	gl_TexCoord[0]=gl_MultiTexCoord0;
-	}
+    {
+    gl_Position=gl_Vertex;
+    gl_TexCoord[0]=gl_MultiTexCoord0;
+    }
 
 -- GLSL.Frag --
 
@@ -19,16 +19,16 @@ uniform vec3 color;
 uniform float flash;
 
 void main(void)
-	{
-	vec2 p=gl_FragCoord.xy/screen_size.xy;
-	vec3 c=texture2D(texture,p).xyz;
+    {
+    vec2 p=gl_FragCoord.xy/screen_size.xy;
+    vec3 c=texture2D(texture,p).xyz;
 
-	float a=(c.x+c.y+c.z)/3.0;
-	c=mix(c,vec3(a),color.z);								// grayscale
-	c*=filter;												// filter
-	c*=color.x;												// brightness
-	c=0.5+(c-0.5)*color.y;									// contrast
-	c+=flash;												// flash
+    float a=(c.x+c.y+c.z)/3.0;
+    c=mix(c,vec3(a),color.z);                                // grayscale
+    c*=filter;                                                // filter
+    c*=color.x;                                                // brightness
+    c=0.5+(c-0.5)*color.y;                                    // contrast
+    c+=flash;                                                // flash
 
-	gl_FragColor=vec4(c,1.0);
-	}
+    gl_FragColor=vec4(c,1.0);
+    }
