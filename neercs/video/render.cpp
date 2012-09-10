@@ -559,6 +559,86 @@ Render::Render(caca_canvas_t *caca)
 void Render::TickGame(float seconds)
 {
     Entity::TickGame(seconds);
+
+    /* draw setup */
+    if (m_setup)
+    {
+        /* background */
+        caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
+        caca_fill_box(m_caca, setup_p.x, setup_p.y, setup_size.x + 1, setup_size.y,' ');
+        caca_draw_line(m_caca, setup_p.x + setup_size.z - 1, setup_p.y + 1, setup_p.x + setup_size.z - 1, setup_p.y + setup_size.y - 1,'|');
+        /* title */
+        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+        caca_draw_line(m_caca, setup_p.x, setup_p.y, setup_p.x + setup_size.x, setup_p.y,' ');
+        caca_put_str(m_caca, setup_p.x + setup_size.x / 2 - 3, setup_p.y, "SETUP");
+        /* display option */
+        for (int i = 0; i < setup_h; i++)
+        {
+            int y = setup_p.y + 1 + i;
+            int k = (setup_option_p + i) * (setup_item_n + 1);
+            if (setup_option_i != setup_option_p + i || setup_switch)
+            {
+                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
+                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
+            }
+            else
+            {
+                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+                caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.z - 2, y,' ');
+                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
+            }
+        }
+        /* display item */
+        for (int i = 0; i < setup_h; i++)
+        {
+            int y = setup_p.y + 1 + i;
+            int k = setup_option_i * (setup_item_n + 1) + 1 + setup_item_p + i;
+            if (setup_item_i != setup_item_p + i || !setup_switch)
+            {
+                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
+                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
+            }
+            else
+            {
+                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+                caca_draw_line(m_caca, setup_p.x + setup_size.z, y, setup_p.x + setup_size.x, y,' ');
+                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
+            }
+        }
+        /* display variable */
+        int y = setup_p.y + setup_size.y;
+        setup_item_key = setup_option_i * (setup_item_n + 1) + 1 + setup_item_i;
+        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
+        caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
+        if (setup_switch)
+        {
+            int x = setup_p.x + 1;
+            int w = setup_size.x - 3 - 4;
+            int bar_w = w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x);
+            int bar_x = bar_w * setup_var[setup_item_key].x;
+            if ((setup_var[setup_item_key].y - setup_var[setup_item_key].x) / setup_var[setup_item_key].z > 1)
+            {
+                /* Work around a bug in libcaca */
+                if (setup_p.x + setup_size.x - 4 < caca_get_canvas_width(m_caca))
+                    caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
+                caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].y, y,'.');
+                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y,'x');
+            }
+            else
+            {
+                if (setup_var[setup_item_key] != vec4(0))
+                {
+                    caca_put_str(m_caca, setup_p.x + setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
+                }
+            }
+        }
+
+        /* informations */
+        int w = caca_get_canvas_width(m_caca);
+        int h = caca_get_canvas_height(m_caca);
+        caca_set_color_argb(m_caca, 0xfff, 0x000);
+        caca_printf(m_caca, 0, 0, "%i*%i", w, h);
+    }
 }
 
 void Render::Pause()
@@ -805,84 +885,6 @@ void Render::TickDraw(float seconds)
             fade_value = 0;
             fade_flag = false;
         }
-    }
-    /* draw setup */
-    if (m_setup)
-    {
-        /* background */
-        caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-        caca_fill_box(m_caca, setup_p.x, setup_p.y, setup_size.x + 1, setup_size.y,' ');
-        caca_draw_line(m_caca, setup_p.x + setup_size.z - 1, setup_p.y + 1, setup_p.x + setup_size.z - 1, setup_p.y + setup_size.y - 1,'|');
-        /* title */
-        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-        caca_draw_line(m_caca, setup_p.x, setup_p.y, setup_p.x + setup_size.x, setup_p.y,' ');
-        caca_put_str(m_caca, setup_p.x + setup_size.x / 2 - 3, setup_p.y, "SETUP");
-        /* display option */
-        for (int i = 0; i < setup_h; i++)
-        {
-            int y = setup_p.y + 1 + i;
-            int k = (setup_option_p + i) * (setup_item_n + 1);
-            if (setup_option_i != setup_option_p + i || setup_switch)
-            {
-                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
-            }
-            else
-            {
-                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-                caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.z - 2, y,' ');
-                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
-            }
-        }
-        /* display item */
-        for (int i = 0; i < setup_h; i++)
-        {
-            int y = setup_p.y + 1 + i;
-            int k = setup_option_i * (setup_item_n + 1) + 1 + setup_item_p + i;
-            if (setup_item_i != setup_item_p + i || !setup_switch)
-            {
-                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
-            }
-            else
-            {
-                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-                caca_draw_line(m_caca, setup_p.x + setup_size.z, y, setup_p.x + setup_size.x, y,' ');
-                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
-            }
-        }
-        /* display variable */
-        int y = setup_p.y + setup_size.y;
-        setup_item_key = setup_option_i * (setup_item_n + 1) + 1 + setup_item_i;
-        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-        caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
-        if (setup_switch)
-        {
-            int x = setup_p.x + 1;
-            int w = setup_size.x - 3 - 4;
-            int bar_w = w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x);
-            int bar_x = bar_w * setup_var[setup_item_key].x;
-            if ((setup_var[setup_item_key].y - setup_var[setup_item_key].x) / setup_var[setup_item_key].z > 1)
-            {
-                /* Work around a bug in libcaca */
-                if (setup_p.x + setup_size.x - 4 < caca_get_canvas_width(m_caca))
-                    caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
-                caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].y, y,'.');
-                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y,'x');
-            }
-            else
-            {
-                if (setup_var[setup_item_key] != vec4(0))
-                {
-                    caca_put_str(m_caca, setup_p.x + setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
-                }
-            }
-        }
-    /* informations */
-    int w = caca_get_canvas_width(m_caca);
-    int h = caca_get_canvas_height(m_caca);
-    caca_set_color_argb(m_caca, 0xfff, 0x000);
-    caca_printf(m_caca, 0, 0, "%i*%i", w, h);
     }
 
     Draw2D();
