@@ -104,10 +104,10 @@ float postfx_vignetting = -0.5f;      // vignetting strength
 float postfx_aberration = 3.0f;       // chromatic aberration
 vec4 postfx_ghost1(0.0f,0.0f,-2.0f,-0.15f);     // ghost picture 1 [position x,position y,position z,strength]
 vec4 postfx_ghost2(0.0f,0.0f,2.0f,0.15f);       // ghost picture 2 [position x,position y,position z,strength]
-vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat x,repeat y]
-vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat x,repeat y]
-vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat x,repeat y]
-vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat x,repeat y]
+vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat,shift]
+vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat,shift]
+vec4 postfx_scanline_h(0.75f, 0.25f,0.0f,2.0f); // vertical scanline [base,variable,repeat,shift]
+vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
 /* text variable */
 ivec2 ratio_2d(2,4);            // 2d ratio
@@ -208,21 +208,21 @@ char const *setup_text[] = {
     "moire",
         "h base",
         "h variable",
-        "h repeat x",
-        "h repeat y",
+        "h repeat",
+        "h shift",
         "v base",
         "v variable",
-        "v repeat x",
-        "v repeat y",
+        "v repeat",
+        "v shift",
     "scanline",
         "h base",
         "h variable",
-        "h repeat x",
-        "h repeat y",
+        "h repeat",
+        "h shift",
         "v base",
         "v variable",
-        "v repeat x",
-        "v repeat y"
+        "v repeat",
+        "v shift"
     };
 
 vec4 setup_var[]={ // setup variable [start,end,step,value]
@@ -696,7 +696,7 @@ void Render::TickDraw(float seconds)
                 }
                 else
                 {
-                    if ((setup_option_p > 0) && setup_cursor == 0) setup_option_p--;
+                    if (setup_cursor == 0) setup_option_p--;
                 }
                 if (setup_option_i > 0)
                 {
@@ -709,11 +709,28 @@ void Render::TickDraw(float seconds)
                     setup_cursor = setup_h - 1;
                 }
                 setup_item_i = 0;
+                setup_item_p = 0;
             }
             else
             {
-                setup_item_i--;
-                if (setup_item_i < 0) setup_item_i = setup_n;
+                if (setup_cursor > 0)
+                {
+                    setup_cursor--;
+                }
+                else
+                {
+                    if (setup_cursor == 0) setup_item_p--;
+                }
+                if (setup_item_i > 0)
+                {
+                    setup_item_i--;
+                }
+                else
+                {
+                    setup_item_i = setup_n;
+                    setup_item_p = (setup_n < setup_h) ? 0 : setup_n - setup_h + 1;
+                    setup_cursor = (setup_n < setup_h) ? setup_n : setup_h - 1;
+                }
             }
         }
     }
@@ -729,7 +746,7 @@ void Render::TickDraw(float seconds)
                 }
                 else
                 {
-                    if ((setup_option_p + setup_h < setup_option_n) && setup_cursor == setup_h - 1) setup_option_p++;
+                    if (setup_cursor == setup_h - 1) setup_option_p++;
                 }
                 if (setup_option_i < setup_option_n - 1)
                 {
@@ -742,6 +759,7 @@ void Render::TickDraw(float seconds)
                     setup_cursor = 0;
                 }
                 setup_item_i = 0;
+                setup_item_p = 0;
             }
             else
             {
@@ -751,7 +769,7 @@ void Render::TickDraw(float seconds)
                 }
                 else
                 {
-                    if ((setup_item_p + setup_h < setup_n) && setup_cursor == setup_h - 1) setup_item_p++;
+                    if (setup_cursor == setup_h - 1) setup_item_p++;
                 }
                 if (setup_item_i < setup_n)
                 {
@@ -795,8 +813,8 @@ void Render::TickDraw(float seconds)
             }
             else
             {
-                setup_item_i += setup_n - setup_cursor - 1;
-                setup_cursor = setup_h - 1;
+                setup_item_i += (setup_n < setup_h) ? setup_n - setup_cursor : setup_h - setup_cursor - 1;
+                setup_cursor = (setup_n < setup_h) ? setup_n : setup_h - 1;
             }
         }
     }
