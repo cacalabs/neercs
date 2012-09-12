@@ -15,7 +15,7 @@ void main()
 uniform sampler2D texture;
 uniform vec2 screen_size;
 uniform vec3 filter;
-uniform vec3 color;
+uniform vec4 color;
 uniform float flash;
 
 void main(void)
@@ -24,10 +24,11 @@ void main(void)
     vec3 c=texture2D(texture,p).xyz;
 
     float a=(c.x+c.y+c.z)/3.0;
-    c=mix(c,vec3(a),color.z);                                // grayscale
-    c*=filter;                                                // filter
-    c*=color.x;                                                // brightness
-    c=0.5+(c-0.5)*color.y;                                    // contrast
+    c=mix(c,vec3(a),color.w);                                // grayscale
+    c*=filter;                                               // filter
+    c+=color.z;                                              // level
+    c*=color.x;                                              // brightness
+    c=0.5+(c-0.5)*color.y;                                   // contrast
     c+=flash;                                                // flash
 
     gl_FragColor=vec4(c,1.0);

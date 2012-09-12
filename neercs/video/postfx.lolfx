@@ -58,18 +58,18 @@ void main(void)
     vec3 g1=get_color(texture,z1-ghost1.xy);
     vec3 g2=get_color(texture,z2-ghost2.xy);
 
-    vec3 c=source+g1*ghost1.w+g2*ghost2.w;                    // mix
+    vec3 c=source+g1*ghost1.w+g2*ghost2.w;                   // mix
 
-    float v=aberration/float(screen_size.x)+aberration/float(screen_size.x)*(2.0-mask);
+    float v=aberration/float(screen_size.x);//+aberration/float(screen_size.x)*(2.0-mask);
     vec3 ca1=get_color(texture,vec2(z.x-v,z.y));
     vec3 ca2=get_color(texture,vec2(z.x+v,z.y));
     c+=vec3(ca1.x,c.y,ca2.z);                                // chromatic aberration
 
-    c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w));    // moire h
-    c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z))*sin(0.5+z.y*float(screen_size.y*moire_v.w));    // moire v
-    c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w));    // scanline h
-    c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w));    // scanline v
-    c*=(mask-vignetting);                                    // vignetting
-    c*=letterbox(z,corner.x+2.0,corner.y,corner.z);            // corner
+    c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w)); // moire h
+    c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z))*sin(0.5+z.y*float(screen_size.y*moire_v.w)); // moire v
+    c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w)); // scanline h
+    c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w)); // scanline v
+    c*=mix(1.0,mask,vignetting);                             // vignetting
+    c*=letterbox(z,corner.x+2.0,corner.y,corner.z);          // corner
     gl_FragColor=vec4(c,1.0);
     }
