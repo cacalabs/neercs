@@ -50,7 +50,7 @@ void main()
     float H = 1.0;
 #endif
 
-    pass_Background = vec4(B, C, D, 1.0 - A);
+    pass_Background = vec4(0.125, 0.125, 0.125, 1.0 - A);//vec4(B, C, D, 1.0 - A);
     pass_Foreground = vec4(F, G, H, 1.0 - E);
     if (B + C + D < 0.01) A = 1.0;
     if (F + G + H < 0.01) E = 1.0;

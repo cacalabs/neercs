@@ -26,7 +26,7 @@ void main(void)
     float a=(c.x+c.y+c.z)/3.0;
     c=mix(c,vec3(a),color.w);                                // grayscale
     c*=filter;                                               // filter
-    c+=color.z;                                              // level
+    c+=color.z*0.1;                                          // level
     c*=color.x;                                              // brightness
     c=0.5+(c-0.5)*color.y;                                   // contrast
     c+=flash;                                                // flash

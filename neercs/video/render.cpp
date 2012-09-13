@@ -89,21 +89,21 @@ float value, angle, radius, scale, speed;
 /* shader variable */
 vec2 buffer(0.7f,0.3f);         // [new frame mix,old frame mix]
 vec2 remanency(0.5f,0.5f);      // remanency [source mix,buffer mix]
-vec2 glow_mix(0.5f,0.5f);       // glow mix [source mix,glow mix]
+vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
 vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.5f,0.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
 vec4 copper(0.125,0.125,32,64); // copper [base,variable,repeat x,repeat y]
 vec3 color_filter(0.9f,0.9f,1.0f);    // color filter [red,green,blue]
-vec4 color_color(1.25f,1.0f,0.0f,0.35f);        // color modifier [brightness,contrast,level,grayscale]
+vec4 color_color(1.5f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
 vec2 noise_offset(2.0f,2.0f);         // random line [horizontal,vertical]
 float noise_noise = 0.25f;            // noise
 vec3 noise_retrace(1.0f,1.0f,0.5f);   // retrace [strength,length,speed]
 vec2 postfx_deform(0.7f,0.54f);       // deformation [ratio,zoom]
 float postfx_vignetting = 0.0f;       // vignetting strength
 float postfx_aberration = 4.0f;       // chromatic aberration
-vec4 postfx_ghost1(0.0f,0.0f,-2.0f,-0.15f);     // ghost picture 1 [position x,position y,position z,strength]
-vec4 postfx_ghost2(0.0f,0.0f,2.0f,0.15f);       // ghost picture 2 [position x,position y,position z,strength]
+vec4 postfx_ghost1(0.01f,0.0f,0.0f,-0.15f);     // ghost picture 1 [position x,position y,position z,strength]
+vec4 postfx_ghost2(0.02f,0.0f,0.0f,0.15f);      // ghost picture 2 [position x,position y,position z,strength]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat,shift]
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat,shift]
 vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
@@ -550,7 +550,7 @@ Render::Render(caca_canvas_t *caca)
     m_shader_glow(true),
     m_shader_blur(true),
     m_shader_remanency(true),
-    m_shader_copper(true),
+    m_shader_copper(false),
     m_shader_color(true),
     m_shader_noise(true),
     m_shader_postfx(true)
