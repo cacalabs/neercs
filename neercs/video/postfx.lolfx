@@ -55,8 +55,8 @@ void main(void)
     float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);
 
     vec3 source=get_color(texture,z);
-    vec3 g1=get_color(texture,z1-ghost1.xy);
-    vec3 g2=get_color(texture,z2-ghost2.xy);
+    vec3 g1=get_color(texture,z1-ghost1.xy*0.01);
+    vec3 g2=get_color(texture,z2-ghost2.xy*0.01);
 
     vec3 c=source+g1*ghost1.w+g2*ghost2.w;                   // mix
 
