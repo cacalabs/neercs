@@ -120,7 +120,7 @@ ivec2 border = vec2(3,1) * ratio_2d * font_size; // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
-int setup_h = 6;                // height
+int setup_h = 3;                // height
 int setup_cursor = 0;           // cursor position
 int setup_option_i = 0;         // selected option
 int setup_option_n = 10;        // option number
@@ -130,8 +130,8 @@ int setup_item_n = 8;           // item number
 int setup_item_p = 0;           // item position
 int setup_item_key = 0;         // item array key
 ivec2 setup_p(1,1);             // position [x,y]
-ivec3 setup_size(30,7,12);      // size [w,h,split]
-ivec2 setup_color(0x678,0x234); // color [foreground,background]
+ivec3 setup_size(29,4,12);      // size [w,h,split]
+ivec2 setup_color(0xaaa,0x222); // color [foreground,background] 0x678,0x234
 char const *setup_text[] = {
     "main",
         "2d ratio w",
@@ -462,7 +462,7 @@ int Render::InitDraw(void)
     glEnable(GL_CULL_FACE);   // disable cull face
     glCullFace(GL_BACK);      // don't draw front face
 
-    /* Initialise framebuffer objects */
+    /* initialise framebuffer objects */
     fbo_back = new FrameBuffer(screen_size);
     fbo_front = new FrameBuffer(screen_size);
     fbo_buffer = new FrameBuffer(screen_size);
@@ -529,7 +529,8 @@ int Render::InitDraw(void)
     shader_postfx_corner = shader_postfx->GetUniformLocation("corner");
     shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
     shader_postfx_beat = shader_postfx->GetUniformLocation("beat");
-
+    // initialize setup
+    setup_n = calc_item_length();
     return true;
 }
 
@@ -621,10 +622,9 @@ void Render::TickGame(float seconds)
             if ((setup_var[setup_item_key].y - setup_var[setup_item_key].x) / setup_var[setup_item_key].z > 1)
             {
                 /* Work around a bug in libcaca */
-                if (setup_p.x + setup_size.x - 4 < caca_get_canvas_width(m_caca))
-                    caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
+                if (setup_p.x + setup_size.x - 4 < caca_get_canvas_width(m_caca)) caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
                 caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].y, y,'.');
-                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y,'x');
+                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y, 'x');
             }
             else
             {
@@ -633,6 +633,10 @@ void Render::TickGame(float seconds)
                     caca_put_str(m_caca, setup_p.x + setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
                 }
             }
+        }
+        else
+        {
+            caca_printf(m_caca, setup_p.x + 1, y, "%d/%d [%d]", setup_option_i, setup_n, setup_option_p);
         }
 
         /* informations */
@@ -790,14 +794,46 @@ void Render::TickDraw(float seconds)
         {
             if (!setup_switch)
             {
-                setup_option_i -= setup_cursor;
-                setup_cursor = 0;
-                setup_item_i = 0;
+                if (setup_cursor > 0)
+                {
+                    setup_option_i -= setup_cursor;
+                    setup_cursor = 0;
+                }
+                else
+                {
+                    if (setup_option_i > setup_h)
+                    {
+                        setup_option_i -= setup_h;
+                        setup_option_p -= setup_h;
+                    }
+                else
+                    {
+                        setup_option_i = 0;
+                        setup_option_p = 0;
+                    }
+                }
+            setup_item_i = 0;
             }
             else
             {
-                setup_item_i -= setup_cursor;
-                setup_cursor = 0;
+                if (setup_cursor > 0)
+                {
+                    setup_item_i -= setup_cursor;
+                    setup_cursor = 0;
+                }
+                else
+                {
+                    if (setup_item_i > setup_h)
+                    {
+                        setup_item_i -= setup_h;
+                        setup_item_p -= setup_h;
+                    }
+                else
+                    {
+                        setup_item_i = 0;
+                        setup_item_p = 0;
+                    }
+                }
             }
         }
     }
@@ -807,14 +843,46 @@ void Render::TickDraw(float seconds)
         {
             if (!setup_switch)
             {
-                setup_option_i += setup_h - setup_cursor - 1;
-                setup_cursor = setup_h - 1;
-                setup_item_i = 0;
+                if (setup_cursor < setup_h - 1)
+                {
+                    setup_option_i += setup_h - setup_cursor - 1;
+                    setup_cursor = setup_h - 1;
+                    setup_item_i = 0;
+                }
+                else
+                {
+                    if (setup_option_i < setup_option_n - setup_h - 1)
+                    {
+                        setup_option_i += setup_h;
+                        setup_option_p += setup_h;
+                    }
+                else
+                    {
+                        setup_option_i = setup_option_n - 1;
+                        setup_option_p = setup_option_n - setup_h;
+                    }
+                }
             }
             else
             {
-                setup_item_i += (setup_n < setup_h) ? setup_n - setup_cursor : setup_h - setup_cursor - 1;
-                setup_cursor = (setup_n < setup_h) ? setup_n : setup_h - 1;
+                if (setup_cursor < setup_h - 1)
+                {
+                    setup_item_i += (setup_n < setup_h) ? setup_n - setup_cursor : setup_h - setup_cursor - 1;
+                    setup_cursor = (setup_n < setup_h) ? setup_n : setup_h - 1;
+                }
+                else
+                {
+                    if (setup_item_i < setup_n - setup_h + 1)
+                    {
+                        setup_item_i += setup_h;
+                        setup_item_p += setup_h;
+                    }
+                else
+                    {
+                        setup_item_i = setup_n;
+                        setup_item_p = setup_n - setup_h + 1;
+                    }
+                }
             }
         }
     }
