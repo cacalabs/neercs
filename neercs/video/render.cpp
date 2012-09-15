@@ -120,7 +120,7 @@ ivec2 border = vec2(3,1) * ratio_2d * font_size; // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
-int setup_h = 3;                // height
+int setup_h = 8;                // height
 int setup_cursor = 0;           // cursor position
 int setup_option_i = 0;         // selected option
 int setup_option_n = 10;        // option number
@@ -130,7 +130,7 @@ int setup_item_n = 8;           // item number
 int setup_item_p = 0;           // item position
 int setup_item_key = 0;         // item array key
 ivec2 setup_p(1,1);             // position [x,y]
-ivec3 setup_size(29,4,12);      // size [w,h,split]
+ivec3 setup_size(29,9,12);      // size [w,h,split]
 ivec2 setup_color(0xaaa,0x222); // color [foreground,background] 0x678,0x234
 char const *setup_text[] = {
     "main",
