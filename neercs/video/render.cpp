@@ -42,7 +42,6 @@ extern char const *lolfx_noise;
 extern char const *lolfx_postfx;
 
 #define PID M_PI/180.0f    // pi ratio
-#define CR 1.0f/256.0f     // color ratio
 
 /*
  * Various variables
@@ -56,7 +55,7 @@ int polygon_fillmode = GL_FILL; // fill mode
 float timer = 0;           // timer
 /* window variable */
 ivec2 screen_size;         // screen size
-vec3 screen_color = CR * vec3(32, 32, 32); // screen color
+vec3 screen_color = vec3(0.125f, 0.125f, 0.125f); // screen color
 /* object variable */
 float main_angle = 0.0f;   // main angle
 float part_angle = 0.0f;   // part angle
@@ -93,7 +92,6 @@ vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
 vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.5f,0.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
-vec4 copper(0.125,0.125,32,64); // copper [base,variable,repeat x,repeat y]
 vec3 color_filter(0.9f,0.9f,1.0f);    // color filter [red,green,blue]
 vec4 color_color(1.5f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
 vec2 noise_offset(2.0f,2.0f);         // random line [horizontal,vertical]
@@ -109,6 +107,7 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
+vec4 copper(0.75,0.375,64,8);   // copper [base,variable,repeat x,repeat y]
 /* text variable */
 ivec2 ratio_2d(2,4);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
@@ -123,7 +122,7 @@ int setup_n = 0;                // item/option number
 int setup_h = 8;                // height
 int setup_cursor = 0;           // cursor position
 int setup_option_i = 0;         // selected option
-int setup_option_n = 10;        // option number
+int setup_option_n = 11;        // option number
 int setup_option_p = 0;         // option position
 int setup_item_i = 0;           // selected item
 int setup_item_n = 8;           // item number
@@ -222,7 +221,16 @@ char const *setup_text[] = {
         "v base",
         "v variable",
         "v repeat",
-        "v shift"
+        "v shift",
+    "copper",
+        "enable",
+        "base",
+        "variable",
+        "repeat ?",
+        "repeat ?",
+        "",
+        "",
+        ""
     };
 
 vec4 setup_var[]={ // setup variable [start,end,step,value]
@@ -316,7 +324,16 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_v.y),
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.z),
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
-    vec4(0)
+    vec4(0), /* copper */
+        vec4( 0, 1, 1, 1),
+        vec4(0.0f, 1.0f, 0.05f, copper.x),
+        vec4(0.0f, 1.0f, 0.05f, copper.y),
+        vec4(0.0f, 64.0f, 4.00f, copper.z),
+        vec4(0.0f, 8.0f, 1.00f, copper.w),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+    vec4(0) /* ? */
     };
 
 void Render::UpdateVar()
@@ -359,7 +376,9 @@ void Render::UpdateVar()
     k += 1; /* scanline */
     postfx_scanline_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_scanline_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-
+    k += 1; /* copper */
+    m_shader_copper = (setup_var[k].w == 1) ? true : false; k++;
+    copper = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     UpdateSize();
 }
 
@@ -551,7 +570,7 @@ Render::Render(caca_canvas_t *caca)
     m_shader_glow(true),
     m_shader_blur(true),
     m_shader_remanency(true),
-    m_shader_copper(false),
+    m_shader_copper(true),
     m_shader_color(true),
     m_shader_noise(true),
     m_shader_postfx(true)
@@ -645,6 +664,11 @@ void Render::TickGame(float seconds)
         caca_set_color_argb(m_caca, 0xfff, 0x000);
         caca_printf(m_caca, 0, 0, "%i*%i", w, h);
     }
+    /* draw LOL */
+    caca_set_color_argb(m_caca, 0xfff, 0x000);
+    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 3,"█   ███ █");
+    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 2,"█   █ █ █");
+    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 1,"███ ███ ███");
 }
 
 void Render::Pause()
@@ -986,7 +1010,6 @@ void Render::TickDraw(float seconds)
 
     Draw2D();
     Draw3D();
-
 }
 
 void Render::Draw2D()

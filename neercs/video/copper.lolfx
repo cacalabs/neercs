@@ -20,18 +20,18 @@ uniform vec4 copper;
 void main(void)
     {
     vec2 p=gl_TexCoord[0].xy;
-    vec3 color=texture2D(texture,p).xyz;
+    vec3 source=texture2D(texture,p).xyz;
 
-    vec3 copper=vec3(0.5);
+    vec3 color=vec3(0.5);
 
-    copper.x+=0.5*cos(p.y*float(screen_size.y/64)+time*2.0);
-    copper.z+=0.5*sin(p.y*float(screen_size.y/64)+time*2.0);
+    color.x+=0.5*cos(p.y*float(screen_size.y/copper.z)+time*2.0);
+    color.z+=0.5*sin(p.y*float(screen_size.y/copper.z)+time*2.0);
 
-    copper*=0.75+0.375*cos(p.y*float(screen_size.x/8)-time*2.0);
+    color*=copper.x+copper.y*cos(p.y*float(screen_size.x/copper.w)-time*2.0);
 
-    copper.x=float(int(copper.x*8.0)*32)/256.0;
-    copper.y=float(int(copper.y*8.0)*32)/256.0;
-    copper.z=float(int(copper.z*8.0)*32)/256.0;
+    color.x=float(int(color.x*8.0)*32)/256.0;
+    color.y=float(int(color.y*8.0)*32)/256.0;
+    color.z=float(int(color.z*8.0)*32)/256.0;
 
-    gl_FragColor=vec4((dot(color,color)==1.0)?copper:color,1.0);
+    gl_FragColor=vec4((color==1.0)?color:source,1.0);
     }
