@@ -1,4 +1,6 @@
 
+include $(top_srcdir)/build/autotools/common.am
+
 if BUILD_NEERCS
 noinst_PROGRAMS = neercs
 endif
