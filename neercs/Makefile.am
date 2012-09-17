@@ -35,10 +35,6 @@ CLEANFILES = $(noinst_PROGRAMS:%$(EXEEXT)=%.self) \
              $(noinst_PROGRAMS:%$(EXEEXT)=%.elf) \
              $(noinst_PROGRAMS:%$(EXEEXT)=%.exe)
 
-SUFFIXES = .lolfx
-.lolfx.o:
-	$(LOLFX_BUILD)
-
 old_sources = \
     old/actions.c \
     old/ansi.c \
