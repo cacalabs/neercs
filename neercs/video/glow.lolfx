@@ -1,14 +1,14 @@
--- GLSL.Vert --
+[vert.glsl]
 
 #version 120
 
 void main()
-    {
-    gl_Position=gl_Vertex;
-    gl_TexCoord[0]=gl_MultiTexCoord0;
-    }
+{
+    gl_Position = gl_Vertex;
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+}
 
--- GLSL.Frag --
+[frag.glsl]
 
 #version 120
 
@@ -17,6 +17,6 @@ uniform sampler2D source;
 uniform vec2 mix;
 
 void main(void)
-    {
-    gl_FragColor=texture2D(source,gl_TexCoord[0].xy)*mix.x+texture2D(glow,gl_TexCoord[0].xy)*mix.y;
-    }
+{
+    gl_FragColor = texture2D(source,gl_TexCoord[0].xy)*mix.x+texture2D(glow,gl_TexCoord[0].xy)*mix.y;
+}

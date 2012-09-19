@@ -1,4 +1,4 @@
--- GLSL.Vert --
+[vert.glsl]
 
 #version 130
 
@@ -61,7 +61,7 @@ void main()
     gl_Position = in_Transform * vec4(in_Position, 0.0, 1.0);
 }
 
--- GLSL.Frag --
+[frag.glsl]
 
 #version 130
 
