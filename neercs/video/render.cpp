@@ -666,9 +666,13 @@ void Render::TickGame(float seconds)
     }
     /* draw LOL */
     caca_set_color_argb(m_caca, 0xfff, 0x000);
-    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 3,"█   ███ █");
-    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 2,"█   █ █ █");
-    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 1,"███ ███ ███");
+    caca_put_str(m_caca, canvas_char.x - 9 , canvas_char.y - 6, "_______");
+    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 5, "/      /|");
+    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 4, "/______/ |");
+    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 3, "|      | |");
+    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 2, "|  :D  | /");
+    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 1, "|______|/");
+
 }
 
 void Render::Pause()
