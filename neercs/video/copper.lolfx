@@ -24,17 +24,15 @@ void main(void)
 
     vec3 color = vec3(0.5);
 
-    color.x += 0.5*cos(p.y*float(screen_size.y/copper.z)+time*2.0);
-    color.z += 0.5*sin(p.y*float(screen_size.y/copper.z)+time*2.0);
+    color.x += 0.5*cos(p.y*float(screen_size.y/copper.z)+time);
+    color.z += 0.5*sin(p.y*float(screen_size.y/copper.z)+time);
 
-    color *= copper.x+copper.y*cos(p.y*float(screen_size.x/copper.w)-time*2.0);
+    color *= copper.x+copper.y*cos(p.y*float(screen_size.x/copper.w)-time);
 
     color.x = float(int(color.x*8.0)*32)/256.0;
     color.y = float(int(color.y*8.0)*32)/256.0;
     color.z = float(int(color.z*8.0)*32)/256.0;
 
-    color = vec3(1.0,0.0,0.0);
-
-    gl_FragColor = vec4((color==1.0)?color:source,1.0);
+    gl_FragColor = vec4((source==1.0)?color:source,1.0);
 }
 

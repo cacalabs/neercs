@@ -107,7 +107,7 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
-vec4 copper(0.75,0.375,64,8);   // copper [base,variable,repeat x,repeat y]
+vec4 copper(0.75f,0.25f,2.0f,0.40f);  // copper [base,variable,repeat x,repeat y]
 /* text variable */
 ivec2 ratio_2d(2,4);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
@@ -226,8 +226,8 @@ char const *setup_text[] = {
         "enable",
         "base",
         "variable",
-        "repeat ?",
-        "repeat ?",
+        "color repeat",
+        "copper height",
         "",
         "",
         ""
@@ -328,8 +328,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4( 0, 1, 1, 1),
         vec4(0.0f, 1.0f, 0.05f, copper.x),
         vec4(0.0f, 1.0f, 0.05f, copper.y),
-        vec4(0.0f, 64.0f, 4.00f, copper.z),
-        vec4(0.0f, 8.0f, 1.00f, copper.w),
+        vec4(1.0f, 5.0f, 0.10f, copper.z),
+        vec4(0.0f, 1.0f, 0.05f, copper.w),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -582,6 +582,15 @@ void Render::TickGame(float seconds)
 {
     Entity::TickGame(seconds);
 
+    /* draw LOLCUBE */
+    caca_set_color_argb(m_caca, 0xfff, 0x000);
+    caca_put_str(m_caca, canvas_char.x -  8, canvas_char.y - 6, "_______");
+    caca_put_str(m_caca, canvas_char.x -  9, canvas_char.y - 5, "/      /|");
+    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 4, "/______/ |");
+    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 3, "|      | |");
+    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 2, "|  :D  | /");
+    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 1, "|______|/");
+
     /* draw setup */
     if (m_setup)
     {
@@ -664,14 +673,6 @@ void Render::TickGame(float seconds)
         caca_set_color_argb(m_caca, 0xfff, 0x000);
         caca_printf(m_caca, 0, 0, "%i*%i", w, h);
     }
-    /* draw LOL */
-    caca_set_color_argb(m_caca, 0xfff, 0x000);
-    caca_put_str(m_caca, canvas_char.x - 9 , canvas_char.y - 6, "_______");
-    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 5, "/      /|");
-    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 4, "/______/ |");
-    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 3, "|      | |");
-    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 2, "|  :D  | /");
-    caca_put_str(m_caca, canvas_char.x - 11, canvas_char.y - 1, "|______|/");
 
 }
 
@@ -699,7 +700,7 @@ void Render::TickDraw(float seconds)
         m_shader_glow = !m_shader_glow;
         m_shader_blur = !m_shader_blur;
         m_shader_remanency = !m_shader_remanency;
-        m_shader_copper = !m_shader_copper;
+        //m_shader_copper = !m_shader_copper;
         m_shader_color = !m_shader_color;
         m_shader_noise = !m_shader_noise;
         m_shader_postfx = !m_shader_postfx;
@@ -1069,8 +1070,8 @@ void Render::Draw3D()
         shader_copper->Bind();
         shader_copper->SetUniform(shader_copper_texture, fbo_back->GetTexture(), 0);
         shader_copper->SetUniform(shader_copper_screen_size, (vec2)screen_size);
-        shader_copper->SetUniform(shader_copper_time, fx_angle);
-        shader_copper->SetUniform(shader_copper_copper, copper);
+        shader_copper->SetUniform(shader_copper_time, fx_angle * 2.0f);
+        shader_copper->SetUniform(shader_copper_copper, vec4(copper.x, copper.y, copper.z * 16.0f, copper.w * 16.0f));
         TraceQuad();
         shader_color->Unbind();
         fbo_tmp->Unbind();
