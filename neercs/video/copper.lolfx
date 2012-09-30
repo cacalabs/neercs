@@ -16,23 +16,23 @@ uniform sampler2D texture;
 uniform vec2 screen_size;
 uniform float time;
 uniform vec4 copper;
+uniform vec3 mask_color;
 
 void main(void)
 {
     vec2 p = gl_TexCoord[0].xy;
-    vec3 source = texture2D(texture,p).xyz;
+    vec3 source = texture2D(texture, p).xyz;
 
     vec3 color = vec3(0.5);
 
-    color.x += 0.5*cos(p.y*float(screen_size.y/copper.z)+time);
-    color.z += 0.5*sin(p.y*float(screen_size.y/copper.z)+time);
+    color.x += 0.5 * cos(p.y*float(screen_size.y / copper.w) + time);
+    color.z += 0.5 * sin(p.y*float(screen_size.y / copper.w) + time);
 
-    color *= copper.x+copper.y*cos(p.y*float(screen_size.x/copper.w)-time);
+    color *= copper.x + copper.y * cos(p.y * float(screen_size.x / copper.z));// - time);
 
-    color.x = float(int(color.x*8.0)*32)/256.0;
-    color.y = float(int(color.y*8.0)*32)/256.0;
-    color.z = float(int(color.z*8.0)*32)/256.0;
+    color.x = float(int(color.x * 8.0) * 32) / 256.0;
+    color.y = float(int(color.y * 8.0) * 32) / 256.0;
+    color.z = float(int(color.z * 8.0) * 32) / 256.0;
 
-    gl_FragColor = vec4((source==1.0)?color:source,1.0);
+    gl_FragColor = vec4((source == mask_color) ? color : source, 1.0);
 }
-

@@ -107,7 +107,8 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
-vec4 copper(0.75f,0.25f,2.0f,0.40f);  // copper [base,variable,repeat x,repeat y]
+vec4 copper_copper(0.8f,0.4f,0.42f,3.0f);       // copper [base,variable,repeat,color cycle]
+vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
 /* text variable */
 ivec2 ratio_2d(2,4);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
@@ -226,11 +227,11 @@ char const *setup_text[] = {
         "enable",
         "base",
         "variable",
-        "color repeat",
-        "copper height",
-        "",
-        "",
-        ""
+        "repeat",
+        "color cycle",
+        "color r",
+        "color g",
+        "color b"
     };
 
 vec4 setup_var[]={ // setup variable [start,end,step,value]
@@ -326,13 +327,13 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
     vec4(0), /* copper */
         vec4( 0, 1, 1, 1),
-        vec4(0.0f, 1.0f, 0.05f, copper.x),
-        vec4(0.0f, 1.0f, 0.05f, copper.y),
-        vec4(1.0f, 5.0f, 0.10f, copper.z),
-        vec4(0.0f, 1.0f, 0.05f, copper.w),
-        vec4(0),
-        vec4(0),
-        vec4(0),
+        vec4(0.0f, 1.0f, 0.05f, copper_copper.x),
+        vec4(0.0f, 1.0f, 0.05f, copper_copper.y),
+        vec4(0.0f, 1.0f, 0.01f, copper_copper.z),
+        vec4(0.0f, 8.0f, 0.25f, copper_copper.w),
+        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.x),
+        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.y),
+        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.z),
     vec4(0) /* ? */
     };
 
@@ -378,7 +379,8 @@ void Render::UpdateVar()
     postfx_scanline_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     k += 1; /* copper */
     m_shader_copper = (setup_var[k].w == 1) ? true : false; k++;
-    copper = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+    copper_copper = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+    copper_mask_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     UpdateSize();
 }
 
@@ -427,7 +429,8 @@ ShaderUniform shader_remanency_source,
 ShaderUniform shader_copper_texture,
               shader_copper_screen_size,
               shader_copper_time,
-              shader_copper_copper;
+              shader_copper_copper,
+              shader_copper_mask_color;
 ShaderUniform shader_color_texture,
               shader_color_screen_size,
               shader_color_filter,
@@ -515,6 +518,7 @@ int Render::InitDraw(void)
     shader_copper_screen_size = shader_copper->GetUniformLocation("screen_size");
     shader_copper_time = shader_copper->GetUniformLocation("time");
     shader_copper_copper = shader_copper->GetUniformLocation("copper");
+    shader_copper_mask_color = shader_copper->GetUniformLocation("mask_color");
     // shader color
     shader_color = Shader::Create(lolfx_color);
     shader_color_texture = shader_color->GetUniformLocation("texture");
@@ -645,14 +649,14 @@ void Render::TickGame(float seconds)
         {
             int x = setup_p.x + 1;
             int w = setup_size.x - 3 - 4;
-            int bar_w = w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x);
+            float bar_w = w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x);
             int bar_x = bar_w * setup_var[setup_item_key].x;
             if ((setup_var[setup_item_key].y - setup_var[setup_item_key].x) / setup_var[setup_item_key].z > 1)
             {
                 /* Work around a bug in libcaca */
                 if (setup_p.x + setup_size.x - 4 < caca_get_canvas_width(m_caca)) caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
-                caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].y, y,'.');
-                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + bar_w * setup_var[setup_item_key].w, y, 'x');
+                caca_draw_line(m_caca, x, y, x - bar_x + int(bar_w * setup_var[setup_item_key].y), y,'.');
+                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + int(bar_w * setup_var[setup_item_key].w), y, 'x');
             }
             else
             {
@@ -664,7 +668,7 @@ void Render::TickGame(float seconds)
         }
         else
         {
-            caca_printf(m_caca, setup_p.x + 1, y, "%d/%d [%d]", setup_option_i, setup_n, setup_option_p);
+            caca_printf(m_caca, setup_p.x + 1, y, "%d/%d", setup_option_i, setup_n);
         }
 
         /* informations */
@@ -1071,7 +1075,8 @@ void Render::Draw3D()
         shader_copper->SetUniform(shader_copper_texture, fbo_back->GetTexture(), 0);
         shader_copper->SetUniform(shader_copper_screen_size, (vec2)screen_size);
         shader_copper->SetUniform(shader_copper_time, fx_angle * 2.0f);
-        shader_copper->SetUniform(shader_copper_copper, vec4(copper.x, copper.y, copper.z * 16.0f, copper.w * 16.0f));
+        shader_copper->SetUniform(shader_copper_copper, vec4(copper_copper.x, copper_copper.y, copper_copper.z * 16.0f, copper_copper.w * 16.0f));
+        shader_copper->SetUniform(shader_copper_mask_color, copper_mask_color / 4.0f);
         TraceQuad();
         shader_color->Unbind();
         fbo_tmp->Unbind();

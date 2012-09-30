@@ -73,4 +73,3 @@ void main(void)
     c *= letterbox(z,corner.x+2.0,corner.y,corner.z);          // corner
     gl_FragColor = vec4(c,1.0);
 }
-

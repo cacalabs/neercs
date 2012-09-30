@@ -37,4 +37,3 @@ void main(void)
     c -= retrace.x*0.01*mod(p.y*retrace.y+time*retrace.z,1.0);    // retrace
     gl_FragColor = vec4(c,1.0);
 }
-

@@ -181,8 +181,7 @@ void Term::DrawFancyShit()
     caca_set_color_argb(m_caca, hex_color(0.6f + 0.4f * lol::cos(m_time * 2), 0.2f, 0.2f), bg_color);
     caca_put_str(m_caca, w - 12, h - 2, "CACA RULEZ");
 
-/*
-  _______
+/*_______
  /      /|
 /______/ |
 |      | |
