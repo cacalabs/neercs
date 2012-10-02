@@ -40,6 +40,7 @@ extern char const *lolfx_copper;
 extern char const *lolfx_color;
 extern char const *lolfx_noise;
 extern char const *lolfx_postfx;
+extern char const *lolfx_mirror;
 
 #define PID M_PI/180.0f    // pi ratio
 
@@ -92,14 +93,16 @@ vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
 vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.5f,0.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
-vec3 color_filter(0.9f,0.9f,1.0f);    // color filter [red,green,blue]
+vec4 copper_copper(0.8f,0.4f,0.42f,4.0f);       // copper [base,variable,repeat,color cycle]
+vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
+vec3 color_filter(0.9f,0.95f,0.85f);            // color filter [red,green,blue]
 vec4 color_color(1.5f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
-vec2 noise_offset(2.0f,2.0f);         // random line [horizontal,vertical]
-float noise_noise = 0.25f;            // noise
-vec3 noise_retrace(1.0f,1.0f,0.5f);   // retrace [strength,length,speed]
-vec2 postfx_deform(0.7f,0.54f);       // deformation [ratio,zoom]
-float postfx_vignetting = 0.5f;       // vignetting strength
-float postfx_aberration = 4.0f;       // chromatic aberration
+vec2 noise_offset(2.0f,2.0f);                   // random line [horizontal,vertical]
+float noise_noise = 0.25f;                      // noise
+vec3 noise_retrace(1.0f,1.0f,0.5f);             // retrace [strength,length,speed]
+vec2 postfx_deform(0.8f,0.52f);                 // deformation [ratio,zoom]
+float postfx_vignetting = 0.5f;                 // vignetting strength
+float postfx_aberration = 4.0f;                 // chromatic aberration
 vec4 postfx_ghost1(1.0f,0.0f,0.0f,-0.25f);      // ghost picture 1 [position x,position y,position z,strength]
 vec4 postfx_ghost2(1.5f,0.0f,0.0f,0.25f);       // ghost picture 2 [position x,position y,position z,strength]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat,shift]
@@ -107,16 +110,15 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
-vec4 copper_copper(0.8f,0.4f,0.42f,3.0f);       // copper [base,variable,repeat,color cycle]
-vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
+vec4 mirror(0.0f,0.0f,0.0f,0.0f);               // 
 /* text variable */
-ivec2 ratio_2d(2,4);            // 2d ratio
+ivec2 ratio_2d(2,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
 ivec2 font_size(8,8);           // font size
 ivec2 canvas_char(0,0);         // canvas char number
 ivec2 canvas_size(0,0);         // caca size
 /* window variable */
-ivec2 border = vec2(3,1) * ratio_2d * font_size; // border width
+ivec2 border = vec2(3,2) * ratio_2d * font_size; // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -177,6 +179,15 @@ char const *setup_text[] = {
         "corner blur",
         "vignetting",
         "",
+    "copper",
+        "enable",
+        "base",
+        "variable",
+        "repeat",
+        "color cycle",
+        "color r",
+        "color g",
+        "color b",
     "color",
         "filter red",
         "filter green",
@@ -221,16 +232,7 @@ char const *setup_text[] = {
         "v base",
         "v variable",
         "v repeat",
-        "v shift",
-    "copper",
-        "enable",
-        "base",
-        "variable",
-        "repeat",
-        "color cycle",
-        "color r",
-        "color g",
-        "color b"
+        "v shift"
     };
 
 vec4 setup_var[]={ // setup variable [start,end,step,value]
@@ -279,6 +281,15 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0.0f, 1.0f, 0.05f, postfx_corner.z),
         vec4(0.0f, 1.0f, 0.10f, postfx_vignetting),
         vec4(0),
+    vec4(0), /* copper */
+        vec4( 0, 1, 1, 1),
+        vec4(0.0f, 1.0f, 0.05f, copper_copper.x),
+        vec4(0.0f, 1.0f, 0.05f, copper_copper.y),
+        vec4(0.0f, 1.0f, 0.02f, copper_copper.z),
+        vec4(1.0f, 8.0f, 0.25f, copper_copper.w),
+        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.x),
+        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.y),
+        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.z),
     vec4(0), /* color */
         vec4( 0.0f, 1.0f, 0.05f, color_filter.x),
         vec4( 0.0f, 1.0f, 0.05f, color_filter.y),
@@ -324,15 +335,6 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_v.y),
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.z),
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
-    vec4(0), /* copper */
-        vec4( 0, 1, 1, 1),
-        vec4(0.0f, 1.0f, 0.05f, copper_copper.x),
-        vec4(0.0f, 1.0f, 0.05f, copper_copper.y),
-        vec4(0.0f, 1.0f, 0.01f, copper_copper.z),
-        vec4(0.0f, 8.0f, 0.25f, copper_copper.w),
-        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.x),
-        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.y),
-        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.z),
     vec4(0) /* ? */
     };
 
@@ -358,6 +360,10 @@ void Render::UpdateVar()
     postfx_deform = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_corner = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_vignetting = setup_var[k].w; k++;
+    k += 1; /* copper */
+    m_shader_copper = (setup_var[k].w == 1) ? true : false; k++;
+    copper_copper = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+    copper_mask_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     k += 2; /* color */
     color_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     color_color = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
@@ -376,10 +382,9 @@ void Render::UpdateVar()
     k += 1; /* scanline */
     postfx_scanline_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_scanline_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    k += 1; /* copper */
-    m_shader_copper = (setup_var[k].w == 1) ? true : false; k++;
-    copper_copper = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    copper_mask_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
+    k += 1; /* mirror */
+    m_shader_mirror = (setup_var[k].w == 1) ? true : false; k++;
+    mirror = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     UpdateSize();
 }
 
@@ -410,7 +415,7 @@ int calc_item_length()
 Shader *shader_simple;
 Shader *shader_blur_h, *shader_blur_v, *shader_glow;
 Shader *shader_remanency, *shader_copper, *shader_color;
-Shader *shader_noise, *shader_postfx;
+Shader *shader_noise, *shader_postfx, *shader_mirror;
 // shader variables
 ShaderUniform shader_simple_texture;
 ShaderUniform shader_blur_h_texture,
@@ -455,6 +460,9 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_corner,
               shader_postfx_sync,
               shader_postfx_beat;
+ShaderUniform shader_mirror_texture,
+              shader_mirror_screen_size,
+              shader_mirror_mirror;
 
 FrameBuffer *fbo_back, *fbo_front, *fbo_buffer;
 FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_tmp;
@@ -547,6 +555,11 @@ int Render::InitDraw(void)
     shader_postfx_corner = shader_postfx->GetUniformLocation("corner");
     shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
     shader_postfx_beat = shader_postfx->GetUniformLocation("beat");
+    // shader mirror
+    shader_mirror = Shader::Create(lolfx_mirror);
+    shader_mirror_texture = shader_mirror->GetUniformLocation("texture");
+    shader_mirror_screen_size = shader_mirror->GetUniformLocation("screen_size");
+    shader_mirror_mirror = shader_mirror->GetUniformLocation("mirror");
     // initialize setup
     setup_n = calc_item_length();
     return true;
@@ -573,7 +586,8 @@ Render::Render(caca_canvas_t *caca)
     m_shader_copper(true),
     m_shader_color(true),
     m_shader_noise(true),
-    m_shader_postfx(true)
+    m_shader_postfx(true),
+    m_shader_mirror(true)
 {
     m_txt_screen = new TextRender(m_cv_screen, font_size);
     m_txt_setup = new TextRender(m_cv_setup, font_size);
@@ -707,6 +721,7 @@ void Render::TickDraw(float seconds)
         m_shader_color = !m_shader_color;
         m_shader_noise = !m_shader_noise;
         m_shader_postfx = !m_shader_postfx;
+        m_shader_mirror = !m_shader_mirror;
         //m_polygon = !m_polygon;
         //polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
         //glPolygonMode(GL_FRONT, polygon_fillmode);

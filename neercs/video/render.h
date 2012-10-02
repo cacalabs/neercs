@@ -45,6 +45,7 @@ private:
     bool m_shader_color;
     bool m_shader_noise;
     bool m_shader_postfx;
+    bool m_shader_mirror;
 };
 
 #endif // __VIDEO_RENDER_H__

@@ -1,0 +1,27 @@
+[vert.glsl]
+
+#version 120
+
+void main()
+{
+    gl_Position = gl_Vertex;
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+
+[frag.glsl]
+
+#version 120
+
+uniform sampler2D texture;
+uniform vec2 screen_size;
+uniform vec4 mirror;
+
+void main(void)
+{
+    vec2 p = gl_TexCoord[0].xy;
+    vec3 source = texture2D(texture, p).xyz;
+
+    vec3 color = vec3(1.0,0.5,0.75);
+
+    gl_FragColor = vec4(source*color, 1.0);
+}

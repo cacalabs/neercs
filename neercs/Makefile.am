@@ -18,7 +18,7 @@ neercs_SOURCES = \
     video/simple.lolfx \
     video/blurh.lolfx video/blurv.lolfx video/glow.lolfx \
     video/remanency.lolfx video/copper.lolfx video/color.lolfx \
-    video/noise.lolfx video/postfx.lolfx \
+    video/noise.lolfx video/postfx.lolfx video/mirror.lolfx \
     video/text.lolfx
 neercs_CPPFLAGS = @LOL_CFLAGS@ @PIPI_CFLAGS@ @CACA_CFLAGS@ -Iold
 neercs_LDADD =
