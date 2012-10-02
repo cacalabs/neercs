@@ -30,7 +30,9 @@ private:
     void UpdateVar();
     void UpdateSize();
 
-    caca_canvas_t *m_caca;
+    caca_canvas_t *m_cv_screen, *m_cv_setup;
+    class TextRender *m_txt_screen, *m_txt_setup;
+
     bool m_ready;
     bool m_pause;
     bool m_polygon;

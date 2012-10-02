@@ -129,7 +129,6 @@ int setup_item_i = 0;           // selected item
 int setup_item_n = 8;           // item number
 int setup_item_p = 0;           // item position
 int setup_item_key = 0;         // item array key
-ivec2 setup_p(1,1);             // position [x,y]
 ivec3 setup_size(29,9,12);      // size [w,h,split]
 ivec2 setup_color(0xaaa,0x222); // color [foreground,background] 0x678,0x234
 char const *setup_text[] = {
@@ -394,9 +393,7 @@ void Render::UpdateSize()
 
     border = (screen_size - canvas_size) / 2;
 
-    caca_set_canvas_size(m_caca, canvas_char.x, canvas_char.y);
-
-    setup_p = (canvas_char - setup_size.xy) / 2;
+    caca_set_canvas_size(m_cv_screen, canvas_char.x, canvas_char.y);
 }
 
 int calc_item_length()
@@ -461,8 +458,6 @@ ShaderUniform shader_postfx_texture,
 
 FrameBuffer *fbo_back, *fbo_front, *fbo_buffer;
 FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_tmp;
-
-TextRender *text_render;
 
 void Render::TraceQuad()
 {
@@ -565,7 +560,8 @@ int Render::CreateGLWindow()
 }
 
 Render::Render(caca_canvas_t *caca)
-  : m_caca(caca),
+  : m_cv_screen(caca),
+    m_cv_setup(caca_create_canvas(1, 1)),
     m_ready(false),
     m_pause(false),
     m_polygon(true),
@@ -579,7 +575,8 @@ Render::Render(caca_canvas_t *caca)
     m_shader_noise(true),
     m_shader_postfx(true)
 {
-    text_render = new TextRender(m_caca, font_size);
+    m_txt_screen = new TextRender(m_cv_screen, font_size);
+    m_txt_setup = new TextRender(m_cv_setup, font_size);
 }
 
 void Render::TickGame(float seconds)
@@ -587,95 +584,97 @@ void Render::TickGame(float seconds)
     Entity::TickGame(seconds);
 
     /* draw LOLCUBE */
-    caca_set_color_argb(m_caca, 0xfff, 0x000);
-    caca_put_str(m_caca, canvas_char.x -  8, canvas_char.y - 6, "_______");
-    caca_put_str(m_caca, canvas_char.x -  9, canvas_char.y - 5, "/      /|");
-    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 4, "/______/ |");
-    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 3, "|      | |");
-    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 2, "|  :D  | /");
-    caca_put_str(m_caca, canvas_char.x - 10, canvas_char.y - 1, "|______|/");
+    caca_set_color_argb(m_cv_screen, 0xfff, 0x000);
+    caca_put_str(m_cv_screen, canvas_char.x -  8, canvas_char.y - 6, "_______");
+    caca_put_str(m_cv_screen, canvas_char.x -  9, canvas_char.y - 5, "/      /|");
+    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 4, "/______/ |");
+    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 3, "|      | |");
+    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 2, "|  :D  | /");
+    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 1, "|______|/");
 
     /* draw setup */
     if (m_setup)
     {
+        caca_set_canvas_size(m_cv_setup, setup_size.x, setup_size.y);
+
         /* background */
-        caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-        caca_fill_box(m_caca, setup_p.x, setup_p.y, setup_size.x + 1, setup_size.y,' ');
-        caca_draw_line(m_caca, setup_p.x + setup_size.z - 1, setup_p.y + 1, setup_p.x + setup_size.z - 1, setup_p.y + setup_size.y - 1,'|');
+        caca_set_color_argb(m_cv_setup, setup_color.x, setup_color.y);
+        caca_fill_box(m_cv_setup, 0, 0, setup_size.x + 1, setup_size.y,' ');
+        caca_draw_line(m_cv_setup, setup_size.z - 1, 1, setup_size.z - 1, setup_size.y - 1,'|');
         /* title */
-        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-        caca_draw_line(m_caca, setup_p.x, setup_p.y, setup_p.x + setup_size.x, setup_p.y,' ');
-        caca_put_str(m_caca, setup_p.x + setup_size.x / 2 - 3, setup_p.y, "SETUP");
+        caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
+        caca_draw_line(m_cv_setup, 0, 0, setup_size.x, 0, ' ');
+        caca_put_str(m_cv_setup, setup_size.x / 2 - 3, 0, "SETUP");
         /* display option */
         for (int i = 0; i < setup_h; i++)
         {
-            int y = setup_p.y + 1 + i;
+            int y = 1 + i;
             int k = (setup_option_p + i) * (setup_item_n + 1);
             if (setup_option_i != setup_option_p + i || setup_switch)
             {
-                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
+                caca_set_color_argb(m_cv_setup, setup_color.x, setup_color.y);
+                caca_put_str(m_cv_setup, 1, y, setup_text[k]);
             }
             else
             {
-                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-                caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.z - 2, y,' ');
-                caca_put_str(m_caca, setup_p.x + 1, y, setup_text[k]);
+                caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
+                caca_draw_line(m_cv_setup, 0, y, setup_size.z - 2, y,' ');
+                caca_put_str(m_cv_setup, 1, y, setup_text[k]);
             }
         }
         /* display item */
         for (int i = 0; i < setup_h; i++)
         {
-            int y = setup_p.y + 1 + i;
+            int y = 1 + i;
             int k = setup_option_i * (setup_item_n + 1) + 1 + setup_item_p + i;
             if (setup_item_i != setup_item_p + i || !setup_switch)
             {
-                caca_set_color_argb(m_caca, setup_color.x, setup_color.y);
-                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
+                caca_set_color_argb(m_cv_setup, setup_color.x, setup_color.y);
+                caca_put_str(m_cv_setup, setup_size.z + 1, y, setup_text[k]);
             }
             else
             {
-                caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-                caca_draw_line(m_caca, setup_p.x + setup_size.z, y, setup_p.x + setup_size.x, y,' ');
-                caca_put_str(m_caca, setup_p.x + setup_size.z + 1, y, setup_text[k]);
+                caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
+                caca_draw_line(m_cv_setup, setup_size.z, y, setup_size.x, y,' ');
+                caca_put_str(m_cv_setup, setup_size.z + 1, y, setup_text[k]);
             }
         }
         /* display variable */
-        int y = setup_p.y + setup_size.y;
+        int y = setup_size.y;
         setup_item_key = setup_option_i * (setup_item_n + 1) + 1 + setup_item_i;
-        caca_set_color_argb(m_caca, setup_color.y, setup_color.x);
-        caca_draw_line(m_caca, setup_p.x, y, setup_p.x + setup_size.x, y,' ');
+        caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
+        caca_draw_line(m_cv_setup, 0, y, setup_size.x, y,' ');
         if (setup_switch)
         {
-            int x = setup_p.x + 1;
+            int x = 1;
             int w = setup_size.x - 3 - 4;
             float bar_w = w / (setup_var[setup_item_key].y - setup_var[setup_item_key].x);
             int bar_x = bar_w * setup_var[setup_item_key].x;
             if ((setup_var[setup_item_key].y - setup_var[setup_item_key].x) / setup_var[setup_item_key].z > 1)
             {
                 /* Work around a bug in libcaca */
-                if (setup_p.x + setup_size.x - 4 < caca_get_canvas_width(m_caca)) caca_printf(m_caca, setup_p.x + setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
-                caca_draw_line(m_caca, x, y, x - bar_x + int(bar_w * setup_var[setup_item_key].y), y,'.');
-                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_caca, x, y, x - bar_x + int(bar_w * setup_var[setup_item_key].w), y, 'x');
+                if (setup_size.x - 4 < caca_get_canvas_width(m_cv_setup)) caca_printf(m_cv_setup, setup_size.x - 4, y, "%4.2f", setup_var[setup_item_key].w);
+                caca_draw_line(m_cv_setup, x, y, x - bar_x + int(bar_w * setup_var[setup_item_key].y), y,'.');
+                if (setup_var[setup_item_key].w != setup_var[setup_item_key].x) caca_draw_line(m_cv_setup, x, y, x - bar_x + int(bar_w * setup_var[setup_item_key].w), y, 'x');
             }
             else
             {
                 if (setup_var[setup_item_key] != vec4(0))
                 {
-                    caca_put_str(m_caca, setup_p.x + setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
+                    caca_put_str(m_cv_setup, setup_size.x - 3, y, (setup_var[setup_item_key].w == setup_var[setup_item_key].y)?"YES":" NO");
                 }
             }
         }
         else
         {
-            caca_printf(m_caca, setup_p.x + 1, y, "%d/%d", setup_option_i, setup_n);
+            caca_printf(m_cv_setup, 1, y, "%d/%d", setup_option_i, setup_n);
         }
 
         /* informations */
-        int w = caca_get_canvas_width(m_caca);
-        int h = caca_get_canvas_height(m_caca);
-        caca_set_color_argb(m_caca, 0xfff, 0x000);
-        caca_printf(m_caca, 0, 0, "%i*%i", w, h);
+        int w = caca_get_canvas_width(m_cv_setup);
+        int h = caca_get_canvas_height(m_cv_setup);
+        caca_set_color_argb(m_cv_setup, 0xfff, 0x000);
+        caca_printf(m_cv_setup, 0, 0, "%i*%i", w, h);
     }
 
 }
@@ -966,7 +965,8 @@ void Render::TickDraw(float seconds)
     if (!m_ready)
     {
         CreateGLWindow();
-        text_render->Init();
+        m_txt_screen->Init();
+        m_txt_setup->Init();
         m_ready = true;
     }
 
@@ -1024,7 +1024,10 @@ void Render::TickDraw(float seconds)
 void Render::Draw2D()
 {
     /* Draw text in an offline buffer */
-    text_render->Render();
+    m_txt_screen->Render();
+
+    if (m_setup)
+        m_txt_setup->Render();
 
     if (m_shader)
         fbo_back->Bind();
@@ -1039,7 +1042,9 @@ void Render::Draw2D()
     Video::SetClearDepth(1.0f); // set depth buffer
     Video::Clear(ClearMask::Color | ClearMask::Depth);
 
-    text_render->Blit(border, canvas_size);
+    m_txt_screen->Blit(border, canvas_size);
+    if (m_setup)
+        m_txt_setup->Blit(border, canvas_size);
 
     //if (m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
     glLineWidth((m_polygon)?2.0f:1.0f);
