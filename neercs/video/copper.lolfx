@@ -28,7 +28,7 @@ void main(void)
     color.x += 0.5 * cos(p.y*float(screen_size.y / copper.w) + time);
     color.z += 0.5 * sin(p.y*float(screen_size.y / copper.w) + time);
 
-    color *= copper.x + copper.y * cos(p.y * float(screen_size.x / copper.z));// - time);
+    color *= copper.x + copper.y * cos(p.y * float(screen_size.x / copper.z) - time);
 
     color.x = float(int(color.x * 8.0) * 32) / 256.0;
     color.y = float(int(color.y * 8.0) * 32) / 256.0;

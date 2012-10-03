@@ -88,7 +88,7 @@
     <LolFxCompile Include="video\glow.lolfx" />
     <LolFxCompile Include="video\copper.lolfx" />
     <LolFxCompile Include="video\color.lolfx" />
-    <LolFxCompile Include="video\remanency.lolfx" />
+    <LolFxCompile Include="video\remanence.lolfx" />
     <LolFxCompile Include="video\noise.lolfx" />
     <LolFxCompile Include="video\postfx.lolfx" />
     <LolFxCompile Include="video\mirror.lolfx" />

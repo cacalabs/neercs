@@ -35,7 +35,7 @@ extern char const *lolfx_simple;
 extern char const *lolfx_blurh;
 extern char const *lolfx_blurv;
 extern char const *lolfx_glow;
-extern char const *lolfx_remanency;
+extern char const *lolfx_remanence;
 extern char const *lolfx_copper;
 extern char const *lolfx_color;
 extern char const *lolfx_noise;
@@ -88,12 +88,12 @@ float beat_speed = 2.0f;   // speed
 float value, angle, radius, scale, speed;
 /* shader variable */
 vec2 buffer(0.7f,0.3f);         // [new frame mix,old frame mix]
-vec2 remanency(0.6f,0.4f);      // remanency [source mix,buffer mix]
+vec2 remanence(0.6f,0.4f);      // remanence [source mix,buffer mix]
 vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
 vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.5f,0.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
-vec4 copper_copper(0.8f,0.4f,0.42f,4.0f);       // copper [base,variable,repeat,color cycle]
+vec4 copper_copper(0.8f,0.4f,0.2f,4.0f);        // copper [base,variable,repeat,color cycle]
 vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
 vec3 color_filter(0.9f,0.95f,0.85f);            // color filter [red,green,blue]
 vec4 color_color(1.5f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
@@ -143,7 +143,7 @@ char const *setup_text[] = {
         "",
         "",
         "",
-    "remanency",
+    "remanence",
         "enable",
         "buffer new frame",
         "buffer old frame",
@@ -237,20 +237,20 @@ char const *setup_text[] = {
 
 vec4 setup_var[]={ // setup variable [start,end,step,value]
     vec4(0), /* main */
-        vec4( 1,  8, 1, ratio_2d.x),
-        vec4( 1,  8, 1, ratio_2d.y),
-        vec4( 0, 16, 1, border.x / ratio_2d.x / font_size.x),
-        vec4( 0, 16, 1, border.y / ratio_2d.y / font_size.y),
+        vec4(1,  8, 1, ratio_2d.x),
+        vec4(1,  8, 1, ratio_2d.y),
+        vec4(0, 16, 1, border.x / ratio_2d.x / font_size.x),
+        vec4(0, 16, 1, border.y / ratio_2d.y / font_size.y),
         vec4(0),
         vec4(0),
         vec4(0),
         vec4(0),
-    vec4(0), /* remanency */
+    vec4(0), /* remanence */
         vec4(0, 1, 1, 1),
         vec4(0.0f, 1.0f, 0.1f, buffer.x),
         vec4(0.0f, 1.0f, 0.1f, buffer.y),
-        vec4(0.0f, 1.0f, 0.1f, remanency.x),
-        vec4(0.0f, 1.0f, 0.1f, remanency.y),
+        vec4(0.0f, 1.0f, 0.1f, remanence.x),
+        vec4(0.0f, 1.0f, 0.1f, remanence.y),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -265,8 +265,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0),
     vec4(0), /* blur */
         vec4(0, 1, 1, 1),
-        vec4(0.0f, 2.0f, 0.05f, blur.x),
-        vec4(0.0f, 2.0f, 0.05f, blur.y),
+        vec4(0, 2, 0.05f, blur.x),
+        vec4(0, 2, 0.05f, blur.y),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -343,10 +343,10 @@ void Render::UpdateVar()
     int k = 1; /* main */
     ratio_2d = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     border = vec2(setup_var[k].w, setup_var[k + 1].w) * ratio_2d * font_size; k += 2;
-    k += 5; /* remanency */
-    m_shader_remanency = (setup_var[k].w == 1) ? true : false; k++;
+    k += 5; /* remanence */
+    m_shader_remanence = (setup_var[k].w == 1) ? true : false; k++;
     buffer = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    remanency = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
+    remanence = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     k += 4; /* glow */
     m_shader_glow = (setup_var[k].w == 1) ? true : false; k++;
     glow_mix = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
@@ -360,11 +360,11 @@ void Render::UpdateVar()
     postfx_deform = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     postfx_corner = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     postfx_vignetting = setup_var[k].w; k++;
-    k += 1; /* copper */
+    k += 2; /* copper */
     m_shader_copper = (setup_var[k].w == 1) ? true : false; k++;
     copper_copper = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     copper_mask_color = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
-    k += 2; /* color */
+    k += 1; /* color */
     color_filter = vec3(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w); k += 3;
     color_color = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_aberration = setup_var[k].w; k++;
@@ -391,7 +391,6 @@ void Render::UpdateVar()
 void Render::UpdateSize()
 {
     screen_size = Video::GetSize();
-    //border.y = border.x; // enabled to get same border everywhere
     canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
     canvas_char = max(canvas_char, ivec2(1, 1));
     canvas_size = canvas_char * font_size * ratio_2d;
@@ -399,6 +398,7 @@ void Render::UpdateSize()
     border = (screen_size - canvas_size) / 2;
 
     caca_set_canvas_size(m_cv_screen, canvas_char.x, canvas_char.y);
+    caca_set_canvas_size(m_cv_setup, setup_size.x + 1, setup_size.y + 1);
 }
 
 int calc_item_length()
@@ -414,7 +414,7 @@ int calc_item_length()
 
 Shader *shader_simple;
 Shader *shader_blur_h, *shader_blur_v, *shader_glow;
-Shader *shader_remanency, *shader_copper, *shader_color;
+Shader *shader_remanence, *shader_copper, *shader_color;
 Shader *shader_noise, *shader_postfx, *shader_mirror;
 // shader variables
 ShaderUniform shader_simple_texture;
@@ -425,9 +425,9 @@ ShaderUniform shader_blur_h_texture,
 ShaderUniform shader_glow_glow,
               shader_glow_source,
               shader_glow_mix;
-ShaderUniform shader_remanency_source,
-              shader_remanency_buffer,
-              shader_remanency_mix;
+ShaderUniform shader_remanence_source,
+              shader_remanence_buffer,
+              shader_remanence_mix;
 ShaderUniform shader_copper_texture,
               shader_copper_screen_size,
               shader_copper_time,
@@ -510,11 +510,11 @@ int Render::InitDraw(void)
     shader_blur_v = Shader::Create(lolfx_blurv);
     shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
     shader_blur_v_radius = shader_blur_v->GetUniformLocation("radius");
-    // shader remanency
-    shader_remanency = Shader::Create(lolfx_remanency);
-    shader_remanency_source = shader_remanency->GetUniformLocation("source");
-    shader_remanency_buffer = shader_remanency->GetUniformLocation("buffer");
-    shader_remanency_mix = shader_remanency->GetUniformLocation("mix");
+    // shader remanence
+    shader_remanence = Shader::Create(lolfx_remanence);
+    shader_remanence_source = shader_remanence->GetUniformLocation("source");
+    shader_remanence_buffer = shader_remanence->GetUniformLocation("buffer");
+    shader_remanence_mix = shader_remanence->GetUniformLocation("mix");
     // shader copper
     shader_copper = Shader::Create(lolfx_copper);
     shader_copper_texture = shader_copper->GetUniformLocation("texture");
@@ -582,7 +582,7 @@ Render::Render(caca_canvas_t *caca)
     m_shader(true),
     m_shader_glow(true),
     m_shader_blur(true),
-    m_shader_remanency(true),
+    m_shader_remanence(true),
     m_shader_copper(true),
     m_shader_color(true),
     m_shader_noise(true),
@@ -598,6 +598,7 @@ void Render::TickGame(float seconds)
     Entity::TickGame(seconds);
 
     /* draw LOLCUBE */
+    /*
     caca_set_color_argb(m_cv_screen, 0xfff, 0x000);
     caca_put_str(m_cv_screen, canvas_char.x -  8, canvas_char.y - 6, "_______");
     caca_put_str(m_cv_screen, canvas_char.x -  9, canvas_char.y - 5, "/      /|");
@@ -605,12 +606,11 @@ void Render::TickGame(float seconds)
     caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 3, "|      | |");
     caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 2, "|  :D  | /");
     caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 1, "|______|/");
+    */
 
     /* draw setup */
     if (m_setup)
     {
-        caca_set_canvas_size(m_cv_setup, setup_size.x, setup_size.y);
-
         /* background */
         caca_set_color_argb(m_cv_setup, setup_color.x, setup_color.y);
         caca_fill_box(m_cv_setup, 0, 0, setup_size.x + 1, setup_size.y,' ');
@@ -618,7 +618,12 @@ void Render::TickGame(float seconds)
         /* title */
         caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
         caca_draw_line(m_cv_setup, 0, 0, setup_size.x, 0, ' ');
-        caca_put_str(m_cv_setup, setup_size.x / 2 - 3, 0, "SETUP");
+        caca_put_str(m_cv_setup, setup_size.x / 2 - 6, 0, "NEERCS SETUP");
+        /* informations */
+        int w = caca_get_canvas_width(m_cv_screen);
+        int h = caca_get_canvas_height(m_cv_screen);
+        caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
+        caca_printf(m_cv_setup, 1, 0, "%i*%i", w, h);
         /* display option */
         for (int i = 0; i < setup_h; i++)
         {
@@ -631,7 +636,7 @@ void Render::TickGame(float seconds)
             }
             else
             {
-                caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
+                caca_set_color_argb(m_cv_setup, setup_color.y, 0xfff);//setup_color.x);
                 caca_draw_line(m_cv_setup, 0, y, setup_size.z - 2, y,' ');
                 caca_put_str(m_cv_setup, 1, y, setup_text[k]);
             }
@@ -648,7 +653,7 @@ void Render::TickGame(float seconds)
             }
             else
             {
-                caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
+                caca_set_color_argb(m_cv_setup, setup_color.y, 0xfff);//setup_color.x);
                 caca_draw_line(m_cv_setup, setup_size.z, y, setup_size.x, y,' ');
                 caca_put_str(m_cv_setup, setup_size.z + 1, y, setup_text[k]);
             }
@@ -683,12 +688,6 @@ void Render::TickGame(float seconds)
         {
             caca_printf(m_cv_setup, 1, y, "%d/%d", setup_option_i, setup_n);
         }
-
-        /* informations */
-        int w = caca_get_canvas_width(m_cv_screen);
-        int h = caca_get_canvas_height(m_cv_screen);
-        caca_set_color_argb(m_cv_setup, 0xfff, 0x000);
-        caca_printf(m_cv_setup, 0, 0, "%i*%i", w, h);
     }
 
 }
@@ -716,7 +715,7 @@ void Render::TickDraw(float seconds)
     {
         m_shader_glow = !m_shader_glow;
         m_shader_blur = !m_shader_blur;
-        m_shader_remanency = !m_shader_remanency;
+        m_shader_remanence = !m_shader_remanence;
         //m_shader_copper = !m_shader_copper;
         m_shader_color = !m_shader_color;
         m_shader_noise = !m_shader_noise;
@@ -1107,16 +1106,16 @@ void Render::Draw3D()
         fbo_back->Unbind();
     }
 
-    if (m_shader_remanency)
+    if (m_shader_remanence)
     {
-        // shader remanency
+        // shader remanence
         fbo_tmp->Bind();
-        shader_remanency->Bind();
-        shader_remanency->SetUniform(shader_remanency_source, fbo_back->GetTexture(), 0);
-        shader_remanency->SetUniform(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
-        shader_remanency->SetUniform(shader_remanency_mix, remanency);
+        shader_remanence->Bind();
+        shader_remanence->SetUniform(shader_remanence_source, fbo_back->GetTexture(), 0);
+        shader_remanence->SetUniform(shader_remanence_buffer, fbo_buffer->GetTexture(), 1);
+        shader_remanence->SetUniform(shader_remanence_mix, remanence);
         TraceQuad();
-        shader_remanency->Unbind();
+        shader_remanence->Unbind();
         fbo_tmp->Unbind();
         // shader simple
         fbo_back->Bind();
@@ -1124,12 +1123,12 @@ void Render::Draw3D()
         fbo_back->Unbind();
         // save previous fbo
         fbo_tmp->Bind();
-        shader_remanency->Bind();
-        shader_remanency->SetUniform(shader_remanency_source, fbo_front->GetTexture(), 0);
-        shader_remanency->SetUniform(shader_remanency_buffer, fbo_buffer->GetTexture(), 1);
-        shader_remanency->SetUniform(shader_remanency_mix, buffer);
+        shader_remanence->Bind();
+        shader_remanence->SetUniform(shader_remanence_source, fbo_front->GetTexture(), 0);
+        shader_remanence->SetUniform(shader_remanence_buffer, fbo_buffer->GetTexture(), 1);
+        shader_remanence->SetUniform(shader_remanence_mix, buffer);
         TraceQuad();
-        shader_remanency->Unbind();
+        shader_remanence->Unbind();
         fbo_tmp->Unbind();
         // shader simple
         fbo_buffer->Bind();

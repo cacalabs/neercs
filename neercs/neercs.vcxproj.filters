@@ -147,7 +147,7 @@
     <LolFxCompile Include="video\color.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
-    <LolFxCompile Include="video\remanency.lolfx">
+    <LolFxCompile Include="video\remanence.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
     <LolFxCompile Include="video\noise.lolfx">
