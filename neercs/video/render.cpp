@@ -685,8 +685,8 @@ void Render::TickGame(float seconds)
         }
 
         /* informations */
-        int w = caca_get_canvas_width(m_cv_setup);
-        int h = caca_get_canvas_height(m_cv_setup);
+        int w = caca_get_canvas_width(m_cv_screen);
+        int h = caca_get_canvas_height(m_cv_screen);
         caca_set_color_argb(m_cv_setup, 0xfff, 0x000);
         caca_printf(m_cv_setup, 0, 0, "%i*%i", w, h);
     }
@@ -1059,7 +1059,8 @@ void Render::Draw2D()
 
     m_txt_screen->Blit(border, canvas_size);
     if (m_setup)
-        m_txt_setup->Blit(border, canvas_size);
+        m_txt_setup->Blit(border + canvas_size / 8,
+                          canvas_size - canvas_size / 4);
 
     //if (m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
     glLineWidth((m_polygon)?2.0f:1.0f);
