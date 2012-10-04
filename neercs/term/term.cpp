@@ -23,6 +23,8 @@ using namespace lol;
 #include "../neercs.h"
 #include "term.h"
 
+extern bool g_setup;
+
 Term::Term(ivec2 size)
   : m_pty(0),
     m_caca(caca_create_canvas(size.x, size.y)),
@@ -44,30 +46,70 @@ void Term::TickGame(float seconds)
     Entity::TickGame(seconds);
 
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
-    bool have_ctrl = Input::GetStatus(Key::LeftCtrl)
-                      || Input::GetStatus(Key::RightCtrl);
-    bool have_shift = Input::GetStatus(Key::LeftShift)
-                       || Input::GetStatus(Key::RightShift);
-
-    for (int i = 0x0; i < 0x7f; ++i)
+    if (!g_setup)
     {
-        if (Input::WasPressed((Key::Value)i))
+        bool have_ctrl = Input::GetStatus(Key::LeftCtrl)
+                          || Input::GetStatus(Key::RightCtrl);
+        bool have_shift = Input::GetStatus(Key::LeftShift)
+                           || Input::GetStatus(Key::RightShift);
+
+        /* Check for standard ASCII keys */
+        for (int i = 0x0; i < 0x7f; ++i)
         {
-            if (have_ctrl && i >= 'a' && i <= 'z')
+            if (Input::WasPressed((Key::Value)i))
             {
-                char c = i + 1 - 'a';
-                m_pty->WriteData(&c, 1);
+                if (have_ctrl && i >= 'a' && i <= 'z')
+                {
+                    char c = i + 1 - 'a';
+                    m_pty->WriteData(&c, 1);
+                }
+                else if (have_shift && i >= 'a' && i <= 'z')
+                {
+                    char c = i + 'A' - 'a';
+                    m_pty->WriteData(&c, 1);
+                }
+                else
+                {
+                    char c = i;
+                    m_pty->WriteData(&c, 1);
+                }
             }
-            else if (have_shift && i >= 'a' && i <= 'z')
-            {
-                char c = i + 'A' - 'a';
-                m_pty->WriteData(&c, 1);
-            }
-            else
-            {
-                char c = i;
-                m_pty->WriteData(&c, 1);
-            }
+        }
+
+        /* Check for special keys */
+        static struct { Key::Value k; char const *str; int len; } const lut[] =
+        {
+            { Key::Up, "\033OA", 3 },
+            { Key::Down, "\033OB", 3 },
+            { Key::Right, "\033OC", 3 },
+            { Key::Left, "\033OD", 3 },
+            { Key::PageUp, "\033[5~", 4 },
+            { Key::PageDown, "\033[6~", 4 },
+            { Key::Home, "\033[1~", 4 },
+            { Key::Insert, "\033[2~", 4 },
+            { Key::Delete, "\033[3~", 4 },
+            { Key::End, "\033[4~", 4 },
+#if 0 /* FIXME: disabled for now (used by the theme system */
+            { Key::F1, "\033[11~", 5 },
+            { Key::F2, "\033[12~", 5 },
+            { Key::F3, "\033[13~", 5 },
+            { Key::F4, "\033[14~", 5 },
+            { Key::F5, "\033[15~", 5 },
+            { Key::F6, "\033[17~", 5 },
+            { Key::F7, "\033[18~", 5 },
+            { Key::F8, "\033[19~", 5 },
+            { Key::F9, "\033[20~", 5 },
+            { Key::F10, "\033[21~", 5 },
+            { Key::F11, "\033[23~", 5 },
+            { Key::F12, "\033[24~", 5 },
+#endif
+        };
+
+        for (size_t i = 0; i < sizeof(lut) / sizeof(*lut); i++)
+        {
+            if (!have_ctrl && !have_shift)
+                if (Input::WasPressed(lut[i].k))
+                    m_pty->WriteData(lut[i].str, lut[i].len);
         }
     }
 

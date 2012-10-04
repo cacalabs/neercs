@@ -45,6 +45,11 @@ extern char const *lolfx_mirror;
 #define PID M_PI/180.0f    // pi ratio
 
 /*
+ * Global variable -- ugly
+ */
+bool g_setup = true;
+
+/*
  * Various variables
  */
 
@@ -579,7 +584,6 @@ Render::Render(caca_canvas_t *caca)
     m_ready(false),
     m_pause(false),
     m_polygon(true),
-    m_setup(true),
     m_shader(true),
     m_shader_glow(true),
     m_shader_blur(true),
@@ -610,7 +614,7 @@ void Render::TickGame(float seconds)
     */
 
     /* draw setup */
-    if (m_setup)
+    if (g_setup)
     {
         /* background */
         caca_set_color_argb(m_cv_setup, setup_color.x, setup_color.y);
@@ -707,8 +711,8 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::F1))
     {
-        m_setup = !m_setup;
-        if (m_setup) setup_n = calc_item_length();
+        g_setup = !g_setup;
+        if (g_setup) setup_n = calc_item_length();
         sync_flag = true;
         sync_angle = main_angle;
     }
@@ -728,7 +732,7 @@ void Render::TickDraw(float seconds)
     }
    if (Input::WasPressed(Key::Tab))
     {
-        if (m_setup)
+        if (g_setup)
         {
             setup_switch = !setup_switch;
             setup_n = calc_item_length();
@@ -737,7 +741,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::Up))
     {
-        if (m_setup)
+        if (g_setup)
         {
             if (!setup_switch)
             {
@@ -787,7 +791,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::Down))
     {
-        if (m_setup)
+        if (g_setup)
         {
             if (!setup_switch)
             {
@@ -837,7 +841,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::PageUp))
     {
-        if (m_setup)
+        if (g_setup)
         {
             if (!setup_switch)
             {
@@ -886,7 +890,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::PageDown))
     {
-        if (m_setup)
+        if (g_setup)
         {
             if (!setup_switch)
             {
@@ -935,7 +939,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::Left))
     {
-        if (m_setup && setup_switch)
+        if (g_setup && setup_switch)
         {
             setup_var[setup_item_key].w -= setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w < setup_var[setup_item_key].x) setup_var[setup_item_key].w = setup_var[setup_item_key].x;
@@ -944,7 +948,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::Right))
     {
-        if (m_setup && setup_switch)
+        if (g_setup && setup_switch)
         {
             setup_var[setup_item_key].w += setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w > setup_var[setup_item_key].y) setup_var[setup_item_key].w = setup_var[setup_item_key].y;
@@ -953,7 +957,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::Home))
     {
-        if (m_setup && setup_switch)
+        if (g_setup && setup_switch)
         {
             setup_var[setup_item_key].w = setup_var[setup_item_key].x;
             UpdateVar();
@@ -961,7 +965,7 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::End))
     {
-        if (m_setup && setup_switch)
+        if (g_setup && setup_switch)
         {
             setup_var[setup_item_key].w = setup_var[setup_item_key].y;
             UpdateVar();
@@ -1041,7 +1045,7 @@ void Render::Draw2D()
     /* Draw text in an offline buffer */
     m_txt_screen->Render();
 
-    if (m_setup)
+    if (g_setup)
         m_txt_setup->Render();
 
     if (m_shader)
@@ -1058,7 +1062,7 @@ void Render::Draw2D()
     Video::Clear(ClearMask::Color | ClearMask::Depth);
 
     m_txt_screen->Blit(border, canvas_size);
-    if (m_setup)
+    if (g_setup)
         m_txt_setup->Blit((screen_size - setup_canvas_size) / 2, setup_canvas_size);
 
     //if (m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
