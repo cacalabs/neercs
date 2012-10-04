@@ -132,6 +132,7 @@ int setup_item_n = 8;           // item number
 int setup_item_p = 0;           // item position
 int setup_item_key = 0;         // item array key
 ivec3 setup_size(29,9,12);      // size [w,h,split]
+ivec2 setup_canvas_size(ivec2(setup_size.x+1,setup_size.y+1)*font_size*ivec2(2,4));
 ivec2 setup_color(0xaaa,0x222); // color [foreground,background] 0x678,0x234
 char const *setup_text[] = {
     "main",
@@ -1058,8 +1059,7 @@ void Render::Draw2D()
 
     m_txt_screen->Blit(border, canvas_size);
     if (m_setup)
-        m_txt_setup->Blit(border + canvas_size / 8,
-                          canvas_size - canvas_size / 4);
+        m_txt_setup->Blit((screen_size - setup_canvas_size) / 2, setup_canvas_size);
 
     //if (m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
     glLineWidth((m_polygon)?2.0f:1.0f);
