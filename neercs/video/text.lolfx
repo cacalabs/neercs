@@ -23,8 +23,8 @@ void main()
     float u = float(in_Char & 0xfu) / 32.0 + 0.0;
     float v = float((in_Char >> 4u) & 0xfu) / 32.0 + 0.5;
 #else
-    float u = 3.0 / 32.0;
-    float v = 3.0 / 32.0 + 0.5;
+    float u = mod(in_Char.x, 16.0) / 32.0 + 0.0;
+    float v = floor(in_Char.x / 16.0) / 32.0 + 0.5;
 #endif
     pass_UV = vec2(u, v);
 
@@ -45,9 +45,9 @@ void main()
     float D = 0.0;
 
     float E = 0.0;
-    float F = 1.0;
-    float G = 1.0;
-    float H = 1.0;
+    float F = mod(floor(in_Attr.y / 8.0), 16.0) / 15.0;
+    float G = (mod(in_Attr.y, 8.0) * 2.0 + floor(in_Attr.x / 128.0)) / 15.0;
+    float H = mod(floor(in_Attr.x / 16.0), 8.0) / 7.0;
 #endif
 
     pass_Background = vec4(B + 0.0625, C + 0.125, D + 0.125, 1.0 - A);
