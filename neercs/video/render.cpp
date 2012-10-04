@@ -98,7 +98,7 @@ vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
 vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.5f,0.0f);     // small glow radius [center,corner]
 vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
-vec4 copper_copper(0.8f,0.4f,0.2f,4.0f);        // copper [base,variable,repeat,color cycle]
+vec4 copper_copper(0.75f,0.25f,0.42f,4.0f);     // copper [base,variable,repeat,color cycle]
 vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
 vec3 color_filter(0.9f,0.95f,0.85f);            // color filter [red,green,blue]
 vec4 color_color(1.5f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
@@ -130,14 +130,14 @@ int setup_n = 0;                // item/option number
 int setup_h = 8;                // height
 int setup_cursor = 0;           // cursor position
 int setup_option_i = 0;         // selected option
-int setup_option_n = 11;        // option number
+int setup_option_n = 12;        // option number
 int setup_option_p = 0;         // option position
 int setup_item_i = 0;           // selected item
 int setup_item_n = 8;           // item number
 int setup_item_p = 0;           // item position
 int setup_item_key = 0;         // item array key
 ivec3 setup_size(29,9,12);      // size [w,h,split]
-ivec2 setup_canvas_size(ivec2(setup_size.x+1,setup_size.y+1)*font_size*ivec2(2,4));
+ivec2 setup_canvas_size(ivec2(setup_size.x + 1, setup_size.y + 1) * font_size * ivec2(2,4));
 ivec2 setup_color(0xaaa,0x222); // color [foreground,background] 0x678,0x234
 char const *setup_text[] = {
     "main",
@@ -238,7 +238,16 @@ char const *setup_text[] = {
         "v base",
         "v variable",
         "v repeat",
-        "v shift"
+        "v shift",
+    "mirror",
+        "enable",
+        "param 1",
+        "param 2",
+        "param 3",
+        "param 4",
+        "",
+        "",
+        ""
     };
 
 vec4 setup_var[]={ // setup variable [start,end,step,value]
@@ -341,6 +350,15 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_v.y),
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.z),
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
+    vec4(0), /* mirror */
+        vec4( 0, 1, 1, 1),
+        vec4( 0.0f, 1.0f, 0.1f, mirror.x),
+        vec4( 0.0f, 1.0f, 0.1f, mirror.y),
+        vec4( 0.0f, 1.0f, 0.1f, mirror.z),
+        vec4( 0.0f, 1.0f, 0.1f, mirror.w),
+        vec4(0),
+        vec4(0),
+        vec4(0),
     vec4(0) /* ? */
     };
 
@@ -623,7 +641,7 @@ void Render::TickGame(float seconds)
         /* title */
         caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
         caca_draw_line(m_cv_setup, 0, 0, setup_size.x, 0, ' ');
-        caca_put_str(m_cv_setup, setup_size.x / 2 - 6, 0, "NEERCS SETUP");
+        caca_put_str(m_cv_setup, setup_size.x / 2 - 3, 0, "SETUP");
         /* informations */
         int w = caca_get_canvas_width(m_cv_screen);
         int h = caca_get_canvas_height(m_cv_screen);
@@ -1098,7 +1116,7 @@ void Render::Draw3D()
         shader_copper->Bind();
         shader_copper->SetUniform(shader_copper_texture, fbo_back->GetTexture(), 0);
         shader_copper->SetUniform(shader_copper_screen_size, (vec2)screen_size);
-        shader_copper->SetUniform(shader_copper_time, fx_angle * 2.0f);
+        shader_copper->SetUniform(shader_copper_time, fx_angle);
         shader_copper->SetUniform(shader_copper_copper, vec4(copper_copper.x, copper_copper.y, copper_copper.z * 16.0f, copper_copper.w * 16.0f));
         shader_copper->SetUniform(shader_copper_mask_color, copper_mask_color / 4.0f);
         TraceQuad();
@@ -1255,6 +1273,7 @@ void Render::Draw3D()
     if (m_shader_postfx)
     {
         // shader postfx
+        fbo_tmp->Bind();
         shader_postfx->Bind();
         shader_postfx->SetUniform(shader_postfx_texture, fbo_front->GetTexture(), 0);
         shader_postfx->SetUniform(shader_postfx_screen_size, (vec2)screen_size);
@@ -1273,12 +1292,28 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_beat, (float)fabs(beat_value*cosf((main_angle-beat_angle)*6.0f)));
         TraceQuad();
         shader_postfx->Unbind();
-    }
-    else
-    {
+        fbo_tmp->Unbind();
         // shader simple
-        ShaderSimple(fbo_front, 0);
+        fbo_front->Bind();
+        ShaderSimple(fbo_tmp, 0);
+        fbo_front->Unbind();
     }
+
+    if (m_shader_mirror)
+    {
+        // shader mirror
+        fbo_tmp->Bind();
+        shader_mirror->Bind();
+        shader_mirror->SetUniform(shader_mirror_texture, fbo_front->GetTexture(), 0);
+        shader_mirror->SetUniform(shader_mirror_screen_size, (vec2)screen_size);
+        shader_mirror->SetUniform(shader_mirror_mirror, mirror);
+        TraceQuad();
+        shader_mirror->Unbind();
+        fbo_tmp->Unbind();
+    }
+
+    // shader simple
+    ShaderSimple(fbo_tmp, 0);
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
