@@ -26,15 +26,6 @@ neercs_LDFLAGS = $(top_builddir)/src/liblol.a \
                  @LOL_LIBS@ @PIPI_LIBS@ @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
 neercs_DEPENDENCIES = $(top_builddir)/src/liblol.a
 
-if BUILD_NEERCS
-all-local: neercs$(EXEEXT)
-	test $(MAKE_FSELF) = no || make_fself neercs$(EXEEXT) neercs.self
-endif
-
-CLEANFILES = $(noinst_PROGRAMS:%$(EXEEXT)=%.self) \
-             $(noinst_PROGRAMS:%$(EXEEXT)=%.elf) \
-             $(noinst_PROGRAMS:%$(EXEEXT)=%.exe)
-
 old_sources = \
     old/actions.c \
     old/ansi.c \
