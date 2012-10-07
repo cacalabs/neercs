@@ -115,7 +115,7 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
-vec4 mirror(0.0f,0.0f,0.0f,0.0f);               // 
+vec4 mirror(0.7f,0.7f,0.5f,4.0f);               // mirror [width,height,strength,ratio]
 /* text variable */
 ivec2 ratio_2d(2,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
@@ -123,7 +123,7 @@ ivec2 font_size(8,8);           // font size
 ivec2 canvas_char(0,0);         // canvas char number
 ivec2 canvas_size(0,0);         // caca size
 /* window variable */
-ivec2 border = vec2(3,2) * ratio_2d * font_size; // border width
+ivec2 border = vec2(2,1) * ratio_2d * font_size; // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -241,10 +241,10 @@ char const *setup_text[] = {
         "v shift",
     "mirror",
         "enable",
-        "param 1",
-        "param 2",
-        "param 3",
-        "param 4",
+        "width",
+        "height",
+        "strength",
+        "ratio",
         "",
         "",
         ""
@@ -297,7 +297,7 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0.0f, 1.0f, 0.10f, postfx_vignetting),
         vec4(0),
     vec4(0), /* copper */
-        vec4( 0, 1, 1, 1),
+        vec4(0, 1, 1, 1),
         vec4(0.0f, 1.0f, 0.05f, copper_copper.x),
         vec4(0.0f, 1.0f, 0.05f, copper_copper.y),
         vec4(0.0f, 1.0f, 0.02f, copper_copper.z),
@@ -315,7 +315,7 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4( 0.0f, 1.0f, 0.05f, color_color.w),
         vec4( 0.0f, 8.0f, 0.50f, postfx_aberration),
     vec4(0), /* noise */
-        vec4( 0, 1, 1, 1),
+        vec4(0, 1, 1, 1),
         vec4(0.0f, 4.0f, 0.50f, noise_offset.x),
         vec4(0.0f, 4.0f, 0.50f, noise_offset.y),
         vec4(0.0f, 0.5f, 0.05f, noise_noise),
@@ -351,11 +351,11 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.z),
         vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
     vec4(0), /* mirror */
-        vec4( 0, 1, 1, 1),
-        vec4( 0.0f, 1.0f, 0.1f, mirror.x),
-        vec4( 0.0f, 1.0f, 0.1f, mirror.y),
-        vec4( 0.0f, 1.0f, 0.1f, mirror.z),
-        vec4( 0.0f, 1.0f, 0.1f, mirror.w),
+        vec4(0, 1, 1, 1),
+        vec4(0.0f, 2.0f, 0.05f, mirror.x),
+        vec4(0.0f, 2.0f, 0.05f, mirror.y),
+        vec4(0.0f, 1.0f, 0.05f, mirror.z),
+        vec4(1.0f, 4.0f, 0.25f, mirror.w),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -488,8 +488,9 @@ ShaderUniform shader_mirror_texture,
               shader_mirror_screen_size,
               shader_mirror_mirror;
 
-FrameBuffer *fbo_back, *fbo_front, *fbo_buffer;
-FrameBuffer *fbo_blur_h, *fbo_blur_v, *fbo_tmp;
+FrameBuffer *fbo_back, *fbo_front, *fbo_screen;
+FrameBuffer *fbo_blur_h, *fbo_blur_v;
+FrameBuffer *fbo_tmp, *fbo_buffer;
 
 void Render::TraceQuad()
 {
@@ -513,6 +514,7 @@ int Render::InitDraw(void)
 
     /* initialise framebuffer objects */
     fbo_back = new FrameBuffer(screen_size);
+    fbo_screen = new FrameBuffer(screen_size);
     fbo_front = new FrameBuffer(screen_size);
     fbo_buffer = new FrameBuffer(screen_size);
     fbo_blur_h = new FrameBuffer(screen_size);
@@ -1146,7 +1148,7 @@ void Render::Draw3D()
         // save previous fbo
         fbo_tmp->Bind();
         shader_remanence->Bind();
-        shader_remanence->SetUniform(shader_remanence_source, fbo_front->GetTexture(), 0);
+        shader_remanence->SetUniform(shader_remanence_source, fbo_screen->GetTexture(), 0);
         shader_remanence->SetUniform(shader_remanence_buffer, fbo_buffer->GetTexture(), 1);
         shader_remanence->SetUniform(shader_remanence_mix, buffer);
         TraceQuad();
@@ -1194,21 +1196,21 @@ void Render::Draw3D()
         shader_blur_v->Unbind();
         fbo_blur_v->Unbind();
         // shader glow
-        fbo_front->Bind();
+        fbo_screen->Bind();
         shader_glow->Bind();
         shader_glow->SetUniform(shader_glow_glow, fbo_blur_v->GetTexture(), 0);
         shader_glow->SetUniform(shader_glow_source, fbo_back->GetTexture(), 1);
         shader_glow->SetUniform(shader_glow_mix, glow_mix);
         TraceQuad();
         shader_glow->Unbind();
-        fbo_front->Unbind();
+        fbo_screen->Unbind();
     }
     else
     {
         // shader simple
-        fbo_front->Bind();
+        fbo_screen->Bind();
         ShaderSimple(fbo_back, 0);
-        fbo_front->Unbind();
+        fbo_screen->Unbind();
     }
 
     if (m_shader_color)
@@ -1216,7 +1218,7 @@ void Render::Draw3D()
         // shader color
         fbo_tmp->Bind();
         shader_color->Bind();
-        shader_color->SetUniform(shader_color_texture, fbo_front->GetTexture(), 0);
+        shader_color->SetUniform(shader_color_texture, fbo_screen->GetTexture(), 0);
         shader_color->SetUniform(shader_color_screen_size, (vec2)screen_size);
         shader_color->SetUniform(shader_color_filter, color_filter);
         shader_color->SetUniform(shader_color_color, color_color);
@@ -1225,9 +1227,9 @@ void Render::Draw3D()
         shader_color->Unbind();
         fbo_tmp->Unbind();
         // shader simple
-        fbo_front->Bind();
+        fbo_screen->Bind();
         ShaderSimple(fbo_tmp, 0);
-        fbo_front->Unbind();
+        fbo_screen->Unbind();
     }
 
     if (m_shader_noise)
@@ -1235,7 +1237,7 @@ void Render::Draw3D()
         // shader noise
         fbo_tmp->Bind();
         shader_noise->Bind();
-        shader_noise->SetUniform(shader_noise_texture, fbo_front->GetTexture(), 0);
+        shader_noise->SetUniform(shader_noise_texture, fbo_screen->GetTexture(), 0);
         shader_noise->SetUniform(shader_noise_screen_size, (vec2)screen_size);
         shader_noise->SetUniform(shader_noise_time, fx_angle);
         shader_noise->SetUniform(shader_noise_offset, noise_offset);
@@ -1245,9 +1247,9 @@ void Render::Draw3D()
         shader_noise->Unbind();
         fbo_tmp->Unbind();
         // shader simple
-        fbo_front->Bind();
+        fbo_screen->Bind();
         ShaderSimple(fbo_tmp, 0);
-        fbo_front->Unbind();
+        fbo_screen->Unbind();
     }
 
     if (m_shader_blur)
@@ -1255,27 +1257,27 @@ void Render::Draw3D()
         // shader blur horizontal
         fbo_tmp->Bind();
         shader_blur_h->Bind();
-        shader_blur_h->SetUniform(shader_blur_h_texture, fbo_front->GetTexture(), 0);
+        shader_blur_h->SetUniform(shader_blur_h_texture, fbo_screen->GetTexture(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, blur / screen_size.x);
         TraceQuad();
         shader_blur_h->Unbind();
         fbo_tmp->Unbind();
         // shader blur vertical
-        fbo_front->Bind();
+        fbo_screen->Bind();
         shader_blur_v->Bind();
         shader_blur_v->SetUniform(shader_blur_v_texture, fbo_tmp->GetTexture(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, blur / screen_size.y);
         TraceQuad();
         shader_blur_v->Unbind();
-        fbo_front->Unbind();
+        fbo_screen->Unbind();
     }
 
     if (m_shader_postfx)
     {
         // shader postfx
-        fbo_tmp->Bind();
+        fbo_front->Bind();
         shader_postfx->Bind();
-        shader_postfx->SetUniform(shader_postfx_texture, fbo_front->GetTexture(), 0);
+        shader_postfx->SetUniform(shader_postfx_texture, fbo_screen->GetTexture(), 0);
         shader_postfx->SetUniform(shader_postfx_screen_size, (vec2)screen_size);
         shader_postfx->SetUniform(shader_postfx_time, fx_angle);
         shader_postfx->SetUniform(shader_postfx_deform, postfx_deform);
@@ -1288,14 +1290,17 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_scanline_h, postfx_scanline_h);
         shader_postfx->SetUniform(shader_postfx_scanline_v, postfx_scanline_v);
         shader_postfx->SetUniform(shader_postfx_corner, postfx_corner);
-        shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(sync_value*cosf((main_angle-sync_angle)*6.0f)));
-        shader_postfx->SetUniform(shader_postfx_beat, (float)fabs(beat_value*cosf((main_angle-beat_angle)*6.0f)));
+        shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(sync_value * cosf((main_angle - sync_angle) * 6.0f)));
+        shader_postfx->SetUniform(shader_postfx_beat, (float)fabs(beat_value * cosf((main_angle - beat_angle) * 6.0f)));
         TraceQuad();
         shader_postfx->Unbind();
-        fbo_tmp->Unbind();
+        fbo_front->Unbind();
+    }
+    else
+    {
         // shader simple
         fbo_front->Bind();
-        ShaderSimple(fbo_tmp, 0);
+        ShaderSimple(fbo_screen, 0);
         fbo_front->Unbind();
     }
 
@@ -1306,14 +1311,18 @@ void Render::Draw3D()
         shader_mirror->Bind();
         shader_mirror->SetUniform(shader_mirror_texture, fbo_front->GetTexture(), 0);
         shader_mirror->SetUniform(shader_mirror_screen_size, (vec2)screen_size);
-        shader_mirror->SetUniform(shader_mirror_mirror, mirror);
+        shader_mirror->SetUniform(shader_mirror_mirror, vec4(mirror.x * 0.1f, mirror.y * 0.1f, mirror.z, mirror.w));
         TraceQuad();
         shader_mirror->Unbind();
         fbo_tmp->Unbind();
+        // shader simple
+        fbo_front->Bind();
+        ShaderSimple(fbo_tmp, 0);
+        fbo_front->Unbind();
     }
 
     // shader simple
-    ShaderSimple(fbo_tmp, 0);
+    ShaderSimple(fbo_front, 0);
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
