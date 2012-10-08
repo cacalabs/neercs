@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     Application app("Neercs", ivec2(800, 600), 60.0f);
 
 #if defined _MSC_VER && !defined _XBOX
-    _chdir("..");
+    _chdir("../..");
 #elif defined _WIN32 && !defined _XBOX
     _chdir("../..");
 #endif
