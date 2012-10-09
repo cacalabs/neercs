@@ -31,7 +31,6 @@
 #include <caca.h>
 
 #include "core.h"
-#include "loldebug.h"
 
 using namespace std;
 using namespace lol;

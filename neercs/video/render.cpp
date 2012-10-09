@@ -23,6 +23,7 @@
 
 #include "core.h"
 #include "lolgl.h"
+#include "loldebug.h"
 
 using namespace std;
 using namespace lol;
