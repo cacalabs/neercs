@@ -22,8 +22,10 @@ void main(void)
     vec3 source = texture2D(texture, p).xyz;
 
     vec3 color = vec3(0.0);
-    if(p.x < mirror.x) color = (texture2D(texture, vec2(mirror.x - (1.0 - mirror.x * mirror.w + p.x * mirror.w), p.y)).xyz) * (mirror.z / mirror.x * p.x);
-    if(p.x > 1.0 - mirror.x) color = (texture2D(texture, vec2(mirror.x - (1.0 - mirror.x * mirror.w + p.x * mirror.w), p.y)).xyz) * (mirror.z / mirror.x * (1.0 - p.x));
+    if(p.x < mirror.x) color = (texture2D(texture, vec2(mirror.x + (mirror.x - p.x) * mirror.w, p.y)).xyz) * (mirror.z / mirror.x * p.x);
+    if(p.x > 1.0 - mirror.x) color = (texture2D(texture, vec2(- mirror.x - (mirror.x + p.x) * mirror.w, p.y)).xyz) * (mirror.z / mirror.x * (1.0 - p.x));
+    if(p.y < mirror.y) color = (texture2D(texture, vec2(p.x, mirror.y + (mirror.y - p.y) * mirror.w)).xyz) * (mirror.z / mirror.y * p.y);
+    if(p.y > 1.0 - mirror.y) color = (texture2D(texture, vec2(p.x, - mirror.y - (mirror.y + p.y) * mirror.w)).xyz) * (mirror.z / mirror.y * (1.0 - p.y));
 
-    gl_FragColor = vec4(source + color, 1.0);
+    gl_FragColor = vec4(source + color + color * color, 1.0);
 }

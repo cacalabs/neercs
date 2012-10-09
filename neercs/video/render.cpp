@@ -47,7 +47,7 @@ extern char const *lolfx_mirror;
 /*
  * Global variable -- ugly
  */
-bool g_setup = true;
+bool g_setup = false;
 
 /*
  * Various variables
@@ -114,16 +114,16 @@ vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat,shift]
 vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
-vec3 postfx_corner(0.0f,0.75f,0.95f);           // corner [width,radius,blur]
-vec4 mirror(0.7f,0.7f,0.5f,4.0f);               // mirror [width,height,strength,ratio]
+vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
+vec4 mirror(0.6f,0.6f,0.25f,3.0f);              // mirror [width,height,strength,ratio]
 /* text variable */
-ivec2 ratio_2d(2,3);            // 2d ratio
+ivec2 ratio_2d(3,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
 ivec2 font_size(8,8);           // font size
 ivec2 canvas_char(0,0);         // canvas char number
 ivec2 canvas_size(0,0);         // caca size
 /* window variable */
-ivec2 border = vec2(2,1) * ratio_2d * font_size; // border width
+ivec2 border = vec2(1,1) * ratio_2d * font_size; // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -290,10 +290,10 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
     vec4(0), /* screen */
         vec4(0, 1, 1, 1),
         vec4(0.0f, 1.0f, 0.05f, postfx_deform.x),
-        vec4(0.5f, 0.7f, 0.01f, postfx_deform.y),
+        vec4(0.2f, 0.7f, 0.01f, postfx_deform.y),
         vec4(0.0f, 4.0f, 0.10f, postfx_corner.x),
         vec4(0.0f, 1.0f, 0.05f, postfx_corner.y),
-        vec4(0.0f, 1.0f, 0.05f, postfx_corner.z),
+        vec4(0.8f, 1.0f, 0.01f, postfx_corner.z),
         vec4(0.0f, 1.0f, 0.10f, postfx_vignetting),
         vec4(0),
     vec4(0), /* copper */
