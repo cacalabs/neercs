@@ -601,6 +601,7 @@ int Render::CreateGLWindow()
 Render::Render(caca_canvas_t *caca)
   : m_cv_screen(caca),
     m_cv_setup(caca_create_canvas(1, 1)),
+    m_fps_debug(0),
     m_ready(false),
     m_pause(false),
     m_polygon(true),
@@ -735,6 +736,18 @@ void Render::TickDraw(float seconds)
         if (g_setup) setup_n = calc_item_length();
         sync_flag = true;
         sync_angle = main_angle;
+
+        if (m_fps_debug)
+        {
+            Ticker::Unref(m_fps_debug);
+            m_fps_debug = NULL;
+        }
+
+        if (g_setup)
+        {
+            m_fps_debug = new DebugFps(2, 2);
+            Ticker::Ref(m_fps_debug);
+        }
     }
     if (Input::WasPressed(Key::F2))
     {
@@ -1330,4 +1343,7 @@ void Render::Draw3D()
 
 Render::~Render()
 {
+    if (m_fps_debug)
+        Ticker::Unref(m_fps_debug);
 }
+

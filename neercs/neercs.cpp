@@ -80,7 +80,6 @@ int main(int argc, char **argv)
 #endif
 
     new Neercs(argc, argv);
-    new DebugFps(2, 2);
     app.ShowPointer(false);
 
     app.Run();
