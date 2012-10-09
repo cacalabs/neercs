@@ -44,6 +44,7 @@ using namespace lol;
 Pty::Pty()
   : m_fd(-1),
     m_pid(-1),
+    m_eof(false),
     m_unread_data(0),
     m_unread_len(0)
 {
@@ -104,6 +105,11 @@ void Pty::Run(char const *command, ivec2 size)
 #endif
 }
 
+bool Pty::IsEof() const
+{
+    return m_eof;
+}
+
 size_t Pty::ReadData(char *data, size_t maxlen)
 {
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
@@ -141,14 +147,19 @@ size_t Pty::ReadData(char *data, size_t maxlen)
         if (ret < 0)
         {
             Log::Error("cannot read from PTY\n");
+            m_eof = true;
             return 0;
         }
-
-        if (ret)
+        else if (ret)
         {
             if (FD_ISSET((int)m_fd, &fdset))
             {
                 ssize_t nr = read((int)m_fd, data, maxlen);
+
+                /* Data available but zero-length read: EOF */
+                if (nr <= 0)
+                    m_eof = true;
+
                 if (nr >= 0)
                     return nr;
             }

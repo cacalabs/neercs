@@ -113,13 +113,18 @@ void Term::TickGame(float seconds)
         }
     }
 
-    /* This is the real terminal code */
-    /* XXX: for now we draw fancy shit */
     m_time += seconds;
+
+    if (m_pty->IsEof())
+    {
+        /* FIXME: we could do more interesting things here… */
+        Ticker::Shutdown();
+    }
 
     m_pty->SetWindowSize(ivec2(caca_get_canvas_width(m_caca),
                                caca_get_canvas_height(m_caca)));
 
+    /* This is the real terminal code */
     size_t total = 0;
     for (;;)
     {

@@ -726,10 +726,6 @@ void Render::Pause()
 void Render::TickDraw(float seconds)
 {
     /* keyboard manager */
-    if (Input::WasReleased(Key::Escape))
-    {
-        Ticker::Shutdown();
-    }
     if (Input::WasPressed(Key::F1))
     {
         g_setup = !g_setup;

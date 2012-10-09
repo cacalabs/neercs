@@ -12,6 +12,7 @@ public:
     ~Pty();
 
     void Run(char const *command, ivec2 size);
+    bool IsEof() const;
 
     size_t ReadData(char *data, size_t maxlen);
     void UnreadData(char *data, size_t len);
@@ -22,6 +23,7 @@ public:
 private:
     int64_t m_fd;
     int64_t m_pid;
+    bool m_eof;
     char const *m_argv[2];
     char *m_unread_data;
     size_t m_unread_len;
