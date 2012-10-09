@@ -102,9 +102,9 @@ vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
 vec4 copper_copper(0.75f,0.25f,0.42f,4.0f);     // copper [base,variable,repeat,color cycle]
 vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
 vec3 color_filter(0.9f,0.95f,0.85f);            // color filter [red,green,blue]
-vec4 color_color(1.5f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
-vec2 noise_offset(2.0f,2.0f);                   // random line [horizontal,vertical]
-float noise_noise = 0.25f;                      // noise
+vec4 color_color(1.4f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
+vec2 noise_offset(1.0f,1.0f);                   // random line [horizontal,vertical]
+float noise_noise = 0.15f;                      // noise
 vec3 noise_retrace(1.0f,1.0f,0.5f);             // retrace [strength,length,speed]
 vec2 postfx_deform(0.8f,0.52f);                 // deformation [ratio,zoom]
 float postfx_vignetting = 0.5f;                 // vignetting strength
@@ -113,18 +113,17 @@ vec4 postfx_ghost1(1.0f,0.0f,0.0f,-0.25f);      // ghost picture 1 [position x,p
 vec4 postfx_ghost2(1.5f,0.0f,0.0f,0.25f);       // ghost picture 2 [position x,position y,position z,strength]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat,shift]
 vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat,shift]
-vec4 postfx_scanline_h(0.75f,0.0f,0.0f,0.0f);   // vertical scanline [base,variable,repeat,shift]
+vec4 postfx_scanline_h(1.0f,0.0f,0.0f,0.0f);    // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
-vec4 mirror(0.6f,0.6f,0.25f,3.0f);              // mirror [width,height,strength,ratio]
+vec4 mirror(0.6f,0.6f,0.4f,4.0f);               // mirror [width,height,strength,ratio]
 /* text variable */
-ivec2 ratio_2d(3,3);            // 2d ratio
+ivec2 ratio_2d(2,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
 ivec2 font_size(8,8);           // font size
 ivec2 canvas_char(0,0);         // canvas char number
 ivec2 canvas_size(0,0);         // caca size
-/* window variable */
-ivec2 border = vec2(1,1) * ratio_2d * font_size; // border width
+ivec2 border(2 * ratio_2d.x * font_size.x,1 * ratio_2d.x * font_size.y); // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number

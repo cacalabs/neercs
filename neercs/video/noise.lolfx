@@ -4,8 +4,8 @@
 
 void main()
 {
-    gl_Position = gl_Vertex;
-    gl_TexCoord[0] = gl_MultiTexCoord0;
+    gl_Position=gl_Vertex;
+    gl_TexCoord[0]=gl_MultiTexCoord0;
 }
 
 [frag.glsl]
@@ -21,19 +21,19 @@ uniform vec3 retrace;
 
 float rand(in vec2 p,in float t,in float v)
 {
-    return fract(sin(dot(p+mod(t,2.0),vec2(12.9898,78.2333)))*v);
+    return fract(sin(dot(p+mod(t,1.0),vec2(12.9898,78.2333)))*v);
 }
 
 void main(void)
 {
-    vec2 p = gl_FragCoord.xy/screen_size.xy;
+    vec2 p=gl_FragCoord.xy/screen_size.xy;
 
-    float r1 = rand(p,time,43758.5453);
-    float r2 = rand(p,time,70425.2854);
-    vec2 o = (offset-offset*2.0*r1)/screen_size;
+    float r1=rand(p,time,43758.5453);
+    float r2=rand(p,time,70425.2854);
+    vec2 o=(offset-offset*2.0*r1)/screen_size;
 
-    vec3 c = texture2D(texture,p+o).xyz;                          // offset
-    c *= 1.0+(noise-noise*2.0*r1);                                // noise
-    c -= retrace.x*0.01*mod(p.y*retrace.y+time*retrace.z,1.0);    // retrace
-    gl_FragColor = vec4(c,1.0);
+    vec3 c=texture2D(texture,p+o).xyz;                          // offset
+    c*=1.0+(noise-noise*2.0*r1);                                // noise
+    c-=retrace.x*0.01*mod(p.y*retrace.y+time*retrace.z,1.0);    // retrace
+    gl_FragColor=vec4(c,1.0);
 }
