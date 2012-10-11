@@ -118,7 +118,7 @@ vec4 postfx_scanline_h(1.0f,0.0f,0.0f,0.0f);    // vertical scanline [base,varia
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
 vec4 mirror(0.95f,0.9f,0.4f,3.0f);              // mirror [width,height,strength,ratio]
-vec4 radial(4.0f,0.94f,32,0.25f);               // radial [distance,fade ratio,iteration,strength]
+vec4 radial(3.0f,0.9f,16,0.5f);                 // radial [distance,fade ratio,iteration,strength]
 /* text variable */
 ivec2 ratio_2d(2,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
@@ -373,8 +373,8 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
     vec4(0), /* radial blur */
         vec4(0, 1, 1, 1),
         vec4(2.0f, 8.0f, 0.25f, radial.x),
-        vec4(0.5f, 1.0f, 0.01f, radial.y),
-        vec4(2.0f,64.0f, 2.00f, radial.z),
+        vec4(0.8f, 1.0f, 0.01f, radial.y),
+        vec4(2.0f,32.0f, 2.00f, radial.z),
         vec4(0.0f, 1.0f, 0.05f, radial.w),
         vec4(0),
         vec4(0),
