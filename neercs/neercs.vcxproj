@@ -92,6 +92,7 @@
     <LolFxCompile Include="video\noise.lolfx" />
     <LolFxCompile Include="video\postfx.lolfx" />
     <LolFxCompile Include="video\mirror.lolfx" />
+    <LolFxCompile Include="video\radial.lolfx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{587FCCE9-1D8D-4398-B8B6-E8F4E9A92233}</ProjectGuid>

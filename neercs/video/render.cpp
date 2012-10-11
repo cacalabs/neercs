@@ -42,6 +42,7 @@ extern char const *lolfx_color;
 extern char const *lolfx_noise;
 extern char const *lolfx_postfx;
 extern char const *lolfx_mirror;
+extern char const *lolfx_radial;
 
 #define PID M_PI/180.0f    // pi ratio
 
@@ -102,11 +103,11 @@ vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
 vec4 copper_copper(0.75f,0.25f,0.42f,4.0f);     // copper [base,variable,repeat,color cycle]
 vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
 vec3 color_filter(0.9f,0.95f,0.85f);            // color filter [red,green,blue]
-vec4 color_color(1.4f,1.2f,0.1f,0.35f);         // color modifier [brightness,contrast,level,grayscale]
+vec4 color_color(1.0f,1.25f,0.0f,0.35f);        // color modifier [brightness,contrast,level,grayscale]
 vec2 noise_offset(1.0f,1.0f);                   // random line [horizontal,vertical]
 float noise_noise = 0.15f;                      // noise
 vec3 noise_retrace(1.0f,1.0f,0.5f);             // retrace [strength,length,speed]
-vec2 postfx_deform(0.8f,0.52f);                 // deformation [ratio,zoom]
+vec2 postfx_deform(0.8f,0.48f);                 // deformation [ratio,zoom]
 float postfx_vignetting = 0.5f;                 // vignetting strength
 float postfx_aberration = 4.0f;                 // chromatic aberration
 vec4 postfx_ghost1(1.0f,0.0f,0.0f,-0.25f);      // ghost picture 1 [position x,position y,position z,strength]
@@ -116,21 +117,22 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(1.0f,0.0f,0.0f,0.0f);    // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
-vec4 mirror(0.6f,0.6f,0.4f,4.0f);               // mirror [width,height,strength,ratio]
+vec4 mirror(0.95f,0.9f,0.4f,3.0f);              // mirror [width,height,strength,ratio]
+vec4 radial(4.0f,0.94f,32,0.25f);               // radial [distance,fade ratio,iteration,strength]
 /* text variable */
 ivec2 ratio_2d(2,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
 ivec2 font_size(8,8);           // font size
 ivec2 canvas_char(0,0);         // canvas char number
 ivec2 canvas_size(0,0);         // caca size
-ivec2 border(2 * ratio_2d.x * font_size.x,1 * ratio_2d.x * font_size.y); // border width
+ivec2 border(2 * ratio_2d.x * font_size.x,1 * ratio_2d.y * font_size.y); // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
 int setup_h = 8;                // height
 int setup_cursor = 0;           // cursor position
 int setup_option_i = 0;         // selected option
-int setup_option_n = 12;        // option number
+int setup_option_n = 13;        // option number
 int setup_option_p = 0;         // option position
 int setup_item_i = 0;           // selected item
 int setup_item_n = 8;           // item number
@@ -247,6 +249,15 @@ char const *setup_text[] = {
         "ratio",
         "",
         "",
+        "",
+    "radial",
+        "enable",
+        "distance",
+        "fade ratio",
+        "iteration",
+        "strength",
+        "",
+        "",
         ""
     };
 
@@ -355,7 +366,16 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(0.0f, 2.0f, 0.05f, mirror.x),
         vec4(0.0f, 2.0f, 0.05f, mirror.y),
         vec4(0.0f, 1.0f, 0.05f, mirror.z),
-        vec4(1.0f, 4.0f, 0.25f, mirror.w),
+        vec4(1.0f, 8.0f, 1.00f, mirror.w),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+    vec4(0), /* radial blur */
+        vec4(0, 1, 1, 1),
+        vec4(2.0f, 8.0f, 0.25f, radial.x),
+        vec4(0.5f, 1.0f, 0.01f, radial.y),
+        vec4(2.0f,64.0f, 2.00f, radial.z),
+        vec4(0.0f, 1.0f, 0.05f, radial.w),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -409,6 +429,9 @@ void Render::UpdateVar()
     k += 1; /* mirror */
     m_shader_mirror = (setup_var[k].w == 1) ? true : false; k++;
     mirror = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+    k += 4; /* radial blur */
+    m_shader_radial = (setup_var[k].w == 1) ? true : false; k++;
+    radial = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     UpdateSize();
 }
 
@@ -439,7 +462,7 @@ int calc_item_length()
 Shader *shader_simple;
 Shader *shader_blur_h, *shader_blur_v, *shader_glow;
 Shader *shader_remanence, *shader_copper, *shader_color;
-Shader *shader_noise, *shader_postfx, *shader_mirror;
+Shader *shader_noise, *shader_postfx, *shader_mirror, *shader_radial;
 // shader variables
 ShaderUniform shader_simple_texture;
 ShaderUniform shader_blur_h_texture,
@@ -487,6 +510,9 @@ ShaderUniform shader_postfx_texture,
 ShaderUniform shader_mirror_texture,
               shader_mirror_screen_size,
               shader_mirror_mirror;
+ShaderUniform shader_radial_texture,
+              shader_radial_screen_size,
+              shader_radial_radial;
 
 FrameBuffer *fbo_back, *fbo_front, *fbo_screen;
 FrameBuffer *fbo_blur_h, *fbo_blur_v;
@@ -586,6 +612,11 @@ int Render::InitDraw(void)
     shader_mirror_texture = shader_mirror->GetUniformLocation("texture");
     shader_mirror_screen_size = shader_mirror->GetUniformLocation("screen_size");
     shader_mirror_mirror = shader_mirror->GetUniformLocation("mirror");
+    // shader radial blur
+    shader_radial = Shader::Create(lolfx_radial);
+    shader_radial_texture = shader_radial->GetUniformLocation("texture");
+    shader_radial_screen_size = shader_radial->GetUniformLocation("screen_size");
+    shader_radial_radial = shader_radial->GetUniformLocation("radial");
     // initialize setup
     setup_n = calc_item_length();
     return true;
@@ -604,7 +635,6 @@ Render::Render(caca_canvas_t *caca)
     m_fps_debug(0),
     m_ready(false),
     m_pause(false),
-    m_polygon(true),
     m_shader(true),
     m_shader_glow(true),
     m_shader_blur(true),
@@ -613,7 +643,8 @@ Render::Render(caca_canvas_t *caca)
     m_shader_color(true),
     m_shader_noise(true),
     m_shader_postfx(true),
-    m_shader_mirror(true)
+    m_shader_mirror(true),
+    m_shader_radial(true)
 {
     m_txt_screen = new TextRender(m_cv_screen, font_size);
     m_txt_setup = new TextRender(m_cv_setup, font_size);
@@ -622,18 +653,6 @@ Render::Render(caca_canvas_t *caca)
 void Render::TickGame(float seconds)
 {
     Entity::TickGame(seconds);
-
-    /* draw LOLCUBE */
-    /*
-    caca_set_color_argb(m_cv_screen, 0xfff, 0x000);
-    caca_put_str(m_cv_screen, canvas_char.x -  8, canvas_char.y - 6, "_______");
-    caca_put_str(m_cv_screen, canvas_char.x -  9, canvas_char.y - 5, "/      /|");
-    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 4, "/______/ |");
-    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 3, "|      | |");
-    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 2, "|  :D  | /");
-    caca_put_str(m_cv_screen, canvas_char.x - 10, canvas_char.y - 1, "|______|/");
-    */
-
     /* draw setup */
     if (g_setup)
     {
@@ -646,10 +665,12 @@ void Render::TickGame(float seconds)
         caca_draw_line(m_cv_setup, 0, 0, setup_size.x, 0, ' ');
         caca_put_str(m_cv_setup, setup_size.x / 2 - 3, 0, "SETUP");
         /* informations */
+        /*
         int w = caca_get_canvas_width(m_cv_screen);
         int h = caca_get_canvas_height(m_cv_screen);
         caca_set_color_argb(m_cv_setup, setup_color.y, setup_color.x);
         caca_printf(m_cv_setup, 1, 0, "%i*%i", w, h);
+        */
         /* display option */
         for (int i = 0; i < setup_h; i++)
         {
@@ -755,9 +776,7 @@ void Render::TickDraw(float seconds)
         m_shader_noise = !m_shader_noise;
         m_shader_postfx = !m_shader_postfx;
         m_shader_mirror = !m_shader_mirror;
-        //m_polygon = !m_polygon;
-        //polygon_fillmode = (m_polygon)?GL_FILL:GL_LINE;
-        //glPolygonMode(GL_FRONT, polygon_fillmode);
+        m_shader_radial = !m_shader_radial;
     }
    if (Input::WasPressed(Key::Tab))
     {
@@ -1083,6 +1102,7 @@ void Render::Draw2D()
     glViewport(0, 0, screen_size.x, screen_size.y);
 
     /* Clear the back buffer */
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
 
@@ -1094,16 +1114,12 @@ void Render::Draw2D()
     if (g_setup)
         m_txt_setup->Blit((screen_size - setup_canvas_size) / 2, setup_canvas_size);
 
-    //if (m_polygon) glEnable(GL_LINE_SMOOTH); else glDisable(GL_LINE_SMOOTH);
-    glLineWidth((m_polygon)?2.0f:1.0f);
-    fx_angle=main_angle-part_angle;
-    if (m_polygon)
-        glEnable(GL_TEXTURE_2D);
-
     glMatrixMode(GL_PROJECTION);
     mat4 m = mat4::ortho(0, screen_size.x, screen_size.y, 0, -1.f, 1.f);
     glLoadMatrixf(&m[0][0]);
     glMatrixMode(GL_MODELVIEW);
+
+    fx_angle=main_angle-part_angle;
 }
 
 void Render::Draw3D()
@@ -1330,6 +1346,23 @@ void Render::Draw3D()
         fbo_front->Unbind();
     }
 
+    if (m_shader_radial)
+    {
+        // shader radial blur
+        fbo_tmp->Bind();
+        shader_radial->Bind();
+        shader_radial->SetUniform(shader_radial_texture, fbo_front->GetTexture(), 0);
+        shader_radial->SetUniform(shader_radial_screen_size, (vec2)screen_size);
+        shader_radial->SetUniform(shader_radial_radial, vec4(radial.x, radial.y, radial.z, radial.w * 0.1f));
+        TraceQuad();
+        shader_radial->Unbind();
+        fbo_tmp->Unbind();
+        // shader simple
+        fbo_front->Bind();
+        ShaderSimple(fbo_tmp, 0);
+        fbo_front->Unbind();
+    }
+
     // shader simple
     ShaderSimple(fbo_front, 0);
 
@@ -1342,4 +1375,3 @@ Render::~Render()
     if (m_fps_debug)
         Ticker::Unref(m_fps_debug);
 }
-

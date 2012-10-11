@@ -37,7 +37,6 @@ private:
 
     bool m_ready;
     bool m_pause;
-    bool m_polygon;
     bool m_shader;
     bool m_shader_glow;
     bool m_shader_blur;
@@ -47,7 +46,7 @@ private:
     bool m_shader_noise;
     bool m_shader_postfx;
     bool m_shader_mirror;
+    bool m_shader_radial;
 };
 
 #endif // __VIDEO_RENDER_H__
-

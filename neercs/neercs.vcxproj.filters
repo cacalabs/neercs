@@ -159,5 +159,8 @@
     <LolFxCompile Include="video\mirror.lolfx">
       <Filter>video</Filter>
     </LolFxCompile>
+    <LolFxCompile Include="video\radial.lolfx">
+      <Filter>video</Filter>
+    </LolFxCompile>
   </ItemGroup>
 </Project>
