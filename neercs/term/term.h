@@ -126,6 +126,7 @@ private:
     /* Mostly for fancy shit */
     void DrawFancyShit();
     float m_time;
+    bool m_debug;
 };
 
 #endif // __TERM_TERM_H__

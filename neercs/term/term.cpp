@@ -30,7 +30,8 @@ Term::Term(ivec2 size)
     m_caca(caca_create_canvas(size.x, size.y)),
     m_size(size),
     m_title(0),
-    m_time(0.f)
+    m_time(0.f),
+    m_debug(false)
 {
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
     m_pty = new Pty();
@@ -140,6 +141,16 @@ void Term::TickGame(float seconds)
             break;
 //        if (total > 10000)
 //            break;
+    }
+
+    /* Some fancy shit if we press F3 */
+    if (Input::WasPressed(Key::F3))
+        m_debug = !m_debug;
+
+    if (m_debug)
+    {
+        m_time += seconds;
+        DrawFancyShit();
     }
 #else
     /* Unsupported platform - draw some fancy shit instead */
