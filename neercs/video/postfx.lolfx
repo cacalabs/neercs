@@ -65,25 +65,26 @@ void main(void)
     vec3 ca2=get_color(texture,vec2(z.x+v,z.y));
     c+=vec3(ca1.x,c.y,ca2.z);                                // chromatic aberration
 
-    vec3 c1=vec3(0.2,0.1,0.0);
-    vec3 c2=vec3(0.7,0.5,0.5);
+    vec3 c1=vec3(0.8,0.8,0.8);
+    vec3 c2=vec3(0.0,0.0,0.0);
     vec3 c3=vec3(1.0,1.0,1.0);
-    vec3 c4=vec3(0.0,0.5,0.7);
-    vec3 c5=vec3(0.0,0.1,0.2);
+    vec3 c4=vec3(0.8,0.8,0.8);
+    vec3 c5=vec3(0.0,0.0,0.0);
     vec3 r;
-    float k=z.y+1.0;//(p.y+1.0)/2.0;
+    float r_p=0.5;
+    float r_h=0.05;
+    float k=z.y+1.0;
 
-    if(k<=0.1) r=mix(c1,c2,k*(1/0.1));
-    if(k>0.1&&k<0.2) r=mix(c2,c3,(k-0.1)*(1.0/0.1));
-    if(k>0.2&&k<0.3) r=mix(c3,c4,(k-0.2)*(1/0.1));
-    if(k>=0.3) r=mix(c4,c5,k*((k-0.3)/0.7));
-
-    c+=r*0.5;                                                // reflection
+    if(k<=r_p-r_h) r=mix(c1,c2,k*(1/(r_p-r_h)));
+    if(k>r_p-r_h&&k<=r_p) r=mix(c2,c3,(k-(r_p-r_h))*(1/r_h));
+    if(k>r_p&&k<r_p+r_h) r=mix(c3,c4,(k-r_p)*(1/r_h));
+    if(k>=r_p+r_h) r=mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));
 
     c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z))*sin(0.5+z.x*float(screen_size.x*moire_h.w)); // moire h
     c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z))*sin(0.5+z.y*float(screen_size.y*moire_v.w)); // moire v
     c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w)); // scanline h
     c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w)); // scanline v
+    c+=r*0.05;                                               // reflection
     c*=mix(1.0,mask,vignetting);                             // vignetting
     c*=letterbox(z,corner.x+2.0,corner.y,corner.z);          // corner
     gl_FragColor=vec4(c,1.0);

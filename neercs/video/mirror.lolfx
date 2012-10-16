@@ -22,10 +22,10 @@ void main(void)
     vec3 s = texture2D(texture, p).xyz;
 
     vec3 c = vec3(0.0);
-    if(p.x < mirror.x) c = (texture2D(texture, vec2(mirror.x + (mirror.x - p.x) * mirror.w, p.y)).xyz) * (mirror.z / mirror.x * p.x);
-    if(p.x > 1.0 - mirror.x) c = (texture2D(texture, vec2(- mirror.x - (mirror.x + p.x) * mirror.w, p.y)).xyz) * (mirror.z / mirror.x * (1.0 - p.x));
-    if(p.y < mirror.y) c = (texture2D(texture, vec2(p.x, mirror.y + (mirror.y - p.y) * mirror.w)).xyz) * (mirror.z / mirror.y * p.y);
-    if(p.y > 1.0 - mirror.y) c = (texture2D(texture, vec2(p.x, - mirror.y - (mirror.y + p.y) * mirror.w)).xyz) * (mirror.z / mirror.y * (1.0 - p.y));
+    if(p.x < mirror.x) c += (texture2D(texture, vec2(mirror.x + (mirror.x - p.x) * mirror.w, p.y * (0.8 + 2.0 * p.x) + 0.1 - 1.0 * p.x)).xyz) * (mirror.z / mirror.x * p.x);
+    if(p.x > 1.0 - mirror.x) c += (texture2D(texture, vec2(- mirror.x - (mirror.x + p.x) * mirror.w, p.y * (0.8 + 2.0 * (1.0 - p.x)) + 0.1 - 1.0 * (1.0 - p.x))).xyz) * (mirror.z / mirror.x * (1.0 - p.x));
+    if(p.y < mirror.y) c += (texture2D(texture, vec2(p.x * (0.8 + 2.0 * p.y) + 0.1 - 1.0 * p.y, mirror.y + (mirror.y - p.y) * mirror.w)).xyz) * (mirror.z / mirror.y * p.y);
+    if(p.y > 1.0 - mirror.y) c += (texture2D(texture, vec2(p.x * (0.8 + 2.0 * (1.0 - p.y)) + 0.1 - 1.0 * (1.0 - p.y), - mirror.y - (mirror.y + p.y) * mirror.w)).xyz) * (mirror.z / mirror.y * (1.0 - p.y));
 
     gl_FragColor = vec4(s + c, 1.0);
 }

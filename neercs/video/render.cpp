@@ -94,7 +94,7 @@ float beat_speed = 2.0f;   // speed
 /* common variable */
 float value, angle, radius, scale, speed;
 /* shader variable */
-vec2 buffer(0.7f,0.3f);         // [new frame mix,old frame mix]
+vec2 buffer(0.2f,0.8f);         // [new frame mix,old frame mix]
 vec2 remanence(0.6f,0.4f);      // remanence [source mix,buffer mix]
 vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
 vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
@@ -103,7 +103,7 @@ vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
 vec4 copper_copper(0.75f,0.25f,0.42f,4.0f);     // copper [base,variable,repeat,color cycle]
 vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
 vec3 color_filter(0.9f,0.95f,0.85f);            // color filter [red,green,blue]
-vec4 color_color(1.0f,1.25f,0.0f,0.35f);        // color modifier [brightness,contrast,level,grayscale]
+vec4 color_color(1.0f,1.25f,0.1f,0.4f);         // color modifier [brightness,contrast,level,grayscale]
 vec2 noise_offset(1.0f,1.0f);                   // random line [horizontal,vertical]
 float noise_noise = 0.15f;                      // noise
 vec3 noise_retrace(1.0f,1.0f,0.5f);             // retrace [strength,length,speed]
@@ -117,8 +117,8 @@ vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variab
 vec4 postfx_scanline_h(1.0f,0.0f,0.0f,0.0f);    // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
-vec4 mirror(0.95f,0.9f,0.4f,3.0f);              // mirror [width,height,strength,ratio]
-vec4 radial(3.0f,0.9f,16,0.5f);                 // radial [distance,fade ratio,iteration,strength]
+vec4 mirror(0.95f,0.9f,0.4f,4.0f);              // mirror [width,height,strength,ratio]
+vec4 radial(4.0f,0.9f,16,0.5f);                 // radial [distance,fade ratio,iteration,strength]
 /* text variable */
 ivec2 ratio_2d(2,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
