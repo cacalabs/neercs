@@ -494,6 +494,7 @@ ShaderUniform shader_noise_texture,
 ShaderUniform shader_postfx_texture,
               shader_postfx_texture_2d,
               shader_postfx_screen_size,
+              shader_postfx_ratio_2d,
               shader_postfx_time,
               shader_postfx_deform,
               shader_postfx_ghost1,
@@ -594,6 +595,7 @@ int Render::InitDraw(void)
     shader_postfx_texture = shader_postfx->GetUniformLocation("texture");
     shader_postfx_texture_2d = shader_postfx->GetUniformLocation("texture_2d");
     shader_postfx_screen_size = shader_postfx->GetUniformLocation("screen_size");
+    shader_postfx_ratio_2d = shader_postfx->GetUniformLocation("ratio_2d");
     shader_postfx_time = shader_postfx->GetUniformLocation("time");
     shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
     shader_postfx_ghost1 = shader_postfx->GetUniformLocation("ghost1");
@@ -1304,6 +1306,7 @@ void Render::Draw3D()
         shader_postfx->Bind();
         shader_postfx->SetUniform(shader_postfx_texture, fbo_screen->GetTexture(), 0);
         shader_postfx->SetUniform(shader_postfx_screen_size, (vec2)screen_size);
+        shader_postfx->SetUniform(shader_postfx_ratio_2d, (vec2)ratio_2d / 2);
         shader_postfx->SetUniform(shader_postfx_time, fx_angle);
         shader_postfx->SetUniform(shader_postfx_deform, postfx_deform);
         shader_postfx->SetUniform(shader_postfx_ghost1, postfx_ghost1);
