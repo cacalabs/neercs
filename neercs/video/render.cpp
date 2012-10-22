@@ -112,13 +112,14 @@ float postfx_vignetting = 0.5f;                 // vignetting strength
 float postfx_aberration = 4.0f;                 // chromatic aberration
 vec4 postfx_ghost1(1.0f,0.0f,0.0f,-0.25f);      // ghost picture 1 [position x,position y,position z,strength]
 vec4 postfx_ghost2(1.5f,0.0f,0.0f,0.25f);       // ghost picture 2 [position x,position y,position z,strength]
+vec4 postfx_glass(8.0f,0.25f,0.75f,0.2f);       // glass [depth,thickness,strength,deform ratio]
 vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat,shift]
-vec4 postfx_moire_v(0.75f,-0.25f,1.0f,1.5f);    // horizontal moire [base,variable,repeat,shift]
+vec4 postfx_moire_v(0.75f,-0.25f,1.0f,2.0f);    // horizontal moire [base,variable,repeat,shift]
 vec4 postfx_scanline_h(1.0f,0.0f,0.0f,0.0f);    // vertical scanline [base,variable,repeat,shift]
 vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
 vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
 vec4 mirror(0.95f,0.9f,0.4f,4.0f);              // mirror [width,height,strength,ratio]
-vec4 radial(4.0f,0.9f,16,0.5f);                 // radial [distance,fade ratio,iteration,strength]
+vec4 radial(4.0f,0.9f,16,0.25f);                // radial [distance,fade ratio,iteration,strength]
 /* text variable */
 ivec2 ratio_2d(2,3);            // 2d ratio
 ivec2 map_size(256,256);        // texture map size
@@ -132,7 +133,7 @@ int setup_n = 0;                // item/option number
 int setup_h = 8;                // height
 int setup_cursor = 0;           // cursor position
 int setup_option_i = 0;         // selected option
-int setup_option_n = 13;        // option number
+int setup_option_n = 14;        // option number
 int setup_option_p = 0;         // option position
 int setup_item_i = 0;           // selected item
 int setup_item_n = 8;           // item number
@@ -223,6 +224,15 @@ char const *setup_text[] = {
         "front y",
         "front z",
         "front strength",
+    "glass",
+        "depth",
+        "thickness",
+        "strength",
+        "deform ratio",
+        "",
+        "",
+        "",
+        "",
     "moire",
         "h base",
         "h variable",
@@ -343,6 +353,15 @@ vec4 setup_var[]={ // setup variable [start,end,step,value]
         vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.y),
         vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.z),
         vec4(-1.0f, 1.0f, 0.05f, postfx_ghost2.w),
+    vec4(0), /* glass */
+        vec4(0.0f, 16.0f, 0.50f, postfx_glass.x),
+        vec4(0.0f,  1.0f, 0.05f, postfx_glass.y),
+        vec4(0.0f,  2.0f, 0.05f, postfx_glass.z),
+        vec4(0.0f,  1.0f, 0.05f, postfx_glass.w),
+        vec4(0),
+        vec4(0),
+        vec4(0),
+        vec4(0),
     vec4(0), /* moire */
         vec4( 0.5f, 1.0f, 0.05f, postfx_moire_h.x),
         vec4(-0.5f, 0.5f, 0.05f, postfx_moire_h.y),
@@ -420,7 +439,9 @@ void Render::UpdateVar()
     k += 2; /* ghost */
     postfx_ghost1 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_ghost2 = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    k += 1; /* moire */
+    k += 1; /* glass */
+    postfx_glass = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
+    k += 5; /* moire */
     postfx_moire_h = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     postfx_moire_v = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
     k += 1; /* scanline */
@@ -499,6 +520,7 @@ ShaderUniform shader_postfx_texture,
               shader_postfx_deform,
               shader_postfx_ghost1,
               shader_postfx_ghost2,
+              shader_postfx_glass,
               shader_postfx_vignetting,
               shader_postfx_aberration,
               shader_postfx_moire_h,
@@ -600,6 +622,7 @@ int Render::InitDraw(void)
     shader_postfx_deform = shader_postfx->GetUniformLocation("deform");
     shader_postfx_ghost1 = shader_postfx->GetUniformLocation("ghost1");
     shader_postfx_ghost2 = shader_postfx->GetUniformLocation("ghost2");
+    shader_postfx_glass = shader_postfx->GetUniformLocation("glass");
     shader_postfx_vignetting = shader_postfx->GetUniformLocation("vignetting");
     shader_postfx_aberration = shader_postfx->GetUniformLocation("aberration");
     shader_postfx_moire_h = shader_postfx->GetUniformLocation("moire_h");
@@ -1309,8 +1332,9 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_ratio_2d, (vec2)ratio_2d / 2);
         shader_postfx->SetUniform(shader_postfx_time, fx_angle);
         shader_postfx->SetUniform(shader_postfx_deform, postfx_deform);
-        shader_postfx->SetUniform(shader_postfx_ghost1, postfx_ghost1);
-        shader_postfx->SetUniform(shader_postfx_ghost2, postfx_ghost2);
+        shader_postfx->SetUniform(shader_postfx_ghost1, vec4(postfx_ghost1.x * 0.01, postfx_ghost1.y * 0.01, postfx_ghost1.z * 0.01, postfx_ghost1.w));
+        shader_postfx->SetUniform(shader_postfx_ghost2, vec4(postfx_ghost2.x * 0.01, postfx_ghost2.y * 0.01, postfx_ghost2.z * 0.01, postfx_ghost2.w));
+        shader_postfx->SetUniform(shader_postfx_glass, vec4(postfx_glass.x * 0.01, postfx_glass.y * 0.01, postfx_glass.z * 0.1, postfx_glass.w));
         shader_postfx->SetUniform(shader_postfx_vignetting, postfx_vignetting);
         shader_postfx->SetUniform(shader_postfx_aberration, postfx_aberration);
         shader_postfx->SetUniform(shader_postfx_moire_h, postfx_moire_h);

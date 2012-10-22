@@ -149,7 +149,6 @@ void Term::TickGame(float seconds)
 
     if (m_debug)
     {
-        m_time += seconds;
         DrawFancyShit();
     }
 #else
@@ -186,7 +185,7 @@ static uint32_t hex_color(float r, float g, float b)
 void Term::DrawFancyShit()
 {
     /* draw something awesome */
-    int bg_color = 0x222;
+    int bg_color = 0x000;
     int w = caca_get_canvas_width(m_caca);
     int h = caca_get_canvas_height(m_caca);
 
@@ -221,13 +220,9 @@ void Term::DrawFancyShit()
     int logo_y = h / 2 - 2;
 
     caca_set_color_argb(m_caca, 0xbac, bg_color);
-    //caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3               ), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3               )), bg_color);
     caca_put_str(m_caca, logo_x + 3, logo_y    ,"__  _________ ______ ______ ______ ______");
-    //caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 1), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 1)), bg_color);
     caca_put_str(m_caca, logo_x + 2, logo_y + 1, "/  \\/  /  __  >  __  >  __  >  ___//  ___/ \x0a9");
-    //caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 2), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 2)), bg_color);
     caca_put_str(m_caca, logo_x + 1, logo_y + 2, "/      /  ____/  ____/  __  <  <____\\___  \\");
-    //caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::cos(m_time * 3 + M_PI / 4 * 3), 0.5f, 0.5f + 0.25f * lol::sin(m_time * 3 + M_PI / 4 * 3)), bg_color);
     caca_put_str(m_caca, logo_x    , logo_y + 3, "/__/\\__/\\_______________/  \\________________\\");
     caca_set_color_argb(m_caca, 0x269, bg_color);
     caca_put_str(m_caca, logo_x + 5, logo_y + 5, "ALL YOUR TERMINALS ARE BELONG TO US");
@@ -246,22 +241,19 @@ void Term::DrawFancyShit()
 |  :D  | /
 |______|/
 */
+/*
+    int lolcube_x = w - 12;
+    int lolcube_y = h - 8;
 
-    int lolcube_x = w / 2 - 5 + (w - 10) * lol::cos(m_time / 2);
-    int lolcube_y = h - 5 - abs ((h - 5) * lol::sin(m_time * 4));
-
-    caca_set_color_argb(m_caca, hex_color(0.5f + 0.5f * lol::sin(m_time * 2), 0.5f + 0.5f * lol::cos(m_time * 3), 0.5f + 0.5f * lol::sin(m_time * 5)), bg_color);
+    caca_set_color_argb(m_caca, 0x777, bg_color);
     caca_put_str(m_caca, lolcube_x + 2, lolcube_y    , "_______");
     caca_put_str(m_caca, lolcube_x + 1, lolcube_y + 1, "/      /|");
     caca_put_str(m_caca, lolcube_x    , lolcube_y + 2, "/______/ |");
     caca_put_str(m_caca, lolcube_x    , lolcube_y + 3, "|      | |");
     caca_put_str(m_caca, lolcube_x    , lolcube_y + 4, "|  :D  | /");
     caca_put_str(m_caca, lolcube_x    , lolcube_y + 5, "|______|/");
+*/
 
     caca_set_color_argb(m_caca, 0x777, bg_color);
-    caca_put_str(m_caca, 0, 0, "rez@lol:~/ sudo -s");
-    caca_put_str(m_caca, 0, 1, "[sudo] password for rez:");
-    caca_put_str(m_caca, 0, 2, "root@lol:~/ echo LOL");
-    caca_put_str(m_caca, 0, 3, "LOL");
-    caca_put_str(m_caca, 0, 4, "root@lol:~/");
+    caca_put_str(m_caca, 0, 0, "rez@lol:~/code/neercs/");
 }
