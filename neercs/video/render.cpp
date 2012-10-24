@@ -47,7 +47,7 @@ extern char const *lolfx_radial;
 #define PID M_PI/180.0f    // pi ratio
 
 /*
- * Global variable -- ugly
+ * Global variable -- ugly (<rez> sam: c'est toi qui est ugly! \:D/)
  */
 bool g_setup = false;
 
@@ -58,12 +58,10 @@ bool g_setup = false;
 int active = true;         // window active flag
 float nearplane = 0.1f;    // nearplane
 float farplane = 1000.0f;  // farplane
-int polygon_fillmode = GL_FILL; // fill mode
 /* timer variable */
 float timer = 0;           // timer
 /* window variable */
 ivec2 screen_size;         // screen size
-vec3 screen_color = vec3(0.125f, 0.125f, 0.125f); // screen color
 /* object variable */
 float main_angle = 0.0f;   // main angle
 float part_angle = 0.0f;   // part angle
@@ -93,6 +91,13 @@ float beat_value = 0;      // value
 float beat_speed = 2.0f;   // speed
 /* common variable */
 float value, angle, radius, scale, speed;
+/* text variable */
+ivec2 map_size(256,256);        // texture map size
+ivec2 canvas_char(0,0);         // canvas char number
+ivec2 canvas_size(0,0);         // caca size
+ivec2 font_size(8,8);           // font size
+ivec2 ratio_2d(2,3);            // 2d ratio
+ivec2 border(2,1);              // border width
 /* shader variable */
 vec2 buffer(0.2f,0.8f);         // [new frame mix,old frame mix]
 vec2 remanence(0.6f,0.4f);      // remanence [source mix,buffer mix]
@@ -120,13 +125,6 @@ vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,var
 vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
 vec4 mirror(0.95f,0.9f,0.4f,4.0f);              // mirror [width,height,strength,ratio]
 vec4 radial(4.0f,0.9f,16,0.25f);                // radial [distance,fade ratio,iteration,strength]
-/* text variable */
-ivec2 ratio_2d(2,3);            // 2d ratio
-ivec2 map_size(256,256);        // texture map size
-ivec2 font_size(8,8);           // font size
-ivec2 canvas_char(0,0);         // canvas char number
-ivec2 canvas_size(0,0);         // caca size
-ivec2 border(2 * ratio_2d.x * font_size.x,1 * ratio_2d.y * font_size.y); // border width
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -271,12 +269,23 @@ char const *setup_text[] = {
         ""
     };
 
+vec4 theme_var[]={
+    vec4(0), /* default */
+        vec4(0),
+    vec4(0), /* crt */
+        vec4(0),
+    vec4(0), /* green screen */
+        vec4(0),
+    vec4(0), /* granpa tv */
+        vec4(0)
+    };
+
 vec4 setup_var[]={ // setup variable [start,end,step,value]
     vec4(0), /* main */
         vec4(1,  8, 1, ratio_2d.x),
         vec4(1,  8, 1, ratio_2d.y),
-        vec4(0, 16, 1, border.x / ratio_2d.x / font_size.x),
-        vec4(0, 16, 1, border.y / ratio_2d.y / font_size.y),
+        vec4(0, 16, 1, border.x),
+        vec4(0, 16, 1, border.y),
         vec4(0),
         vec4(0),
         vec4(0),
@@ -1131,7 +1140,7 @@ void Render::Draw2D()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
 
-    Video::SetClearColor(vec4(screen_color, 1.f));
+    Video::SetClearColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
     Video::SetClearDepth(1.0f); // set depth buffer
     Video::Clear(ClearMask::Color | ClearMask::Depth);
 
