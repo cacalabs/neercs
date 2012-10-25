@@ -96,11 +96,11 @@ ivec2 map_size(256,256);        // texture map size
 ivec2 canvas_char(0,0);         // canvas char number
 ivec2 canvas_size(0,0);         // caca size
 ivec2 font_size(8,8);           // font size
-ivec2 ratio_2d(2,3);            // 2d ratio
-ivec2 border(2,1);              // border width
+ivec2 ratio_2d(1,1);            // 2d ratio
+ivec2 border(0,0);              // border width
 /* shader variable */
-vec2 buffer(0.2f,0.8f);         // [new frame mix,old frame mix]
-vec2 remanence(0.6f,0.4f);      // remanence [source mix,buffer mix]
+vec2 buffer(1.0f,0.0f);         // [new frame mix,old frame mix]
+vec2 remanence(0.0f,0.0f);      // remanence [source mix,buffer mix]
 vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
 vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
 vec2 glow_small(1.5f,0.0f);     // small glow radius [center,corner]
@@ -125,6 +125,10 @@ vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,var
 vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
 vec4 mirror(0.95f,0.9f,0.4f,4.0f);              // mirror [width,height,strength,ratio]
 vec4 radial(4.0f,0.9f,16,0.25f);                // radial [distance,fade ratio,iteration,strength]
+/* theme variable */
+int theme_i = 0;                // current theme
+int theme_n = 2;                // theme number
+int theme_var_n = 79;           // var number
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -140,7 +144,7 @@ int setup_item_key = 0;         // item array key
 ivec3 setup_size(29,9,12);      // size [w,h,split]
 ivec2 setup_canvas_size(ivec2(setup_size.x + 1, setup_size.y + 1) * font_size * ivec2(2,4));
 ivec2 setup_color(0xaaa,0x222); // color [foreground,background] 0x678,0x234
-char const *setup_text[] = {
+char const *setup_text[]={
     "main",
         "2d ratio w",
         "2d ratio h",
@@ -269,16 +273,74 @@ char const *setup_text[] = {
         ""
     };
 
-vec4 theme_var[]={
-    vec4(0), /* default */
-        vec4(0),
-    vec4(0), /* crt */
-        vec4(0),
-    vec4(0), /* green screen */
-        vec4(0),
-    vec4(0), /* granpa tv */
-        vec4(0)
+float theme_var[]={
+    /* default */
+    2,3,                      // ratio_2d
+    2,1,                      // border
+    0.2f,0.8f,                // buffer
+    0.6f,0.4f,                // remanence
+    0.7f,0.3f,                // glow_mix
+    3.0f,0.0f,                // glow_large
+    1.5f,0.0f,                // glow_small
+    0.5f,0.0f,                // blur
+    0.8f,0.48f,               // postfx_deform
+    0.0f,0.8f,0.96f,          // postfx_corner
+    0.5f,                     // postfx_vignetting
+    0.75f,0.25f,0.42f,4.0f,   // copper_copper
+    4.0f,4.0f,4.0f,           // copper_mask_color
+    0.9f,0.95f,0.85f,         // color_filter
+    1.0f,1.25f,0.1f,0.4f,     // color_color
+    4.0f,                     // postfx_aberration
+    1.0f,1.0f,                // noise_offset
+    0.15f,                    // noise_noise
+    1.0f,1.0f,0.5f,           // noise_retrace
+    1.0f,0.0f,0.0f,-0.25f,    // postfx_ghost1
+    1.5f,0.0f,0.0f,0.25f,     // postfx_ghost2
+    8.0f,0.25f,0.75f,0.2f,    // postfx_glass
+    0.75f,-0.25f,0.0f,1.0f,   // postfx_moire_h
+    0.75f,-0.25f,1.0f,2.0f,   // postfx_moire_v
+    1.0f,0.0f,0.0f,0.0f,      // postfx_scanline_h
+    0.75f,-0.25f,2.0f,0.0f,   // postfx_scanline_v
+    0.95f,0.9f,0.4f,4.0f,     // mirror
+    4.0f,0.9f,16,0.25f,       // radial
+    /* crt */
+    /* green screen */
+    /* granpa tv */
+    0.0f
     };
+
+void Render::InitVar()
+{
+    int k = theme_i * theme_var_n;
+    ratio_2d = vec2(theme_var[k], theme_var[k + 1]);
+    border = vec2(theme_var[k + 2], theme_var[k + 3]);
+    buffer = vec2(theme_var[k + 4], theme_var[k + 5]);
+    remanence = vec2(theme_var[k + 6], theme_var[k + 7]);
+    glow_mix = vec2(theme_var[k + 8], theme_var[k + 9]);
+    glow_large = vec2(theme_var[k + 10], theme_var[k + 11]);
+    glow_small = vec2(theme_var[k + 12], theme_var[k + 13]);
+    blur = vec2(theme_var[k + 14], theme_var[k + 15]);
+    postfx_deform = vec2(theme_var[k + 16], theme_var[k + 17]);
+    postfx_corner = vec3(theme_var[k + 18], theme_var[k + 19], theme_var[k + 20]);
+    postfx_vignetting = theme_var[k + 21],
+    copper_copper = vec4(theme_var[k + 22], theme_var[k + 23], theme_var[k + 24], theme_var[k + 25]);
+    copper_mask_color = vec3(theme_var[k + 26], theme_var[k + 27], theme_var[k + 28]);
+    color_filter = vec3(theme_var[k + 29], theme_var[k + 30], theme_var[k + 31]);
+    color_color = vec4(theme_var[k + 32], theme_var[k + 33], theme_var[k + 34], theme_var[k + 35]);
+    postfx_aberration = theme_var[k + 36];
+    noise_offset = vec2(theme_var[k + 37], theme_var[k + 38]);
+    noise_noise = theme_var[k + 39];
+    noise_retrace = vec3(theme_var[k + 40], theme_var[k + 41], theme_var[k + 42]);
+    postfx_ghost1 = vec4(theme_var[k + 43], theme_var[k + 44], theme_var[k + 45], theme_var[k + 46]);
+    postfx_ghost2 = vec4(theme_var[k + 47], theme_var[k + 48], theme_var[k + 49], theme_var[k + 50]);
+    postfx_glass = vec4(theme_var[k + 51], theme_var[k + 52], theme_var[k + 53], theme_var[k + 54]);
+    postfx_moire_h = vec4(theme_var[k + 55], theme_var[k + 56], theme_var[k + 57], theme_var[k + 58]);
+    postfx_moire_v = vec4(theme_var[k + 59], theme_var[k + 60], theme_var[k + 61], theme_var[k + 62]);
+    postfx_scanline_h = vec4(theme_var[k + 63], theme_var[k + 64], theme_var[k + 65], theme_var[k + 66]);
+    postfx_scanline_v = vec4(theme_var[k + 67], theme_var[k + 68], theme_var[k + 69], theme_var[k + 70]);
+    mirror = vec4(theme_var[k + 71], theme_var[k + 72], theme_var[k + 73], theme_var[k + 74]);
+    radial = vec4(theme_var[k + 75], theme_var[k + 76], theme_var[k + 77], theme_var[k + 78]);
+}
 
 vec4 setup_var[]={ // setup variable [start,end,step,value]
     vec4(0), /* main */
@@ -414,7 +476,7 @@ void Render::UpdateVar()
 {
     int k = 1; /* main */
     ratio_2d = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
-    border = vec2(setup_var[k].w, setup_var[k + 1].w) * ratio_2d * font_size; k += 2;
+    border = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
     k += 5; /* remanence */
     m_shader_remanence = (setup_var[k].w == 1) ? true : false; k++;
     buffer = vec2(setup_var[k].w, setup_var[k + 1].w); k += 2;
@@ -468,7 +530,7 @@ void Render::UpdateVar()
 void Render::UpdateSize()
 {
     screen_size = Video::GetSize();
-    canvas_char = (screen_size - border * 2) / (font_size * ratio_2d);
+    canvas_char = (screen_size - border * ratio_2d * font_size * 2) / (font_size * ratio_2d);
     canvas_char = max(canvas_char, ivec2(1, 1));
     canvas_size = canvas_char * font_size * ratio_2d;
 
@@ -569,7 +631,6 @@ int Render::InitDraw(void)
     glDepthMask(GL_TRUE);     // do not write z-buffer
     glEnable(GL_CULL_FACE);   // disable cull face
     glCullFace(GL_BACK);      // don't draw front face
-
     /* initialise framebuffer objects */
     fbo_back = new FrameBuffer(screen_size);
     fbo_screen = new FrameBuffer(screen_size);
@@ -660,6 +721,8 @@ int Render::CreateGLWindow()
 {
     UpdateSize();
     InitDraw();
+    InitVar();
+    UpdateSize();
     return true;
 }
 

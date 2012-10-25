@@ -27,6 +27,7 @@ private:
     void TraceQuad();
     void Pause();
     void Shader();
+    void InitVar();
     void UpdateVar();
     void UpdateSize();
 
