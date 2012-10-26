@@ -28,6 +28,7 @@ private:
     void Pause();
     void Shader();
     void InitVar();
+    void SetupVar();
     void UpdateVar();
     void UpdateSize();
 

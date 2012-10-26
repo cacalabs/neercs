@@ -101,34 +101,34 @@ ivec2 border(0,0);              // border width
 /* shader variable */
 vec2 buffer(1.0f,0.0f);         // [new frame mix,old frame mix]
 vec2 remanence(0.0f,0.0f);      // remanence [source mix,buffer mix]
-vec2 glow_mix(0.7f,0.3f);       // glow mix [source mix,glow mix]
-vec2 glow_large(3.0f,0.0f);     // large glow radius [center,corner]
-vec2 glow_small(1.5f,0.0f);     // small glow radius [center,corner]
-vec2 blur(0.5f,0.0f);           // blur radius [center,corner]
+vec2 glow_mix(0.5f,0.0f);       // glow mix [source mix,glow mix]
+vec2 glow_large(0.0f,0.0f);     // large glow radius [center,corner]
+vec2 glow_small(0.0f,0.0f);     // small glow radius [center,corner]
+vec2 blur(0.0f,0.0f);           // blur radius [center,corner]
 vec4 copper_copper(0.75f,0.25f,0.42f,4.0f);     // copper [base,variable,repeat,color cycle]
 vec3 copper_mask_color(4.0f,4.0f,4.0f);         // color [red,green,blue]
-vec3 color_filter(0.9f,0.95f,0.85f);            // color filter [red,green,blue]
-vec4 color_color(1.0f,1.25f,0.1f,0.4f);         // color modifier [brightness,contrast,level,grayscale]
-vec2 noise_offset(1.0f,1.0f);                   // random line [horizontal,vertical]
-float noise_noise = 0.15f;                      // noise
-vec3 noise_retrace(1.0f,1.0f,0.5f);             // retrace [strength,length,speed]
-vec2 postfx_deform(0.8f,0.48f);                 // deformation [ratio,zoom]
-float postfx_vignetting = 0.5f;                 // vignetting strength
-float postfx_aberration = 4.0f;                 // chromatic aberration
-vec4 postfx_ghost1(1.0f,0.0f,0.0f,-0.25f);      // ghost picture 1 [position x,position y,position z,strength]
-vec4 postfx_ghost2(1.5f,0.0f,0.0f,0.25f);       // ghost picture 2 [position x,position y,position z,strength]
-vec4 postfx_glass(8.0f,0.25f,0.75f,0.2f);       // glass [depth,thickness,strength,deform ratio]
-vec4 postfx_moire_h(0.75f,-0.25f,0.0f,1.0f);    // vertical moire [base,variable,repeat,shift]
-vec4 postfx_moire_v(0.75f,-0.25f,1.0f,2.0f);    // horizontal moire [base,variable,repeat,shift]
+vec3 color_filter(1.0f,1.0f,1.0f);              // color filter [red,green,blue]
+vec4 color_color(1.0f,1.0f,0.0f,0.0f);          // color modifier [brightness,contrast,level,grayscale]
+vec2 noise_offset(0.0f,0.0f);                   // random line [horizontal,vertical]
+float noise_noise = 0.0f;                       // noise
+vec3 noise_retrace(0.0f,0.0f,0.0f);             // retrace [strength,length,speed]
+vec2 postfx_deform(0.0f,0.5f);                  // deformation [ratio,zoom]
+float postfx_vignetting = 0.0f;                 // vignetting strength
+float postfx_aberration = 0.0f;                 // chromatic aberration
+vec4 postfx_ghost1(0.0f,0.0f,0.0f,0.0f);        // ghost picture 1 [position x,position y,position z,strength]
+vec4 postfx_ghost2(0.0f,0.0f,0.0f,0.0f);        // ghost picture 2 [position x,position y,position z,strength]
+vec4 postfx_glass(8.0f,0.0f,0.0f,0.0f);         // glass [depth,thickness,strength,deform ratio]
+vec4 postfx_moire_h(1.0f,0.0f,0.0f,0.0f);       // vertical moire [base,variable,repeat,shift]
+vec4 postfx_moire_v(1.0f,0.0f,0.0f,0.0f);       // horizontal moire [base,variable,repeat,shift]
 vec4 postfx_scanline_h(1.0f,0.0f,0.0f,0.0f);    // vertical scanline [base,variable,repeat,shift]
-vec4 postfx_scanline_v(0.75f,-0.25f,2.0f,0.0f); // horizontal scanline [base,variable,repeat,shift]
-vec3 postfx_corner(0.0f,0.8f,0.96f);            // corner [width,radius,blur]
-vec4 mirror(0.95f,0.9f,0.4f,4.0f);              // mirror [width,height,strength,ratio]
-vec4 radial(4.0f,0.9f,16,0.25f);                // radial [distance,fade ratio,iteration,strength]
+vec4 postfx_scanline_v(1.0f,0.0f,0.0f,0.0f);    // horizontal scanline [base,variable,repeat,shift]
+vec3 postfx_corner(0.0f,1.0f,1.0f);             // corner [width,radius,blur]
+vec4 mirror(0.0f,0.0f,0.0f,1.0f);               // mirror [width,height,strength,ratio]
+vec4 radial(4.0f,0.9f,16,0.0f);                 // radial [distance,fade ratio,iteration,strength]
 /* theme variable */
-int theme_i = 0;                // current theme
-int theme_n = 2;                // theme number
-int theme_var_n = 79;           // var number
+int theme_i = 1;                // current theme
+const int theme_n = 2;          // theme number
+const int theme_var_n = 79;     // var number
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
@@ -273,8 +273,168 @@ char const *setup_text[]={
         ""
     };
 
+vec4 setup_var[]={ // setup variable [start,end,step,value]
+vec4(0), /* main */
+    vec4(1,  8, 1, ratio_2d.x),
+    vec4(1,  8, 1, ratio_2d.y),
+    vec4(0, 16, 1, border.x),
+    vec4(0, 16, 1, border.y),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+vec4(0), /* remanence */
+    vec4(0, 1, 1, 1),
+    vec4(0.0f, 1.0f, 0.1f, buffer.x),
+    vec4(0.0f, 1.0f, 0.1f, buffer.y),
+    vec4(0.0f, 1.0f, 0.1f, remanence.x),
+    vec4(0.0f, 1.0f, 0.1f, remanence.y),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+vec4(0), /* glow */
+    vec4(0, 1, 1, 1),
+    vec4(0.0f, 1.0f, 0.1f, glow_mix.x),
+    vec4(0.0f, 1.0f, 0.1f, glow_mix.y),
+    vec4(0.0f, 4.0f, 0.1f, glow_large.x),
+    vec4(0.0f, 4.0f, 0.1f, glow_large.y),
+    vec4(0.0f, 2.0f, 0.1f, glow_small.x),
+    vec4(0.0f, 2.0f, 0.1f, glow_small.y),
+    vec4(0),
+vec4(0), /* blur */
+    vec4(0, 1, 1, 1),
+    vec4(0, 2, 0.05f, blur.x),
+    vec4(0, 2, 0.05f, blur.y),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+vec4(0), /* screen */
+    vec4(0, 1, 1, 1),
+    vec4(0.0f, 1.0f, 0.05f, postfx_deform.x),
+    vec4(0.2f, 0.7f, 0.01f, postfx_deform.y),
+    vec4(0.0f, 4.0f, 0.10f, postfx_corner.x),
+    vec4(0.0f, 1.0f, 0.05f, postfx_corner.y),
+    vec4(0.8f, 1.0f, 0.01f, postfx_corner.z),
+    vec4(0.0f, 1.0f, 0.10f, postfx_vignetting),
+    vec4(0),
+vec4(0), /* copper */
+    vec4(0, 1, 1, 1),
+    vec4(0.0f, 1.0f, 0.05f, copper_copper.x),
+    vec4(0.0f, 1.0f, 0.05f, copper_copper.y),
+    vec4(0.0f, 1.0f, 0.02f, copper_copper.z),
+    vec4(1.0f, 8.0f, 0.25f, copper_copper.w),
+    vec4(0.0f, 4.0f, 0.25f, copper_mask_color.x),
+    vec4(0.0f, 4.0f, 0.25f, copper_mask_color.y),
+    vec4(0.0f, 4.0f, 0.25f, copper_mask_color.z),
+vec4(0), /* color */
+    vec4( 0.0f, 1.0f, 0.05f, color_filter.x),
+    vec4( 0.0f, 1.0f, 0.05f, color_filter.y),
+    vec4( 0.0f, 1.0f, 0.05f, color_filter.z),
+    vec4( 0.0f, 2.0f, 0.05f, color_color.x),
+    vec4( 0.0f, 2.0f, 0.05f, color_color.y),
+    vec4(-1.0f, 1.0f, 0.05f, color_color.z),
+    vec4( 0.0f, 1.0f, 0.05f, color_color.w),
+    vec4( 0.0f, 8.0f, 0.50f, postfx_aberration),
+vec4(0), /* noise */
+    vec4(0, 1, 1, 1),
+    vec4(0.0f, 4.0f, 0.50f, noise_offset.x),
+    vec4(0.0f, 4.0f, 0.50f, noise_offset.y),
+    vec4(0.0f, 0.5f, 0.05f, noise_noise),
+    vec4(0.0f, 4.0f, 0.25f, noise_retrace.x),
+    vec4(0.0f, 8.0f, 0.50f, noise_retrace.y),
+    vec4(0.0f, 4.0f, 0.25f, noise_retrace.z),
+    vec4(0),
+vec4(0), /* ghost */
+    vec4(-2.0f, 2.0f, 0.10f, postfx_ghost1.x),
+    vec4(-2.0f, 2.0f, 0.10f, postfx_ghost1.y),
+    vec4(-2.0f, 2.0f, 0.10f, postfx_ghost1.z),
+    vec4(-1.0f, 1.0f, 0.05f, postfx_ghost1.w),
+    vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.x),
+    vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.y),
+    vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.z),
+    vec4(-1.0f, 1.0f, 0.05f, postfx_ghost2.w),
+vec4(0), /* glass */
+    vec4(0.0f, 16.0f, 0.50f, postfx_glass.x),
+    vec4(0.0f,  1.0f, 0.05f, postfx_glass.y),
+    vec4(0.0f,  2.0f, 0.05f, postfx_glass.z),
+    vec4(0.0f,  1.0f, 0.05f, postfx_glass.w),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+vec4(0), /* moire */
+    vec4( 0.5f, 1.0f, 0.05f, postfx_moire_h.x),
+    vec4(-0.5f, 0.5f, 0.05f, postfx_moire_h.y),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_moire_h.z),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_moire_h.w),
+    vec4( 0.5f, 1.0f, 0.05f, postfx_moire_v.x),
+    vec4(-0.5f, 0.5f, 0.05f, postfx_moire_v.y),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_moire_v.z),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_moire_v.w),
+vec4(0), /* scanline */
+    vec4( 0.5f, 1.0f, 0.05f, postfx_scanline_h.x),
+    vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_h.y),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_h.z),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_h.w),
+    vec4( 0.5f, 1.0f, 0.05f, postfx_scanline_v.x),
+    vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_v.y),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.z),
+    vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
+vec4(0), /* mirror */
+    vec4(0, 1, 1, 1),
+    vec4(0.0f, 2.0f, 0.05f, mirror.x),
+    vec4(0.0f, 2.0f, 0.05f, mirror.y),
+    vec4(0.0f, 1.0f, 0.05f, mirror.z),
+    vec4(1.0f, 8.0f, 1.00f, mirror.w),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+vec4(0), /* radial blur */
+    vec4(0, 1, 1, 1),
+    vec4(2.0f, 8.0f, 0.25f, radial.x),
+    vec4(0.8f, 1.0f, 0.01f, radial.y),
+    vec4(2.0f,32.0f, 2.00f, radial.z),
+    vec4(0.0f, 1.0f, 0.05f, radial.w),
+    vec4(0),
+    vec4(0),
+    vec4(0),
+vec4(0) /* ? */
+};
+
 float theme_var[]={
+    // DO LIKE SETUP TO KEEP KEY
     /* default */
+    1,1,                      // ratio_2d
+    0,0,                      // border
+    1.0f,0.8f,                // buffer
+    0.0f,0.0f,                // remanence
+    0.5f,0.0f,                // glow_mix
+    0.0f,0.0f,                // glow_large
+    0.0f,0.0f,                // glow_small
+    0.0f,0.0f,                // blur
+    0.0f,0.5f,                // postfx_deform
+    0.0f,1.0f,1.0f,           // postfx_corner
+    0.0f,                     // postfx_vignetting
+    0.75f,0.25f,0.42f,4.0f,   // copper_copper
+    4.0f,4.0f,4.0f,           // copper_mask_color
+    1.0f,1.0f,1.0f,           // color_filter
+    1.0f,1.0f,0.0f,0.0f,      // color_color
+    0.0f,                     // postfx_aberration
+    0.0f,0.0f,                // noise_offset
+    0.0f,                     // noise_noise
+    0.0f,0.0f,0.0f,           // noise_retrace
+    0.0f,0.0f,0.0f,0.0f,      // postfx_ghost1
+    0.0f,0.0f,0.0f,0.0f,      // postfx_ghost2
+    8.0f,0.0f,0.0f,0.0f,      // postfx_glass
+    1.0f,0.0f,0.0f,0.0f,      // postfx_moire_h
+    1.0f,0.0f,0.0f,0.0f,      // postfx_moire_v
+    1.0f,0.0f,0.0f,0.0f,      // postfx_scanline_h
+    1.0f,0.0f,0.0f,0.0f,      // postfx_scanline_v
+    0.0f,0.0f,0.0f,1.0f,      // mirror
+    4.0f,0.9f,16,0.0f,        // radial
+    /* crt */
     2,3,                      // ratio_2d
     2,1,                      // border
     0.2f,0.8f,                // buffer
@@ -303,7 +463,6 @@ float theme_var[]={
     0.75f,-0.25f,2.0f,0.0f,   // postfx_scanline_v
     0.95f,0.9f,0.4f,4.0f,     // mirror
     4.0f,0.9f,16,0.25f,       // radial
-    /* crt */
     /* green screen */
     /* granpa tv */
     0.0f
@@ -342,135 +501,9 @@ void Render::InitVar()
     radial = vec4(theme_var[k + 75], theme_var[k + 76], theme_var[k + 77], theme_var[k + 78]);
 }
 
-vec4 setup_var[]={ // setup variable [start,end,step,value]
-    vec4(0), /* main */
-        vec4(1,  8, 1, ratio_2d.x),
-        vec4(1,  8, 1, ratio_2d.y),
-        vec4(0, 16, 1, border.x),
-        vec4(0, 16, 1, border.y),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-    vec4(0), /* remanence */
-        vec4(0, 1, 1, 1),
-        vec4(0.0f, 1.0f, 0.1f, buffer.x),
-        vec4(0.0f, 1.0f, 0.1f, buffer.y),
-        vec4(0.0f, 1.0f, 0.1f, remanence.x),
-        vec4(0.0f, 1.0f, 0.1f, remanence.y),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-    vec4(0), /* glow */
-        vec4(0, 1, 1, 1),
-        vec4(0.0f, 1.0f, 0.1f, glow_mix.x),
-        vec4(0.0f, 1.0f, 0.1f, glow_mix.y),
-        vec4(0.0f, 4.0f, 0.1f, glow_large.x),
-        vec4(0.0f, 4.0f, 0.1f, glow_large.y),
-        vec4(0.0f, 2.0f, 0.1f, glow_small.x),
-        vec4(0.0f, 2.0f, 0.1f, glow_small.y),
-        vec4(0),
-    vec4(0), /* blur */
-        vec4(0, 1, 1, 1),
-        vec4(0, 2, 0.05f, blur.x),
-        vec4(0, 2, 0.05f, blur.y),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-    vec4(0), /* screen */
-        vec4(0, 1, 1, 1),
-        vec4(0.0f, 1.0f, 0.05f, postfx_deform.x),
-        vec4(0.2f, 0.7f, 0.01f, postfx_deform.y),
-        vec4(0.0f, 4.0f, 0.10f, postfx_corner.x),
-        vec4(0.0f, 1.0f, 0.05f, postfx_corner.y),
-        vec4(0.8f, 1.0f, 0.01f, postfx_corner.z),
-        vec4(0.0f, 1.0f, 0.10f, postfx_vignetting),
-        vec4(0),
-    vec4(0), /* copper */
-        vec4(0, 1, 1, 1),
-        vec4(0.0f, 1.0f, 0.05f, copper_copper.x),
-        vec4(0.0f, 1.0f, 0.05f, copper_copper.y),
-        vec4(0.0f, 1.0f, 0.02f, copper_copper.z),
-        vec4(1.0f, 8.0f, 0.25f, copper_copper.w),
-        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.x),
-        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.y),
-        vec4(0.0f, 4.0f, 0.25f, copper_mask_color.z),
-    vec4(0), /* color */
-        vec4( 0.0f, 1.0f, 0.05f, color_filter.x),
-        vec4( 0.0f, 1.0f, 0.05f, color_filter.y),
-        vec4( 0.0f, 1.0f, 0.05f, color_filter.z),
-        vec4( 0.0f, 2.0f, 0.05f, color_color.x),
-        vec4( 0.0f, 2.0f, 0.05f, color_color.y),
-        vec4(-1.0f, 1.0f, 0.05f, color_color.z),
-        vec4( 0.0f, 1.0f, 0.05f, color_color.w),
-        vec4( 0.0f, 8.0f, 0.50f, postfx_aberration),
-    vec4(0), /* noise */
-        vec4(0, 1, 1, 1),
-        vec4(0.0f, 4.0f, 0.50f, noise_offset.x),
-        vec4(0.0f, 4.0f, 0.50f, noise_offset.y),
-        vec4(0.0f, 0.5f, 0.05f, noise_noise),
-        vec4(0.0f, 4.0f, 0.25f, noise_retrace.x),
-        vec4(0.0f, 8.0f, 0.50f, noise_retrace.y),
-        vec4(0.0f, 4.0f, 0.25f, noise_retrace.z),
-        vec4(0),
-    vec4(0), /* ghost */
-        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost1.x),
-        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost1.y),
-        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost1.z),
-        vec4(-1.0f, 1.0f, 0.05f, postfx_ghost1.w),
-        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.x),
-        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.y),
-        vec4(-2.0f, 2.0f, 0.10f, postfx_ghost2.z),
-        vec4(-1.0f, 1.0f, 0.05f, postfx_ghost2.w),
-    vec4(0), /* glass */
-        vec4(0.0f, 16.0f, 0.50f, postfx_glass.x),
-        vec4(0.0f,  1.0f, 0.05f, postfx_glass.y),
-        vec4(0.0f,  2.0f, 0.05f, postfx_glass.z),
-        vec4(0.0f,  1.0f, 0.05f, postfx_glass.w),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-    vec4(0), /* moire */
-        vec4( 0.5f, 1.0f, 0.05f, postfx_moire_h.x),
-        vec4(-0.5f, 0.5f, 0.05f, postfx_moire_h.y),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_h.z),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_h.w),
-        vec4( 0.5f, 1.0f, 0.05f, postfx_moire_v.x),
-        vec4(-0.5f, 0.5f, 0.05f, postfx_moire_v.y),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_v.z),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_moire_v.w),
-    vec4(0), /* scanline */
-        vec4( 0.5f, 1.0f, 0.05f, postfx_scanline_h.x),
-        vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_h.y),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_h.z),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_h.w),
-        vec4( 0.5f, 1.0f, 0.05f, postfx_scanline_v.x),
-        vec4(-0.5f, 0.5f, 0.05f, postfx_scanline_v.y),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.z),
-        vec4( 0.0f, 4.0f, 0.50f, postfx_scanline_v.w),
-    vec4(0), /* mirror */
-        vec4(0, 1, 1, 1),
-        vec4(0.0f, 2.0f, 0.05f, mirror.x),
-        vec4(0.0f, 2.0f, 0.05f, mirror.y),
-        vec4(0.0f, 1.0f, 0.05f, mirror.z),
-        vec4(1.0f, 8.0f, 1.00f, mirror.w),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-    vec4(0), /* radial blur */
-        vec4(0, 1, 1, 1),
-        vec4(2.0f, 8.0f, 0.25f, radial.x),
-        vec4(0.8f, 1.0f, 0.01f, radial.y),
-        vec4(2.0f,32.0f, 2.00f, radial.z),
-        vec4(0.0f, 1.0f, 0.05f, radial.w),
-        vec4(0),
-        vec4(0),
-        vec4(0),
-    vec4(0) /* ? */
-    };
+void Render::SetupVar()
+{
+}
 
 void Render::UpdateVar()
 {
@@ -524,7 +557,6 @@ void Render::UpdateVar()
     k += 4; /* radial blur */
     m_shader_radial = (setup_var[k].w == 1) ? true : false; k++;
     radial = vec4(setup_var[k].w, setup_var[k + 1].w, setup_var[k + 2].w, setup_var[k + 3].w); k += 4;
-    UpdateSize();
 }
 
 void Render::UpdateSize()
@@ -719,10 +751,11 @@ int Render::InitDraw(void)
 
 int Render::CreateGLWindow()
 {
+    InitVar();
+    SetupVar();
+    UpdateVar();
     UpdateSize();
     InitDraw();
-    InitVar();
-    UpdateSize();
     return true;
 }
 
@@ -850,13 +883,11 @@ void Render::TickDraw(float seconds)
         if (g_setup) setup_n = calc_item_length();
         sync_flag = true;
         sync_angle = main_angle;
-
         if (m_fps_debug)
         {
             Ticker::Unref(m_fps_debug);
             m_fps_debug = NULL;
         }
-
         if (g_setup)
         {
             m_fps_debug = new DebugFps(2, 2);
@@ -875,7 +906,25 @@ void Render::TickDraw(float seconds)
         m_shader_mirror = !m_shader_mirror;
         m_shader_radial = !m_shader_radial;
     }
-   if (Input::WasPressed(Key::Tab))
+    if (Input::WasPressed(Key::F4))
+    {
+        theme_i--;
+        if(theme_i < 0) theme_i = theme_n - 1;
+        InitVar();
+        SetupVar();
+        UpdateVar();
+        UpdateSize();
+    }
+    if (Input::WasPressed(Key::F5))
+    {
+        theme_i++;
+        if(theme_i > theme_n) theme_i = 0;
+        InitVar();
+        SetupVar();
+        UpdateVar();
+        UpdateSize();
+    }
+    if (Input::WasPressed(Key::Tab))
     {
         if (g_setup)
         {
@@ -1089,6 +1138,7 @@ void Render::TickDraw(float seconds)
             setup_var[setup_item_key].w -= setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w < setup_var[setup_item_key].x) setup_var[setup_item_key].w = setup_var[setup_item_key].x;
             UpdateVar();
+            UpdateSize();
         }
     }
     if (Input::WasPressed(Key::Right))
@@ -1098,6 +1148,7 @@ void Render::TickDraw(float seconds)
             setup_var[setup_item_key].w += setup_var[setup_item_key].z;
             if (setup_var[setup_item_key].w > setup_var[setup_item_key].y) setup_var[setup_item_key].w = setup_var[setup_item_key].y;
             UpdateVar();
+            UpdateSize();
         }
     }
     if (Input::WasPressed(Key::Home))
@@ -1106,6 +1157,7 @@ void Render::TickDraw(float seconds)
         {
             setup_var[setup_item_key].w = setup_var[setup_item_key].x;
             UpdateVar();
+            UpdateSize();
         }
     }
     if (Input::WasPressed(Key::End))
@@ -1114,6 +1166,7 @@ void Render::TickDraw(float seconds)
         {
             setup_var[setup_item_key].w = setup_var[setup_item_key].y;
             UpdateVar();
+            UpdateSize();
         }
     }
     if (Input::WasPressed(Key::Return))
