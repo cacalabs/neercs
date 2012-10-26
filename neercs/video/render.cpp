@@ -128,14 +128,13 @@ vec4 radial(4.0f,0.9f,16,0.0f);                 // radial [distance,fade ratio,i
 /* theme variable */
 int theme_i = 1;                // current theme
 const int theme_n = 2;          // theme number
-const int theme_var_n = 79;     // var number
 /* setup variable */
 bool setup_switch = false;      // switch [option/item]
 int setup_n = 0;                // item/option number
 int setup_h = 8;                // height
 int setup_cursor = 0;           // cursor position
 int setup_option_i = 0;         // selected option
-int setup_option_n = 14;        // option number
+const int setup_option_n = 14;  // option number
 int setup_option_p = 0;         // option position
 int setup_item_i = 0;           // selected item
 int setup_item_n = 8;           // item number
@@ -404,36 +403,66 @@ vec4(0) /* ? */
 };
 
 float theme_var[]={
-    // DO LIKE SETUP TO KEEP KEY
-    /* default */
+/* default */
+0,
     1,1,                      // ratio_2d
     0,0,                      // border
+    0,0,0,0,
+0,
+    1,                        // m_shader_remanence
     1.0f,0.8f,                // buffer
     0.0f,0.0f,                // remanence
+    0,0,0,
+0,
+    1,                        // m_shader_glow
     0.5f,0.0f,                // glow_mix
     0.0f,0.0f,                // glow_large
     0.0f,0.0f,                // glow_small
+    0,
+0,
+    1,                        // m_shader_blur
     0.0f,0.0f,                // blur
+    0,0,0,0,0,
+0,
+    1,                        // m_shader_postfx
     0.0f,0.5f,                // postfx_deform
     0.0f,1.0f,1.0f,           // postfx_corner
     0.0f,                     // postfx_vignetting
+    0,
+0,
+    1,                        // m_shader_copper
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
     4.0f,4.0f,4.0f,           // copper_mask_color
+0,
     1.0f,1.0f,1.0f,           // color_filter
     1.0f,1.0f,0.0f,0.0f,      // color_color
     0.0f,                     // postfx_aberration
+0,
+    1,                        // m_shader_noise
     0.0f,0.0f,                // noise_offset
     0.0f,                     // noise_noise
     0.0f,0.0f,0.0f,           // noise_retrace
+    0,
+0,
     0.0f,0.0f,0.0f,0.0f,      // postfx_ghost1
     0.0f,0.0f,0.0f,0.0f,      // postfx_ghost2
+0,
     8.0f,0.0f,0.0f,0.0f,      // postfx_glass
+    0,0,0,0,
+0,
     1.0f,0.0f,0.0f,0.0f,      // postfx_moire_h
     1.0f,0.0f,0.0f,0.0f,      // postfx_moire_v
+0,
     1.0f,0.0f,0.0f,0.0f,      // postfx_scanline_h
     1.0f,0.0f,0.0f,0.0f,      // postfx_scanline_v
+0,
+    1,                        // m_shader_mirror
     0.0f,0.0f,0.0f,1.0f,      // mirror
+    0,0,0,
+0,
+    1,                        // m_shader_radial
     4.0f,0.9f,16,0.0f,        // radial
+    0,0,0,
     /* crt */
     2,3,                      // ratio_2d
     2,1,                      // border
@@ -470,35 +499,56 @@ float theme_var[]={
 
 void Render::InitVar()
 {
-    int k = theme_i * theme_var_n;
-    ratio_2d = vec2(theme_var[k], theme_var[k + 1]);
-    border = vec2(theme_var[k + 2], theme_var[k + 3]);
-    buffer = vec2(theme_var[k + 4], theme_var[k + 5]);
-    remanence = vec2(theme_var[k + 6], theme_var[k + 7]);
-    glow_mix = vec2(theme_var[k + 8], theme_var[k + 9]);
-    glow_large = vec2(theme_var[k + 10], theme_var[k + 11]);
-    glow_small = vec2(theme_var[k + 12], theme_var[k + 13]);
-    blur = vec2(theme_var[k + 14], theme_var[k + 15]);
-    postfx_deform = vec2(theme_var[k + 16], theme_var[k + 17]);
-    postfx_corner = vec3(theme_var[k + 18], theme_var[k + 19], theme_var[k + 20]);
-    postfx_vignetting = theme_var[k + 21],
-    copper_copper = vec4(theme_var[k + 22], theme_var[k + 23], theme_var[k + 24], theme_var[k + 25]);
-    copper_mask_color = vec3(theme_var[k + 26], theme_var[k + 27], theme_var[k + 28]);
-    color_filter = vec3(theme_var[k + 29], theme_var[k + 30], theme_var[k + 31]);
-    color_color = vec4(theme_var[k + 32], theme_var[k + 33], theme_var[k + 34], theme_var[k + 35]);
-    postfx_aberration = theme_var[k + 36];
-    noise_offset = vec2(theme_var[k + 37], theme_var[k + 38]);
-    noise_noise = theme_var[k + 39];
-    noise_retrace = vec3(theme_var[k + 40], theme_var[k + 41], theme_var[k + 42]);
-    postfx_ghost1 = vec4(theme_var[k + 43], theme_var[k + 44], theme_var[k + 45], theme_var[k + 46]);
-    postfx_ghost2 = vec4(theme_var[k + 47], theme_var[k + 48], theme_var[k + 49], theme_var[k + 50]);
-    postfx_glass = vec4(theme_var[k + 51], theme_var[k + 52], theme_var[k + 53], theme_var[k + 54]);
-    postfx_moire_h = vec4(theme_var[k + 55], theme_var[k + 56], theme_var[k + 57], theme_var[k + 58]);
-    postfx_moire_v = vec4(theme_var[k + 59], theme_var[k + 60], theme_var[k + 61], theme_var[k + 62]);
-    postfx_scanline_h = vec4(theme_var[k + 63], theme_var[k + 64], theme_var[k + 65], theme_var[k + 66]);
-    postfx_scanline_v = vec4(theme_var[k + 67], theme_var[k + 68], theme_var[k + 69], theme_var[k + 70]);
-    mirror = vec4(theme_var[k + 71], theme_var[k + 72], theme_var[k + 73], theme_var[k + 74]);
-    radial = vec4(theme_var[k + 75], theme_var[k + 76], theme_var[k + 77], theme_var[k + 78]);
+    int k = theme_i * setup_option_n * 8 + 1; /* main */
+    ratio_2d = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    border = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    k += 5; /* remanence */
+    m_shader_remanence = (theme_var[k] == 1) ? true : false; k++;
+    buffer = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    remanence = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    k += 4; /* glow */
+    m_shader_glow = (theme_var[k] == 1) ? true : false; k++;
+    glow_mix = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    glow_large = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    glow_small = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    k += 2; /* blur */
+    m_shader_blur = (theme_var[k] == 1) ? true : false; k++;
+    blur = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    k += 6; /* screen */
+    m_shader_postfx = (theme_var[k] == 1) ? true : false; k++;
+    postfx_deform = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    postfx_corner = vec3(theme_var[k], theme_var[k + 1], theme_var[k + 2]); k += 3;
+    postfx_vignetting = theme_var[k]; k++;
+    k += 2; /* copper */
+    m_shader_copper = (theme_var[k] == 1) ? true : false; k++;
+    copper_copper = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    copper_mask_color = vec3(theme_var[k], theme_var[k + 1], theme_var[k + 2]); k += 3;
+    k += 1; /* color */
+    color_filter = vec3(theme_var[k], theme_var[k + 1], theme_var[k + 2]); k += 3;
+    color_color = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    postfx_aberration = theme_var[k]; k++;
+    k += 1; /* noise */
+    m_shader_noise = (theme_var[k] == 1) ? true : false; k++;
+    noise_offset = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    noise_noise = theme_var[k]; k++;
+    noise_retrace = vec3(theme_var[k], theme_var[k + 1], theme_var[k + 2]); k += 3;
+    k += 2; /* ghost */
+    postfx_ghost1 = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    postfx_ghost2 = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    k += 1; /* glass */
+    postfx_glass = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    k += 5; /* moire */
+    postfx_moire_h = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    postfx_moire_v = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    k += 1; /* scanline */
+    postfx_scanline_h = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    postfx_scanline_v = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    k += 1; /* mirror */
+    m_shader_mirror = (theme_var[k] == 1) ? true : false; k++;
+    mirror = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
+    k += 4; /* radial blur */
+    m_shader_radial = (theme_var[k] == 1) ? true : false; k++;
+    radial = vec4(theme_var[k], theme_var[k + 1], theme_var[k + 2], theme_var[k + 3]); k += 4;
 }
 
 void Render::SetupVar()
