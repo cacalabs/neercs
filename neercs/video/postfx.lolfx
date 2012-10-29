@@ -20,6 +20,8 @@ uniform vec2 deform;
 uniform vec4 ghost1;
 uniform vec4 ghost2;
 uniform vec4 glass;
+uniform vec3 gradient;
+uniform vec3 gradient_color;
 uniform float vignetting;
 uniform float aberration;
 uniform vec4 moire_h;
@@ -71,18 +73,19 @@ void main(void)
     vec3 ca2=get_color(texture,vec2(z.x+v,z.y));
     c+=vec3(ca1.x,c.y,ca2.z);                                // chromatic aberration
 
-    vec3 c1=vec3(0.8,0.8,0.8);
-    vec3 c2=vec3(0.0,0.0,0.0);
+    vec3 c1=vec3(gradient_color.x,gradient_color.y,gradient_color.z);
+    vec3 c2=vec3(gradient_color.x,gradient_color.y,gradient_color.z)/4;
     vec3 c3=vec3(1.0,1.0,1.0);
-    vec3 c4=vec3(0.8,0.8,0.8);
-    vec3 c5=vec3(0.0,0.0,0.0);
+    vec3 c4=vec3(gradient_color.z,gradient_color.y,gradient_color.x);
+    vec3 c5=vec3(gradient_color.z,gradient_color.y,gradient_color.x)/4;
     vec3 r;
-    float r_p=0.5;
-    float r_h=0.05;
+    float r_p=gradient.x;
+    float r_h=gradient.y;
+    float r_h2=gradient.y/2;
     float k=z.y+1.0;
 
-    if(k<=r_p-r_h) r=mix(c1,c2,k*(1/(r_p-r_h)));
-    if(k>r_p-r_h&&k<=r_p) r=mix(c2,c3,(k-(r_p-r_h))*(1/r_h));
+    if(k<=r_p-r_h2) r=mix(c1,c2,k*(1/(r_p-r_h2)));
+    if(k>r_p-r_h2&&k<=r_p) r=mix(c2,c3,(k-(r_p-r_h2))*(1/r_h2));
     if(k>r_p&&k<r_p+r_h) r=mix(c3,c4,(k-r_p)*(1/r_h));
     if(k>=r_p+r_h) r=mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));
 
@@ -90,7 +93,7 @@ void main(void)
     c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z)/ratio_2d.x)*sin(0.5+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v
     c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w)/ratio_2d.y); // scanline h
     c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w)/ratio_2d.x); // scanline v
-    c+=r*0.05;                                               // reflection
+    c+=r*gradient.z;                                         // gradient
     c*=mix(1.0,mask,vignetting);                             // vignetting
     c*=letterbox(z,corner.x+2.0,corner.y,corner.z);          // corner
     c+=(g3+g4)*glass.z;                                      // glass
