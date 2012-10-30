@@ -32,6 +32,9 @@ uniform vec3 corner;
 uniform float sync;
 uniform float beat;
 
+const float PI=3.14159265358979323846;
+vec2 angle=screen_size*PI;
+
 vec2 screen(in vec2 p,in float bend,in float radius)
 {
     float d=bend+sync*0.0625+beat*0.0375;
@@ -89,10 +92,10 @@ void main(void)
     if(k>r_p&&k<r_p+r_h) r=mix(c3,c4,(k-r_p)*(1/r_h));
     if(k>=r_p+r_h) r=mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));
 
-    c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z)/ratio_2d.y)*sin(0.5+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h
-    c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z)/ratio_2d.x)*sin(0.5+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v
-    c*=scanline_h.x+scanline_h.y*cos(z.y*float(screen_size.y*scanline_h.z+scanline_h.w)/ratio_2d.y); // scanline h
-    c*=scanline_v.x+scanline_v.y*cos(z.x*float(screen_size.x*scanline_v.z+scanline_v.w)/ratio_2d.x); // scanline v
+    c*=moire_h.x+moire_h.y*sin(z.y*float(angle.y*moire_h.z)/ratio_2d.y+PI); // moire h
+    c*=moire_v.x+moire_v.y*sin(z.x*float(angle.x*moire_v.z)/ratio_2d.x+PI); // moire v
+    c*=scanline_h.x+scanline_h.y*cos(z.y*float(angle.y*scanline_h.z+scanline_h.w)/ratio_2d.y); // scanline h
+    c*=scanline_v.x+scanline_v.y*cos(z.x*float(angle.x*scanline_v.z+scanline_v.w)/ratio_2d.x); // scanline v
     c+=r*gradient.z;                                         // gradient
     c*=mix(1.0,mask,vignetting);                             // vignetting
     c*=letterbox(z,corner.x+2.0,corner.y,corner.z);          // corner

@@ -39,13 +39,13 @@ private:
     bool m_ready;
     bool m_pause;
     bool m_shader;
+    bool m_shader_remanence;
     bool m_shader_glow;
     bool m_shader_blur;
-    bool m_shader_remanence;
+    bool m_shader_postfx;
     bool m_shader_copper;
     bool m_shader_color;
     bool m_shader_noise;
-    bool m_shader_postfx;
     bool m_shader_mirror;
     bool m_shader_radial;
 };
