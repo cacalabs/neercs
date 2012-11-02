@@ -655,24 +655,24 @@ float theme_var[]={
     0,0,0,0,
 /* granpa tv */
 0,
-    2,2,                      // ratio_2d
-    2,2,                      // border
+    2,4,                      // ratio_2d
+    1,0,                      // border
     0,0,0,0,
 0,
     0.2f,0.8f,                // buffer
     0.6f,0.4f,                // remanence
     0,0,0,0,
 0,
-    0.7f,0.3f,                // glow_mix
-    3.0f,0.0f,                // glow_large
-    1.5f,0.0f,                // glow_small
+    0.4f,0.6f,                // glow_mix
+    2.4f,2.0f,                // glow_large
+    1.2f,1.0f,                // glow_small
     0,0,
 0,
     0.5f,0.5f,                // blur
     0,0,0,0,0,0,
 0,
     1.0f,0.5f,                // postfx_deform
-    0.1f,0.7f,0.84f,          // postfx_corner
+    0.0f,0.5f,0.9f,           // postfx_corner
     0.5f,                     // postfx_vignetting
     0,0,
 0,
@@ -680,35 +680,35 @@ float theme_var[]={
     4.0f,4.0f,4.0f,           // copper_mask_color
     0,
 0,
-    0.8f,0.85f,0.75f,         // color_filter
-    1.0f,1.1f,1.0f,0.0f,      // color_color
-    4.0f,                     // postfx_aberration
+    0.7f,0.8f,1.0f,           // color_filter
+    0.9f,1.1f,0.0f,1.0f,      // color_color
+    0.0f,                     // postfx_aberration
 0,
-    1.0f,1.0f,                // noise_offset
-    0.15f,                    // noise_noise
-    1.0f,1.0f,0.5f,           // noise_retrace
+    2.0f,0.0f,                // noise_offset
+    0.25f,                    // noise_noise
+    1.0f,1.0f,4.0f,           // noise_retrace
     0,0,
 0,
-    1.0f,0.0f,0.0f,-0.25f,    // postfx_ghost1
-    1.5f,0.0f,0.0f,0.25f,     // postfx_ghost2
+    -1.0f,0.0f,0.0f,-0.25f,   // postfx_ghost1
+    1.0f,0.0f,0.0f,-0.25f,    // postfx_ghost2
 0,
     0.5f,0.25f,0.05f,         // postfx_gradient
     0.9f,0.8f,0.5f,           // postfx_gradient_color
     0,0,
 0,
-    8.0f,0.25f,0.75f,0.2f,    // postfx_glass
+    8.0f,0.0f,0.0f,0.0f,      // postfx_glass
     0,0,0,0,
 0,
     1.0f,0.0f,0.0f,0.0f,      // postfx_moire_h
-    0.75f,-0.25f,0.25f,0.25f, // postfx_moire_v
+    1.0f,0.0f,0.0f,0.0f,      // postfx_moire_v
 0,
-    1.0f,0.0f,0.0f,0.0f,      // postfx_scanline_h
-    0.75f,-0.25f,0.5f,0.0f,   // postfx_scanline_v
+    0.75f,-0.25f,0.75f,0.0f,  // postfx_scanline_h
+    1.0f,0.0f,0.0f,0.0f,      // postfx_scanline_v
 0,
     0.95f,0.9f,0.5f,4.0f,     // mirror
     0,0,0,0,
 0,
-    4.0f,0.9f,16,0.25f,       // radial
+    4.0f,0.9f,16,0.5f,        // radial
     0,0,0,0,
 /* intex system 4000 */
 0};
