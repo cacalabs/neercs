@@ -121,7 +121,7 @@ static void ansi_parse_grcm(struct screen *,
 inline int handle_single_char(unsigned char c, int *x, int *y,
                               struct screen_list *screen_list,
                               struct screen *sc);
-inline int handle_duplet(unsigned char const *buffer, struct screen *sc,
+static inline int handle_duplet(unsigned char const *buffer, struct screen *sc,
                          unsigned int *skip, int top, int bottom, int width,
                          int height);
 
@@ -184,7 +184,7 @@ inline int handle_single_char(unsigned char c, int *x, int *y,
     return 0;
 }
 
-inline int handle_duplet(unsigned char const *buffer, struct screen *sc,
+static inline int handle_duplet(unsigned char const *buffer, struct screen *sc,
                          unsigned int *skip, int top, int bottom, int width,
                          int height)
 {
