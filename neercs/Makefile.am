@@ -20,10 +20,10 @@ neercs_SOURCES = \
     video/remanence.lolfx video/copper.lolfx video/color.lolfx video/noise.lolfx \
     video/postfx.lolfx video/mirror.lolfx video/radial.lolfx \
     video/text.lolfx
-neercs_CPPFLAGS = @LOL_CFLAGS@ @PIPI_CFLAGS@ @CACA_CFLAGS@ -Iold
+neercs_CPPFLAGS = @LOL_CFLAGS@ @CACA_CFLAGS@ -Iold
 neercs_LDADD =
 neercs_LDFLAGS = $(top_builddir)/src/liblol.a \
-                 @LOL_LIBS@ @PIPI_LIBS@ @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
+                 @LOL_LIBS@ @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
 neercs_DEPENDENCIES = $(top_builddir)/src/liblol.a
 
 old_sources = \
