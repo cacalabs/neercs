@@ -5,7 +5,6 @@
 void main()
 {
     gl_Position = gl_Vertex;
-    gl_TexCoord[0] = gl_MultiTexCoord0;
 }
 
 [frag.glsl]
@@ -20,7 +19,7 @@ uniform float flash;
 
 void main(void)
 {
-    vec2 p = gl_FragCoord.xy/screen_size.xy;
+    vec2 p = gl_FragCoord.xy / screen_size.xy;
     vec3 c = texture2D(texture,p).xyz;
 
     float a = (c.x + c.y + c.z) / 3.0;

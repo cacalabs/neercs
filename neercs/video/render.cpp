@@ -67,8 +67,13 @@ float main_angle = 0.0f;   // main angle
 float part_angle = 0.0f;   // part angle
 float fx_angle;            // current angle
 /* fs_quad variable */
-float fs_quad_vtx[] = {-1.0f, 1.0f, 0, 1.0f, -1.0f, -1.0f, 0, 1.0f, 1.0f, -1.0f, 0, 1.0f, 1.0f, 1.0f, 0, 1.0f};
-float fs_quad_tex[] = {0, 1.0f, 0, 0, 1.0f, 0, 1.0f, 1.0f};
+float fs_quad_vtx[] =
+{
+    -1.0f,  1.0f, 0, 1.0f,
+    -1.0f, -1.0f, 0, 1.0f,
+     1.0f, -1.0f, 0, 1.0f,
+     1.0f,  1.0f, 0, 1.0f
+};
 /* flash variable */
 bool flash_flag = false;   // flag
 float flash_angle = 0;     // angle
@@ -1471,7 +1476,7 @@ void Render::Draw2D()
     glLoadMatrixf(&m[0][0]);
     glMatrixMode(GL_MODELVIEW);
 
-    fx_angle=main_angle-part_angle;
+    fx_angle = main_angle - part_angle;
 }
 
 void Render::Draw3D()
@@ -1484,9 +1489,6 @@ void Render::Draw3D()
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(4, GL_FLOAT, 0, fs_quad_vtx);
-
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2, GL_FLOAT, 0, fs_quad_tex);
 
     if (m_shader_copper)
     {
@@ -1723,7 +1725,6 @@ void Render::Draw3D()
     ShaderSimple(fbo_front, 0);
 
     glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 Render::~Render()

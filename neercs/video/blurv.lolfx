@@ -2,15 +2,19 @@
 
 #version 120
 
+varying vec2 pass_TexCoord;
+
 void main()
 {
     gl_Position = gl_Vertex;
-    gl_TexCoord[0] = gl_MultiTexCoord0;
+    pass_TexCoord = vec2(0.5, 0.5) + 0.5 * gl_Vertex.xy;
 }
 
 [frag.glsl]
 
 #version 120
+
+varying vec2 pass_TexCoord;
 
 uniform sampler2D texture;
 uniform vec2 radius;
@@ -18,7 +22,7 @@ uniform vec2 radius;
 void main(void)
 {
     vec4 total = vec4(0.0);
-    vec2 p = gl_TexCoord[0].xy;
+    vec2 p = pass_TexCoord;
     float mask = 2.0-p.x*(6.0-p.x*6.0)*p.y*(6.0-p.y*6.0);
     float b = radius.x+radius.y*mask;
     total += texture2D(texture,vec2(p.x,p.y-b*4.0))*0.04;
