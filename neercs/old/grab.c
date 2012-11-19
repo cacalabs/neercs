@@ -14,7 +14,7 @@
 #   include "config.h"
 #endif
 
-#if !defined _WIN32
+#if !defined _WIN32 && defined HAVE_GLOB_H
 
 #define _XOPEN_SOURCE 500       /* getsid() */
 

@@ -50,8 +50,9 @@ void TextRender::Init()
                                           VertexUsage::Color, 0);
     m_char = m_shader->GetAttribLocation("in_Char",
                                          VertexUsage::Color, 1);
-    m_texture = m_shader->GetUniformLocation("in_Texture");
-    m_transform = m_shader->GetUniformLocation("in_Transform");
+    m_texture = m_shader->GetUniformLocation("u_Texture");
+    m_transform = m_shader->GetUniformLocation("u_Transform");
+    m_pointsize = m_shader->GetUniformLocation("u_PointSize");
     m_vdecl
       = new VertexDeclaration(VertexStream<vec2>(VertexUsage::Position),
                               VertexStream<uint32_t>(VertexUsage::Color),
@@ -128,14 +129,18 @@ void TextRender::Render()
     m_fbo->Bind();
     glViewport(0, 0, m_fbo_size.x, m_fbo_size.y);
     glDisable(GL_DEPTH_TEST);
+#if !defined HAVE_GLES_2X
     glEnable(GL_POINT_SPRITE);
     //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glDisable(GL_POINT_SMOOTH);
-    glPointSize((float)max(m_font_size.x, m_font_size.y));
+#endif
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
     m_shader->Bind();
     m_font->Bind();
     m_shader->SetUniform(m_texture, 0);
     m_shader->SetUniform(m_transform, xform);
+    m_shader->SetUniform(m_pointsize, (float)max(m_font_size.x, m_font_size.y));
     m_vdecl->SetStream(m_vbo1, m_coord);
     m_vdecl->SetStream(m_vbo2, m_color);
     m_vdecl->SetStream(m_vbo3, m_char);
@@ -144,7 +149,9 @@ void TextRender::Render()
     m_vdecl->Unbind();
     m_font->Unbind();
     m_shader->Unbind();
+#if !defined HAVE_GLES_2X
     glDisable(GL_POINT_SPRITE);
+#endif
     m_fbo->Unbind();
 }
 

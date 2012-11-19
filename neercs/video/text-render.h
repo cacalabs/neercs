@@ -20,11 +20,13 @@ private:
     int m_cells;
 
     TileSet *m_font;
+
     Shader *m_shader;
     ShaderAttrib m_coord, m_color, m_char;
-    ShaderUniform m_texture, m_transform;
+    ShaderUniform m_texture, m_transform, m_pointsize;
     VertexDeclaration *m_vdecl;
     VertexBuffer *m_vbo1, *m_vbo2, *m_vbo3;
+
     FrameBuffer *m_fbo;
 };
 

@@ -14,7 +14,7 @@
 #   include "config.h"
 #endif
 
-#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if defined HAVE_FORKPTY
 #   define _XOPEN_SOURCE
 #   include <stdlib.h>
 #   include <stdio.h>
@@ -53,7 +53,7 @@ Pty::Pty()
 
 Pty::~Pty()
 {
-#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if defined HAVE_FORKPTY
     delete[] m_unread_data;
 
     if (m_fd >= 0)
@@ -65,7 +65,7 @@ Pty::~Pty()
 
 void Pty::Run(char const *command, ivec2 size)
 {
-#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if defined HAVE_FORKPTY
     int fd;
     pid_t pid;
 
@@ -112,7 +112,7 @@ bool Pty::IsEof() const
 
 size_t Pty::ReadData(char *data, size_t maxlen)
 {
-#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if defined HAVE_FORKPTY
     /* Do we have data from previous call? */
     if (m_unread_len)
     {
@@ -172,7 +172,7 @@ size_t Pty::ReadData(char *data, size_t maxlen)
 
 void Pty::UnreadData(char *data, size_t len)
 {
-#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if defined HAVE_FORKPTY
     char *new_data;
 
     if (m_unread_data)
@@ -193,7 +193,7 @@ void Pty::UnreadData(char *data, size_t len)
 
 size_t Pty::WriteData(char const *data, size_t len)
 {
-#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if defined HAVE_FORKPTY
     /* FIXME: can we be more naive than that? */
     return write((int)m_fd, data, len);
 #endif
@@ -203,7 +203,7 @@ size_t Pty::WriteData(char const *data, size_t len)
 
 void Pty::SetWindowSize(ivec2 size, int64_t fd /* = -1 */)
 {
-#if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if defined HAVE_FORKPTY
     if (m_size == size)
         return;
 

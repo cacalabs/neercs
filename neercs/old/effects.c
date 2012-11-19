@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <endian.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <caca.h>

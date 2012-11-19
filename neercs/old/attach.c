@@ -16,7 +16,7 @@
 #   include "config.h"
 #endif
 
-#if !defined _WIN32
+#if !defined _WIN32 && defined HAVE_GLOB_H
 
 #include <errno.h>
 #include <fcntl.h>

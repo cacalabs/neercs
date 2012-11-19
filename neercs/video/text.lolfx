@@ -15,7 +15,8 @@ varying vec4 pass_Foreground;
 varying vec4 pass_Background;
 varying vec2 pass_UV;
 
-uniform mat4 in_Transform;
+uniform float u_PointSize;
+uniform mat4 u_Transform;
 
 void main()
 {
@@ -56,9 +57,9 @@ void main()
     if (F + G + H < 0.01) E = 1.0;
 
     // This only works with glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    //gl_PointSize = 40;
+    gl_PointSize = u_PointSize;
 
-    gl_Position = in_Transform * vec4(in_Position, 0.0, 1.0);
+    gl_Position = u_Transform * vec4(in_Position, 0.0, 1.0);
 }
 
 [frag.glsl]
@@ -69,11 +70,11 @@ varying vec4 pass_Foreground;
 varying vec4 pass_Background;
 varying vec2 pass_UV;
 
-uniform sampler2D in_Texture;
+uniform sampler2D u_Texture;
 
 void main(void)
 {
     vec2 c = gl_PointCoord * (1.0 / 32.0) + pass_UV;
-    float t = texture2D(in_Texture, c).x;
+    float t = texture2D(u_Texture, c).x;
     gl_FragColor = mix(pass_Background, pass_Foreground, t);
 }
