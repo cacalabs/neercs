@@ -122,9 +122,9 @@ void TextRender::Render()
     glEnable(GL_POINT_SPRITE);
     //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glDisable(GL_POINT_SMOOTH);
-#endif
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+#endif
     m_shader->Bind();
     m_font->Bind();
     m_shader->SetUniform(m_texture, 0);
