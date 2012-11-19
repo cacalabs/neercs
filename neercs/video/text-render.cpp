@@ -44,18 +44,15 @@ void TextRender::Init()
                          ivec2(256, 256), ivec2(1));
 
     m_shader = Shader::Create(lolfx_text);
-    m_coord = m_shader->GetAttribLocation("in_Position",
-                                          VertexUsage::Position, 0);
     m_color = m_shader->GetAttribLocation("in_Attr",
                                           VertexUsage::Color, 0);
     m_char = m_shader->GetAttribLocation("in_Char",
                                          VertexUsage::Color, 1);
     m_texture = m_shader->GetUniformLocation("u_Texture");
     m_transform = m_shader->GetUniformLocation("u_Transform");
-    m_pointsize = m_shader->GetUniformLocation("u_PointSize");
+    m_datasize = m_shader->GetUniformLocation("u_DataSize");
     m_vdecl
-      = new VertexDeclaration(VertexStream<vec2>(VertexUsage::Position),
-                              VertexStream<uint32_t>(VertexUsage::Color),
+      = new VertexDeclaration(VertexStream<uint32_t>(VertexUsage::Color),
                               VertexStream<uint32_t>(VertexUsage::Color));
 
     CreateBuffers();
@@ -63,13 +60,6 @@ void TextRender::Init()
 
 void TextRender::CreateBuffers()
 {
-    m_vbo1 = new VertexBuffer(m_cells * sizeof(vec2));
-    vec2 *vertices = (vec2 *)m_vbo1->Lock(0, 0);
-    for (int j = 0; j < m_canvas_size.y; j++)
-    for (int i = 0; i < m_canvas_size.x; i++)
-        vertices[j * m_canvas_size.x + i] = vec2(i, j);
-    m_vbo1->Unlock();
-
     m_vbo2 = new VertexBuffer(m_cells * sizeof(int32_t));
     m_vbo3 = new VertexBuffer(m_cells * sizeof(int32_t));
 
@@ -83,7 +73,6 @@ void TextRender::Render()
                        caca_get_canvas_height(m_caca));
     if (current_size != m_canvas_size)
     {
-        delete m_vbo1;
         delete m_vbo2;
         delete m_vbo3;
         delete m_fbo;
@@ -140,8 +129,8 @@ void TextRender::Render()
     m_font->Bind();
     m_shader->SetUniform(m_texture, 0);
     m_shader->SetUniform(m_transform, xform);
-    m_shader->SetUniform(m_pointsize, (float)max(m_font_size.x, m_font_size.y));
-    m_vdecl->SetStream(m_vbo1, m_coord);
+    m_shader->SetUniform(m_datasize, vec2(m_canvas_size.x,
+                                          max(m_font_size.x, m_font_size.y)));
     m_vdecl->SetStream(m_vbo2, m_color);
     m_vdecl->SetStream(m_vbo3, m_char);
     m_vdecl->Bind();
