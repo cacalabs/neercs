@@ -5,14 +5,14 @@
 #define HAVE_UINT 1
 
 #if HAVE_UINT
-attribute uint in_Char, in_Attr;
+in uint in_Char, in_Attr;
 #else
-attribute vec4 in_Char, in_Attr;
+in vec4 in_Char, in_Attr;
 #endif
 
-varying vec4 pass_Foreground;
-varying vec4 pass_Background;
-varying vec2 pass_UV;
+out vec4 pass_Foreground;
+out vec4 pass_Background;
+out vec2 pass_UV;
 
 uniform vec2 u_DataSize;
 uniform mat4 u_Transform;
@@ -67,15 +67,17 @@ void main()
 
 #version 130
 
-varying vec4 pass_Foreground;
-varying vec4 pass_Background;
-varying vec2 pass_UV;
+in vec4 pass_Foreground;
+in vec4 pass_Background;
+in vec2 pass_UV;
 
 uniform sampler2D u_Texture;
+
+out vec4 out_Color;
 
 void main(void)
 {
     vec2 c = gl_PointCoord * (1.0 / 32.0) + pass_UV;
     float t = texture2D(u_Texture, c).x;
-    gl_FragColor = mix(pass_Background, pass_Foreground, t);
+    out_Color = mix(pass_Background, pass_Foreground, t);
 }
