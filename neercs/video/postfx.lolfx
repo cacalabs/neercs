@@ -86,10 +86,14 @@ void main(void)
     float r_h2=gradient.y/2;
     float k=z.y+1.0;
 
-    if(k<=r_p-r_h2) r=mix(c1,c2,k*(1/(r_p-r_h2)));
-    if(k>r_p-r_h2&&k<=r_p) r=mix(c2,c3,(k-(r_p-r_h2))*(1/r_h2));
-    if(k>r_p&&k<r_p+r_h) r=mix(c3,c4,(k-r_p)*(1/r_h));
-    if(k>=r_p+r_h) r=mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));
+    if (k <= r_p - r_h2)
+        r = mix(c1,c2,k*(1/(r_p-r_h2)));
+    else if (k <= r_p)
+        r = mix(c2,c3,(k-(r_p-r_h2))*(1/r_h2));
+    else if (k < r_p + r_h)
+        r = mix(c3,c4,(k-r_p)*(1/r_h));
+    else
+        r = mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));
 
     //c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z)/ratio_2d.y)*sin(0.5+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h 
     //c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z)/ratio_2d.x)*sin(0.5+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v
