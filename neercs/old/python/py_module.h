@@ -10,8 +10,6 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "config.h"
-
 #ifdef USE_PYTHON
 
 #include <Python.h>

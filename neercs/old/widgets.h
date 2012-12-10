@@ -10,10 +10,6 @@
  *  http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#if defined HAVE_CONFIG_H
-#   include "config.h"
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
