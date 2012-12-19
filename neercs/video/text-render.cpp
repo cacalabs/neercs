@@ -52,8 +52,8 @@ void TextRender::Init()
     m_transform = m_shader->GetUniformLocation("u_Transform");
     m_datasize = m_shader->GetUniformLocation("u_DataSize");
     m_vdecl
-      = new VertexDeclaration(VertexStream<uint32_t>(VertexUsage::Color),
-                              VertexStream<uint32_t>(VertexUsage::Color));
+      = new VertexDeclaration(VertexStream<u8vec4>(VertexUsage::Color),
+                              VertexStream<u8vec4>(VertexUsage::Color));
 
     CreateBuffers();
 }
@@ -61,7 +61,7 @@ void TextRender::Init()
 void TextRender::CreateBuffers()
 {
     m_vbo2 = new VertexBuffer(m_cells * sizeof(int32_t));
-    m_vbo3 = new VertexBuffer(m_cells * sizeof(int32_t));
+    m_vbo3 = new VertexBuffer(m_cells * sizeof(u8vec4));
 
     m_fbo = new FrameBuffer(m_fbo_size);
 }
