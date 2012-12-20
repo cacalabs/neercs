@@ -2,12 +2,13 @@
 
 #version 130
 
-#define HAVE_UINT 1
+#define HAVE_SHADER_4 1
 
-#if HAVE_UINT
+#if HAVE_SHADER_4
 in uint in_Char, in_Attr;
 #else
 in vec4 in_Char, in_Attr;
+in float in_VertexID;
 #endif
 
 out vec4 pass_Foreground;
@@ -19,7 +20,7 @@ uniform mat4 u_Transform;
 
 void main()
 {
-#if HAVE_UINT
+#if HAVE_SHADER_4
     float u = float(in_Char & 0xfu) / 32.0 + 0.0;
     float v = float((in_Char >> 4u) & 0xfu) / 32.0 + 0.5;
 #else
@@ -30,7 +31,7 @@ void main()
 #endif
     pass_UV = vec2(u, v);
 
-#if HAVE_UINT
+#if HAVE_SHADER_4
     float A = float(in_Attr >> 29u) / 7.0;
     float B = float((in_Attr >> 25u) & 0xfu) / 15.0;
     float C = float((in_Attr >> 21u) & 0xfu) / 15.0;
@@ -62,8 +63,14 @@ void main()
     // This only works with glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     gl_PointSize = u_DataSize[1];
 
+#if HAVE_SHADER_4
     vec2 coord = vec2(gl_VertexID % int(u_DataSize[0]),
                       gl_VertexID / int(u_DataSize[0]));
+#else
+    vec2 coord = vec2(mod(in_VertexID, u_DataSize[0]),
+                      floor(in_VertexID / u_DataSize[0]));
+#endif
+
     gl_Position = u_Transform * vec4(coord, 0.0, 1.0);
 }
 

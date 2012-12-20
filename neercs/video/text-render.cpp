@@ -24,6 +24,8 @@ using namespace lol;
 
 extern char const *lolfx_text;
 
+#define HAVE_SHADER_4 1
+
 /*
  * Text rendering interface
  */
@@ -48,20 +50,41 @@ void TextRender::Init()
                                           VertexUsage::Color, 0);
     m_char = m_shader->GetAttribLocation("in_Char",
                                          VertexUsage::Color, 1);
+#if !HAVE_SHADER_4
+    m_vertexid = m_shader->GetAttribLocation("in_VertexID",
+                                             VertexUsage::Position, 0);
+#endif
     m_texture = m_shader->GetUniformLocation("u_Texture");
     m_transform = m_shader->GetUniformLocation("u_Transform");
     m_datasize = m_shader->GetUniformLocation("u_DataSize");
     m_vdecl
+#if HAVE_SHADER_4
+      = new VertexDeclaration(VertexStream<uint32_t>(VertexUsage::Color),
+                              VertexStream<uint32_t>(VertexUsage::Color));
+#else
       = new VertexDeclaration(VertexStream<u8vec4>(VertexUsage::Color),
-                              VertexStream<u8vec4>(VertexUsage::Color));
+                              VertexStream<u8vec4>(VertexUsage::Color),
+                              VertexStream<float>(VertexUsage::Position));
+#endif
 
     CreateBuffers();
 }
 
 void TextRender::CreateBuffers()
 {
-    m_vbo2 = new VertexBuffer(m_cells * sizeof(int32_t));
-    m_vbo3 = new VertexBuffer(m_cells * sizeof(u8vec4));
+#if HAVE_SHADER_4
+    m_vbo1 = new VertexBuffer(m_cells * sizeof(uint32_t));
+    m_vbo2 = new VertexBuffer(m_cells * sizeof(uint32_t));
+#else
+    m_vbo1 = new VertexBuffer(m_cells * sizeof(u8vec4));
+    m_vbo2 = new VertexBuffer(m_cells * sizeof(u8vec4));
+    m_vbo3 = new VertexBuffer(4 * m_cells * sizeof(float));
+
+    float *idx = (float *)m_vbo3->Lock(0, 0);
+    for (int i = 0; i < m_cells; i++)
+        idx[i] = (float)i;
+    m_vbo3->Unlock();
+#endif
 
     m_fbo = new FrameBuffer(m_fbo_size);
 }
@@ -73,6 +96,7 @@ void TextRender::Render()
                        caca_get_canvas_height(m_caca));
     if (current_size != m_canvas_size)
     {
+        delete m_vbo1;
         delete m_vbo2;
         delete m_vbo3;
         delete m_fbo;
@@ -95,7 +119,7 @@ void TextRender::Render()
                * mat4::translate(0.5f, 0.5f, 0.f);
 
     /* Upload libcaca canvas contents to the vertex buffers */
-    uint32_t *colors = (uint32_t *)m_vbo2->Lock(0, 0);
+    uint32_t *colors = (uint32_t *)m_vbo1->Lock(0, 0);
     for (int j = 0; j < m_canvas_size.y; j++)
     for (int i = 0; i < m_canvas_size.x; i++)
     {
@@ -108,12 +132,12 @@ void TextRender::Render()
     }
     memcpy(colors, caca_get_canvas_attrs(m_caca),
            m_cells * sizeof(uint32_t));
-    m_vbo2->Unlock();
+    m_vbo1->Unlock();
 
-    uint32_t *chars = (uint32_t *)m_vbo3->Lock(0, 0);
+    uint32_t *chars = (uint32_t *)m_vbo2->Lock(0, 0);
     memcpy(chars, caca_get_canvas_chars(m_caca),
            m_cells * sizeof(uint32_t));
-    m_vbo3->Unlock();
+    m_vbo2->Unlock();
 
     m_fbo->Bind();
     glViewport(0, 0, m_fbo_size.x, m_fbo_size.y);
@@ -131,8 +155,11 @@ void TextRender::Render()
     m_shader->SetUniform(m_transform, xform);
     m_shader->SetUniform(m_datasize, vec2(m_canvas_size.x,
                                           max(m_font_size.x, m_font_size.y)));
-    m_vdecl->SetStream(m_vbo2, m_color);
-    m_vdecl->SetStream(m_vbo3, m_char);
+    m_vdecl->SetStream(m_vbo1, m_color);
+    m_vdecl->SetStream(m_vbo2, m_char);
+#if !HAVE_SHADER_4
+    m_vdecl->SetStream(m_vbo3, m_vertexid);
+#endif
     m_vdecl->Bind();
     m_vdecl->DrawElements(MeshPrimitive::Points, 0, m_cells);
     m_vdecl->Unbind();

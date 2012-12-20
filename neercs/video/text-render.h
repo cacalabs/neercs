@@ -22,10 +22,10 @@ private:
     TileSet *m_font;
 
     Shader *m_shader;
-    ShaderAttrib m_color, m_char;
+    ShaderAttrib m_color, m_char, m_vertexid;
     ShaderUniform m_texture, m_transform, m_datasize;
     VertexDeclaration *m_vdecl;
-    VertexBuffer *m_vbo2, *m_vbo3;
+    VertexBuffer *m_vbo1, *m_vbo2, *m_vbo3;
 
     FrameBuffer *m_fbo;
 };
