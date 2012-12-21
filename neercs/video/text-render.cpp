@@ -36,7 +36,8 @@ TextRender::TextRender(caca_canvas_t *caca, ivec2 font_size)
     m_canvas_size(caca_get_canvas_width(m_caca),
                   caca_get_canvas_height(m_caca)),
     m_fbo_size(m_font_size * m_canvas_size),
-    m_cells(m_canvas_size.x * m_canvas_size.y)
+    m_cells(m_canvas_size.x * m_canvas_size.y),
+    m_vbo1(0), m_vbo2(0), m_vbo3(0), m_fbo(0)
 {
 }
 
