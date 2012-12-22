@@ -7,8 +7,9 @@
 #if HAVE_SHADER_4
 in uint in_Char, in_Attr;
 #else
-in vec4 in_Char, in_Attr;
-in float in_VertexID;
+attribute vec4 in_Char, in_Attr;
+attribute float in_VertexID;
+#   define out varying
 #endif
 
 out vec4 pass_Foreground;
@@ -77,6 +78,14 @@ void main()
 [frag.glsl]
 
 #version 130
+
+#define HAVE_SHADER_4 1
+
+#if !HAVE_SHADER_4
+#   define out_Color gl_FragColor
+#   define in varying
+#   define out
+#endif
 
 in vec4 pass_Foreground;
 in vec4 pass_Background;
