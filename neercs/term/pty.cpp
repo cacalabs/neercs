@@ -113,18 +113,30 @@ bool Pty::IsEof() const
 size_t Pty::ReadData(char *data, size_t maxlen)
 {
 #if defined HAVE_FORKPTY
+    size_t sent = 0;
+
     /* Do we have data from previous call? */
     if (m_unread_len)
     {
-        /* FIXME: check that m_unread_len < maxlen */
-        memcpy(data, m_unread_data, m_unread_len);
+        size_t tocopy = min(maxlen, m_unread_len);
 
-        data += m_unread_len;
-        maxlen -= m_unread_len;
+        memcpy(data, m_unread_data, tocopy);
 
-        delete[] m_unread_data;
-        m_unread_data = 0;
-        m_unread_len = 0;
+        data += tocopy;
+        sent += tocopy;
+        maxlen -= tocopy;
+
+        if (tocopy < m_unread_len)
+        {
+            m_unread_len -= tocopy;
+            memmove(m_unread_data, m_unread_data + tocopy, m_unread_len);
+        }
+        else
+        {
+            delete[] m_unread_data;
+            m_unread_data = 0;
+            m_unread_len = 0;
+        }
     }
 
     fd_set fdset;
@@ -159,9 +171,11 @@ size_t Pty::ReadData(char *data, size_t maxlen)
                 /* Data available but zero-length read: EOF */
                 if (nr <= 0)
                     m_eof = true;
+                else
+                    sent += nr;
 
-                if (nr >= 0)
-                    return nr;
+                if (sent >= 0)
+                    return sent;
             }
         }
     }
@@ -173,21 +187,23 @@ size_t Pty::ReadData(char *data, size_t maxlen)
 void Pty::UnreadData(char *data, size_t len)
 {
 #if defined HAVE_FORKPTY
-    char *new_data;
-
+    /* Prepare unread buffer */
     if (m_unread_data)
     {
-        new_data = new char[m_unread_len + len];
-        memcpy(new_data + len, m_unread_data, m_unread_len);
+        char *tmp = new char[m_unread_len + len];
+        memcpy(tmp + len, m_unread_data, m_unread_len);
         delete[] m_unread_data;
+        m_unread_data = tmp;
+        m_unread_len += len;
     }
     else
     {
-        new_data = new char[len];
+        m_unread_data = new char[len];
+        m_unread_len = len;
     }
 
-    memcpy(new_data, data, len);
-    m_unread_data = new_data;
+    /* Copy data to the unread buffer */
+    memcpy(m_unread_data, data, len);
 #endif
 }
 
