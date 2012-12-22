@@ -81,7 +81,9 @@ void main()
 
 #define HAVE_SHADER_4 1
 
-#if !HAVE_SHADER_4
+#if HAVE_SHADER_4
+out vec4 out_Color;
+#else
 #   define out_Color gl_FragColor
 #   define in varying
 #   define out
@@ -93,11 +95,10 @@ in vec2 pass_UV;
 
 uniform sampler2D u_Texture;
 
-out vec4 out_Color;
-
 void main(void)
 {
     vec2 c = gl_PointCoord * (1.0 / 32.0) + pass_UV;
     float t = texture2D(u_Texture, c).x;
     out_Color = mix(pass_Background, pass_Foreground, t);
 }
+
