@@ -454,7 +454,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    4.0f,4.0f,4.0f,           // copper_mask_color
+    0.0f,4.0f,0.0f,           // copper_mask_color
     0,
 0,
     1.0f,1.0f,1.0f,           // color_filter
@@ -511,7 +511,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    4.0f,4.0f,4.0f,           // copper_mask_color
+    0.0f,4.0f,0.0f,           // copper_mask_color
     0,
 0,
     0.9f,0.95f,0.85f,         // color_filter
@@ -568,7 +568,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    4.0f,4.0f,4.0f,           // copper_mask_color
+    0.0f,4.0f,0.0f,           // copper_mask_color
     0,
 0,
     1.0f,0.7f,0.0f,           // color_filter
@@ -625,7 +625,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    4.0f,4.0f,4.0f,           // copper_mask_color
+    0.0f,4.0f,0.0f,           // copper_mask_color
     0,
 0,
     1.0f,1.0f,0.9f,           // color_filter
@@ -682,7 +682,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    4.0f,4.0f,4.0f,           // copper_mask_color
+    0.0f,4.0f,0.0f,           // copper_mask_color
     0,
 0,
     0.7f,0.8f,1.0f,           // color_filter

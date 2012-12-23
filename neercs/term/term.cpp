@@ -204,7 +204,7 @@ void Term::DrawFancyShit()
     caca_set_color_argb(m_caca, 0xfff, bg_color);
     caca_clear_canvas(m_caca);
 
-    caca_set_color_argb(m_caca, 0xfff, bg_color);
+    caca_set_color_argb(m_caca, 0x0f0, bg_color);
     for(int i = 0; i < h; i++)
     {
         float a = M_PI / 180 * i * 16 + m_time * 4;

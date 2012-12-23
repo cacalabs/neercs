@@ -38,7 +38,5 @@ void main(void)
     color.y = float(int(color.y * 8.0) * 32) / 256.0;
     color.z = float(int(color.z * 8.0) * 32) / 256.0;
 
-    // XXX: copper disabled because it's not very nice, lol
-    //gl_FragColor = vec4((source == mask_color) ? color : source, 1.0);
-    gl_FragColor = vec4(source, 1.0);
+    gl_FragColor = vec4((source == mask_color) ? color : source, 1.0);
 }
