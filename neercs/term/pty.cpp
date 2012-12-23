@@ -46,7 +46,8 @@ Pty::Pty()
     m_pid(-1),
     m_eof(false),
     m_unread_data(0),
-    m_unread_len(0)
+    m_unread_len(0),
+    m_size(-1, -1)
 {
     ;
 }
@@ -110,6 +111,9 @@ bool Pty::IsEof() const
     return m_eof;
 }
 
+/* Read data from the PTY. We only perform one read() call so that the
+ * caller can decide whether to ask for more data or not. This lets us
+ * prioritise data in some way. */
 size_t Pty::ReadData(char *data, size_t maxlen)
 {
 #if defined HAVE_FORKPTY

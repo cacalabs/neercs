@@ -121,6 +121,7 @@ void TextRender::Render()
 
     /* Upload libcaca canvas contents to the vertex buffers */
     uint32_t *colors = (uint32_t *)m_vbo1->Lock(0, 0);
+    uint32_t savedattr = caca_get_attr(m_caca, -1, -1);
     for (int j = 0; j < m_canvas_size.y; j++)
     for (int i = 0; i < m_canvas_size.x; i++)
     {
@@ -131,6 +132,7 @@ void TextRender::Render()
         attr = caca_get_attr(m_caca, -1, -1);
         caca_put_attr(m_caca, i, j, attr);
     }
+    caca_set_attr(m_caca, savedattr);
     memcpy(colors, caca_get_canvas_attrs(m_caca),
            m_cells * sizeof(uint32_t));
     m_vbo1->Unlock();

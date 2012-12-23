@@ -30,6 +30,10 @@ Term::Term(ivec2 size)
     m_caca(caca_create_canvas(size.x, size.y)),
     m_size(size),
     m_title(0),
+    m_bell(0),
+    m_init(0),
+    m_report_mouse(0),
+    m_changed(0),
     m_time(0.f),
     m_debug(false)
 {
@@ -133,14 +137,22 @@ void Term::TickGame(float seconds)
         size_t current = m_pty->ReadData(buf, BUFSIZ);
         if (current <= 0)
             break;
-        total += current;
+        /* FIXME: by the time we're finished decoding the ANSI data, some
+         * new data may be available. We need to avoid reading it because
+         * it's time rendering the canvas isntead. */
         size_t processed = ReadAnsi(buf, current);
         if (processed < current)
             m_pty->UnreadData(buf + processed, current - processed);
-        if (current < BUFSIZ)
+        total += processed;
+        if (processed == 0)
             break;
-//        if (total > 10000)
-//            break;
+
+        /* FIXME: when do we know when to stop? If we read too much
+         * data, some of our frames will not be rendered because they'll
+         * be overwritten by new data. If we don't read enough, we will
+         * start rendering even if a frame isn't finished. */
+        if (total > 12000)
+            break;
     }
 
     /* Some fancy shit if we press F3 */

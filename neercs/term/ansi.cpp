@@ -272,8 +272,11 @@ size_t Term::ReadAnsi(void const *data, size_t size)
 
     if (!m_init)
     {
-        m_dfg = CACA_LIGHTGRAY;
-        m_dbg = CACA_BLACK;
+        m_fg = m_dfg = CACA_LIGHTGRAY;
+        m_bg = m_dbg = CACA_BLACK;
+
+        m_bold = m_blink = m_italics = m_negative = m_concealed
+         = m_underline = m_faint = m_strike = m_proportional = 0;
 
         caca_set_color_ansi(m_caca, m_dfg, m_dbg);
         m_clearattr = caca_get_attr(m_caca, -1, -1);
