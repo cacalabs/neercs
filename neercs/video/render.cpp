@@ -341,9 +341,9 @@ vec4(0), /* copper */
     vec4(0.0f, 1.0f, 0.05f, 0), // copper_copper.y
     vec4(0.0f, 1.0f, 0.02f, 0), // copper_copper.z
     vec4(1.0f, 8.0f, 0.25f, 0), // copper_copper.w
-    vec4(0.0f, 4.0f, 0.25f, 0), // copper_mask_color.x
-    vec4(0.0f, 4.0f, 0.25f, 0), // copper_mask_color.y
-    vec4(0.0f, 4.0f, 0.25f, 0), // copper_mask_color.z
+    vec4(0.0f, 1.0f, 0.05f, 0), // copper_mask_color.x
+    vec4(0.0f, 1.0f, 0.05f, 0), // copper_mask_color.y
+    vec4(0.0f, 1.0f, 0.05f, 0), // copper_mask_color.z
     vec4(0),
 vec4(0), /* color */
     vec4( 0.0f, 1.0f, 0.05f, 0), // color_filter.x
@@ -454,7 +454,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    0.0f,4.0f,0.0f,           // copper_mask_color
+    0.05f,1.0f,0.0f,          // copper_mask_color
     0,
 0,
     1.0f,1.0f,1.0f,           // color_filter
@@ -511,7 +511,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    0.0f,4.0f,0.0f,           // copper_mask_color
+    0.05f,1.0f,0.0f,          // copper_mask_color
     0,
 0,
     0.9f,0.95f,0.85f,         // color_filter
@@ -568,7 +568,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    0.0f,4.0f,0.0f,           // copper_mask_color
+    0.05f,1.0f,0.0f,          // copper_mask_color
     0,
 0,
     1.0f,0.7f,0.0f,           // color_filter
@@ -625,7 +625,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    0.0f,4.0f,0.0f,           // copper_mask_color
+    0.05f,1.0f,0.0f,          // copper_mask_color
     0,
 0,
     1.0f,1.0f,0.9f,           // color_filter
@@ -682,7 +682,7 @@ float theme_var[]={
     0,0,
 0,
     0.75f,0.25f,0.42f,4.0f,   // copper_copper
-    0.0f,4.0f,0.0f,           // copper_mask_color
+    0.05f,1.0f,0.0f,          // copper_mask_color
     0,
 0,
     0.7f,0.8f,1.0f,           // color_filter
@@ -1023,7 +1023,7 @@ void Render::TickGame(float seconds)
             }
             else
             {
-                caca_set_color_argb(m_cv_setup, setup_color.y, 0xfff);//setup_color.x);
+                caca_set_color_argb(m_cv_setup, setup_color.y, 0x0f0);//setup_color.x);
                 caca_draw_line(m_cv_setup, 0, y, setup_size.z - 2, y,' ');
                 caca_put_str(m_cv_setup, 1, y, setup_text[k]);
             }
@@ -1040,7 +1040,7 @@ void Render::TickGame(float seconds)
             }
             else
             {
-                caca_set_color_argb(m_cv_setup, setup_color.y, 0xfff);//setup_color.x);
+                caca_set_color_argb(m_cv_setup, setup_color.y, 0x0f0);//setup_color.x);
                 caca_draw_line(m_cv_setup, setup_size.z, y, setup_size.x, y,' ');
                 caca_put_str(m_cv_setup, setup_size.z + 1, y, setup_text[k]);
             }
@@ -1499,7 +1499,7 @@ void Render::Draw3D()
         shader_copper->SetUniform(shader_copper_screen_size, (vec2)screen_size);
         shader_copper->SetUniform(shader_copper_time, fx_angle);
         shader_copper->SetUniform(shader_copper_copper, vec4(copper_copper.x, copper_copper.y, copper_copper.z * 16.0f, copper_copper.w * 16.0f));
-        shader_copper->SetUniform(shader_copper_mask_color, copper_mask_color / 4.0f);
+        shader_copper->SetUniform(shader_copper_mask_color, copper_mask_color);
         TraceQuad();
         shader_color->Unbind();
         fbo_tmp->Unbind();

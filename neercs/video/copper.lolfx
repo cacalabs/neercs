@@ -38,5 +38,5 @@ void main(void)
     color.y = float(int(color.y * 8.0) * 32) / 256.0;
     color.z = float(int(color.z * 8.0) * 32) / 256.0;
 
-    gl_FragColor = vec4((source == mask_color) ? color : source, 1.0);
+gl_FragColor = vec4((abs(source.x - mask_color.x) < 0.025 && abs(source.y - mask_color.y) < 0.025 && abs(source.z - mask_color.z) < 0.025) ? color : source, 1.0);
 }
