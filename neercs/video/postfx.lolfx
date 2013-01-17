@@ -95,7 +95,7 @@ void main(void)
     else
         r = mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));
 
-    //c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z)/ratio_2d.y)*sin(0.5+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h 
+    //c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z)/ratio_2d.y)*sin(0.5+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h
     //c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z)/ratio_2d.x)*sin(0.5+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v
 
     c*=moire_h.x+moire_h.y*sin(z.y*float(angle.y*moire_h.z)/ratio_2d.y)*sin(PI+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h
