@@ -8,10 +8,6 @@
 #   include "config.h"
 #endif
 
-#if defined _WIN32
-#   include <direct.h>
-#endif
-
 #if defined _XBOX
 #   define _USE_MATH_DEFINES /* for M_PI */
 #   include <xtl.h>
@@ -73,12 +69,6 @@ int main(int argc, char **argv)
     System::Init(argc, argv);
 
     Application app("Neercs", ivec2(800, 600), 60.0f);
-
-#if defined _MSC_VER && !defined _XBOX
-    _chdir("../..");
-#elif defined _WIN32 && !defined _XBOX
-    _chdir("../..");
-#endif
 
     new Neercs(argc, argv);
     app.ShowPointer(false);
