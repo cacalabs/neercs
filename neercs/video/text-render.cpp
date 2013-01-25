@@ -22,7 +22,7 @@ using namespace lol;
 #include "render.h"
 #include "text-render.h"
 
-extern char const *lolfx_text;
+LOLFX_RESOURCE_DECLARE(text);
 
 #define HAVE_SHADER_4 1
 
@@ -46,7 +46,7 @@ void TextRender::Init()
     m_font = new TileSet("video/resource/charset_amiga.png",
                          ivec2(256, 256), ivec2(1));
 
-    m_shader = Shader::Create(lolfx_text);
+    m_shader = Shader::Create(LOLFX_RESOURCE_NAME(text));
     m_color = m_shader->GetAttribLocation("in_Attr",
                                           VertexUsage::Color, 0);
     m_char = m_shader->GetAttribLocation("in_Char",

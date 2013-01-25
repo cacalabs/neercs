@@ -32,17 +32,17 @@ using namespace lol;
 #include "render.h"
 #include "text-render.h"
 
-extern char const *lolfx_simple;
-extern char const *lolfx_blurh;
-extern char const *lolfx_blurv;
-extern char const *lolfx_glow;
-extern char const *lolfx_remanence;
-extern char const *lolfx_copper;
-extern char const *lolfx_color;
-extern char const *lolfx_noise;
-extern char const *lolfx_postfx;
-extern char const *lolfx_mirror;
-extern char const *lolfx_radial;
+LOLFX_RESOURCE_DECLARE(simple);
+LOLFX_RESOURCE_DECLARE(blurh);
+LOLFX_RESOURCE_DECLARE(blurv);
+LOLFX_RESOURCE_DECLARE(glow);
+LOLFX_RESOURCE_DECLARE(remanence);
+LOLFX_RESOURCE_DECLARE(copper);
+LOLFX_RESOURCE_DECLARE(color);
+LOLFX_RESOURCE_DECLARE(noise);
+LOLFX_RESOURCE_DECLARE(postfx);
+LOLFX_RESOURCE_DECLARE(mirror);
+LOLFX_RESOURCE_DECLARE(radial);
 
 #define PID M_PI/180.0f    // pi ratio
 
@@ -882,42 +882,42 @@ int Render::InitDraw(void)
     fbo_blur_v = new FrameBuffer(screen_size);
     fbo_tmp = new FrameBuffer(screen_size);
     // shader simple
-    shader_simple = Shader::Create(lolfx_simple);
+    shader_simple = Shader::Create(LOLFX_RESOURCE_NAME(simple));
     shader_simple_texture = shader_simple->GetUniformLocation("texture");
     // shader glow
-    shader_glow = Shader::Create(lolfx_glow);
+    shader_glow = Shader::Create(LOLFX_RESOURCE_NAME(glow));
     shader_glow_glow = shader_glow->GetUniformLocation("glow");
     shader_glow_source = shader_glow->GetUniformLocation("source");
     shader_glow_mix = shader_glow->GetUniformLocation("mix");
     // shader blur horizontal
-    shader_blur_h = Shader::Create(lolfx_blurh);
+    shader_blur_h = Shader::Create(LOLFX_RESOURCE_NAME(blurh));
     shader_blur_h_texture = shader_blur_h->GetUniformLocation("texture");
     shader_blur_h_radius = shader_blur_h->GetUniformLocation("radius");
     // shader blur vertical
-    shader_blur_v = Shader::Create(lolfx_blurv);
+    shader_blur_v = Shader::Create(LOLFX_RESOURCE_NAME(blurv));
     shader_blur_v_texture = shader_blur_v->GetUniformLocation("texture");
     shader_blur_v_radius = shader_blur_v->GetUniformLocation("radius");
     // shader remanence
-    shader_remanence = Shader::Create(lolfx_remanence);
+    shader_remanence = Shader::Create(LOLFX_RESOURCE_NAME(remanence));
     shader_remanence_source = shader_remanence->GetUniformLocation("source");
     shader_remanence_buffer = shader_remanence->GetUniformLocation("buffer");
     shader_remanence_mix = shader_remanence->GetUniformLocation("mix");
     // shader copper
-    shader_copper = Shader::Create(lolfx_copper);
+    shader_copper = Shader::Create(LOLFX_RESOURCE_NAME(copper));
     shader_copper_texture = shader_copper->GetUniformLocation("texture");
     shader_copper_screen_size = shader_copper->GetUniformLocation("screen_size");
     shader_copper_time = shader_copper->GetUniformLocation("time");
     shader_copper_copper = shader_copper->GetUniformLocation("copper");
     shader_copper_mask_color = shader_copper->GetUniformLocation("mask_color");
     // shader color
-    shader_color = Shader::Create(lolfx_color);
+    shader_color = Shader::Create(LOLFX_RESOURCE_NAME(color));
     shader_color_texture = shader_color->GetUniformLocation("texture");
     shader_color_screen_size = shader_color->GetUniformLocation("screen_size");
     shader_color_filter = shader_color->GetUniformLocation("filter");
     shader_color_color = shader_color->GetUniformLocation("color");
     shader_color_flash = shader_color->GetUniformLocation("flash");
     // shader noise
-    shader_noise = Shader::Create(lolfx_noise);
+    shader_noise = Shader::Create(LOLFX_RESOURCE_NAME(noise));
     shader_noise_texture = shader_noise->GetUniformLocation("texture");
     shader_noise_screen_size = shader_noise->GetUniformLocation("screen_size");
     shader_noise_time = shader_noise->GetUniformLocation("time");
@@ -925,7 +925,7 @@ int Render::InitDraw(void)
     shader_noise_noise = shader_noise->GetUniformLocation("noise");
     shader_noise_retrace = shader_noise->GetUniformLocation("retrace");
     // shader postfx
-    shader_postfx = Shader::Create(lolfx_postfx);
+    shader_postfx = Shader::Create(LOLFX_RESOURCE_NAME(postfx));
     shader_postfx_texture = shader_postfx->GetUniformLocation("texture");
     shader_postfx_texture_2d = shader_postfx->GetUniformLocation("texture_2d");
     shader_postfx_screen_size = shader_postfx->GetUniformLocation("screen_size");
@@ -947,12 +947,12 @@ int Render::InitDraw(void)
     shader_postfx_sync = shader_postfx->GetUniformLocation("sync");
     shader_postfx_beat = shader_postfx->GetUniformLocation("beat");
     // shader mirror
-    shader_mirror = Shader::Create(lolfx_mirror);
+    shader_mirror = Shader::Create(LOLFX_RESOURCE_NAME(mirror));
     shader_mirror_texture = shader_mirror->GetUniformLocation("texture");
     shader_mirror_screen_size = shader_mirror->GetUniformLocation("screen_size");
     shader_mirror_mirror = shader_mirror->GetUniformLocation("mirror");
     // shader radial blur
-    shader_radial = Shader::Create(lolfx_radial);
+    shader_radial = Shader::Create(LOLFX_RESOURCE_NAME(radial));
     shader_radial_texture = shader_radial->GetUniformLocation("texture");
     shader_radial_screen_size = shader_radial->GetUniformLocation("screen_size");
     shader_radial_radial = shader_radial->GetUniformLocation("radial");
