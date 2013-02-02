@@ -186,7 +186,7 @@ void TextRender::Blit(ivec2 pos, ivec2 size)
     glBindTexture(GL_TEXTURE_2D, (int)x);
     glColor3f(1.0f, 1.0f, 1.0f);
 
-    vec2 tc = (vec2)m_canvas_size * m_font_size / m_fbo_size;
+    vec2 tc = (vec2)m_canvas_size * (vec2)m_font_size / (vec2)m_fbo_size;
 
     glLoadIdentity();
     glBegin(GL_QUADS);
