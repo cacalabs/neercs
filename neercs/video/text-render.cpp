@@ -115,8 +115,8 @@ void TextRender::Render()
      *  - translate to the lower left corner */
     mat4 xform = mat4::translate(-1.f, -1.f + 2.0f * m_font_size.y
                                         * m_canvas_size.y / m_fbo_size.y, 0.f)
-               * mat4::scale(vec3(2.f * m_font_size / m_fbo_size, 1.f)
-                              * vec3(1.f, -1.f, 1.f))
+               * mat4::scale(vec3((vec2)m_font_size / (vec2)m_fbo_size, 1.f)
+                              * vec3(2.f, -2.f, 1.f))
                * mat4::translate(0.5f, 0.5f, 0.f);
 
     /* Upload libcaca canvas contents to the vertex buffers */

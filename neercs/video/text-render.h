@@ -5,8 +5,9 @@
 #if !defined __TEXT_RENDER_H__
 #define __TEXT_RENDER_H__
 
-struct TextRender
+class TextRender
 {
+public:
     TextRender(caca_canvas_t *caca, ivec2 font_size);
     void Init();
     void Render();
