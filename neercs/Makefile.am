@@ -22,9 +22,9 @@ neercs_SOURCES = \
     video/text.lolfx
 neercs_CPPFLAGS = @LOL_CFLAGS@ @CACA_CFLAGS@ -Iold
 neercs_LDADD =
-neercs_LDFLAGS = $(top_builddir)/src/liblol.a \
+neercs_LDFLAGS = @LOL_STATIC_LIBS@ \
                  @LOL_LIBS@ @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
-neercs_DEPENDENCIES = $(top_builddir)/src/liblol.a
+neercs_DEPENDENCIES = @LOL_STATIC_LIBS@
 
 old_sources = \
     old/actions.c \
