@@ -17,14 +17,11 @@ neercs_SOURCES = \
     video/text-render.cpp video/text-render.h \
     video/simple.lolfx \
     video/blurh.lolfx video/blurv.lolfx video/glow.lolfx \
-    video/remanence.lolfx video/copper.lolfx video/color.lolfx video/noise.lolfx \
-    video/postfx.lolfx video/mirror.lolfx video/radial.lolfx \
-    video/text.lolfx
-neercs_CPPFLAGS = @LOL_CFLAGS@ @CACA_CFLAGS@ -Iold
-neercs_LDADD =
-neercs_LDFLAGS = @LOL_STATIC_LIBS@ \
-                 @LOL_LIBS@ @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
-neercs_DEPENDENCIES = @LOL_STATIC_LIBS@
+    video/remanence.lolfx video/copper.lolfx video/color.lolfx \
+    video/noise.lolfx video/postfx.lolfx video/mirror.lolfx \
+    video/radial.lolfx video/text.lolfx
+neercs_CPPFLAGS = $(AM_CPPFLAGS) @CACA_CFLAGS@ -Iold
+neercs_LDFLAGS = $(AM_LDFLAGS) @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
 
 old_sources = \
     old/actions.c \
