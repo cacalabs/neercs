@@ -22,7 +22,7 @@ neercs_SOURCES = \
     video/radial.lolfx video/text.lolfx
 neercs_CPPFLAGS = $(AM_CPPFLAGS) @CACA_CFLAGS@ -Iold
 neercs_LDFLAGS = $(AM_LDFLAGS) @CACA_LIBS@ @UTIL_LIBS@ @PAM_LIBS@
-neercs_DEPENDENCIES = @LOL_DEPENDENCIES@
+neercs_DEPENDENCIES = @LOL_DEPS@
 
 old_sources = \
     old/actions.c \
