@@ -15,23 +15,14 @@
 #   include "config.h"
 #endif
 
-#if defined _XBOX
-#   define _USE_MATH_DEFINES /* for M_PI */
-#   include <xtl.h>
-#   undef near /* Fuck Microsoft */
-#   undef far /* Fuck Microsoft again */
-#elif defined _WIN32
-#   define _USE_MATH_DEFINES /* for M_PI */
-#   define WIN32_LEAN_AND_MEAN
-#   include <windows.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <caca.h>
 
 #include "core.h"
+
+using namespace lol;
 
 extern "C" {
 #include "neercs.h"
@@ -458,7 +449,7 @@ void wm_refresh_cube(struct screen_list *screen_list)
             float angle =
                 90.0f * ((float)cur_time / (float)screen_list->cube.duration);
 
-            angle *= (M_PI / 180.0f);
+            angle *= (F_PI / 180.0f);
 
             if (screen_list->cube.side == 1)
                 angle = -angle;

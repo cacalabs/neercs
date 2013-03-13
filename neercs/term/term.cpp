@@ -6,15 +6,6 @@
 #   include "config.h"
 #endif
 
-#if defined _XBOX
-#   define _USE_MATH_DEFINES /* for M_PI */
-#   include <xtl.h>
-#elif defined _WIN32
-#   define _USE_MATH_DEFINES /* for M_PI */
-#   define WIN32_LEAN_AND_MEAN
-#   include <windows.h>
-#endif
-
 #include "core.h"
 
 using namespace std;
@@ -207,8 +198,8 @@ void Term::DrawFancyShit()
     caca_set_color_argb(m_caca, 0x0f0, bg_color);
     for(int i = 0; i < h; i++)
     {
-        float a = M_PI / 180 * i * 16 + m_time * 4;
-        float b = M_PI / 180 * i * 12;
+        float a = F_PI / 180 * i * 16 + m_time * 4;
+        float b = F_PI / 180 * i * 12;
         int x = w / 2  - 14 + w / 4 * lol::cos(a) + w / 4 * lol::sin(b);
         caca_put_str(m_caca, x, i, "LOL WUT! NEERCS SI TEH RULEZ");
     }
@@ -216,8 +207,8 @@ void Term::DrawFancyShit()
     caca_set_color_argb(m_caca, 0x444, bg_color);
     for(int i = 0; i < w; i++)
     {
-        float a = m_time * 1 + M_PI / 180 * i * 8;
-        float b = m_time * -2 + M_PI / 180 * i * 5;
+        float a = m_time * 1 + F_PI / 180 * i * 8;
+        float b = m_time * -2 + F_PI / 180 * i * 5;
         int y = h / 2 + h / 4 * lol::cos(a) + h / 4 * lol::sin(b);
         caca_set_color_argb(m_caca, hex_color(0.25f + 0.5f / w * i - 0.25f / h * y, 0.25f, 0.25f + 0.25f / w * i + 0.25f / h * y), bg_color);
         caca_draw_line(m_caca, i, y - 1, i, y + 1,'%');

@@ -6,15 +6,6 @@
 #   include "config.h"
 #endif
 
-#if defined _XBOX
-#   define _USE_MATH_DEFINES /* for M_PI */
-#   include <xtl.h>
-#elif defined _WIN32
-#   define _USE_MATH_DEFINES /* for M_PI */
-#   define WIN32_LEAN_AND_MEAN
-#   include <windows.h>
-#endif
-
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -44,7 +35,7 @@ LOLFX_RESOURCE_DECLARE(postfx);
 LOLFX_RESOURCE_DECLARE(mirror);
 LOLFX_RESOURCE_DECLARE(radial);
 
-#define PID M_PI/180.0f    // pi ratio
+#define PID F_PI/180.0f    // pi ratio
 
 /*
  * Global variable -- ugly (<rez> sam: c'est toi qui est ugly! \:D/)
@@ -1668,10 +1659,10 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_gradient_color, postfx_gradient_color);
         shader_postfx->SetUniform(shader_postfx_vignetting, postfx_vignetting);
         shader_postfx->SetUniform(shader_postfx_aberration, postfx_aberration);
-        shader_postfx->SetUniform(shader_postfx_moire_h, vec4(postfx_moire_h.xyz, postfx_moire_h.w * (float)(2 * M_PI)));
-        shader_postfx->SetUniform(shader_postfx_moire_v, vec4(postfx_moire_v.xyz, postfx_moire_v.w * (float)(2 * M_PI)));
-        shader_postfx->SetUniform(shader_postfx_scanline_h, vec4(postfx_scanline_h.xyz, postfx_scanline_h.w * (float)(2 * M_PI)));
-        shader_postfx->SetUniform(shader_postfx_scanline_v, vec4(postfx_scanline_v.xyz, postfx_scanline_v.w * (float)(2 * M_PI)));
+        shader_postfx->SetUniform(shader_postfx_moire_h, vec4(postfx_moire_h.xyz, postfx_moire_h.w * (2 * F_PI)));
+        shader_postfx->SetUniform(shader_postfx_moire_v, vec4(postfx_moire_v.xyz, postfx_moire_v.w * (2 * F_PI)));
+        shader_postfx->SetUniform(shader_postfx_scanline_h, vec4(postfx_scanline_h.xyz, postfx_scanline_h.w * (2 * F_PI)));
+        shader_postfx->SetUniform(shader_postfx_scanline_v, vec4(postfx_scanline_v.xyz, postfx_scanline_v.w * (2 * F_PI)));
         shader_postfx->SetUniform(shader_postfx_corner, postfx_corner);
         shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(sync_value * cosf((main_angle - sync_angle) * 6.0f)));
         shader_postfx->SetUniform(shader_postfx_beat, (float)fabs(beat_value * cosf((main_angle - beat_angle) * 6.0f)));
