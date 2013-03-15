@@ -841,9 +841,9 @@ ShaderUniform shader_radial_texture,
               shader_radial_screen_size,
               shader_radial_radial;
 
-FrameBuffer *fbo_back, *fbo_front, *fbo_screen;
-FrameBuffer *fbo_blur_h, *fbo_blur_v;
-FrameBuffer *fbo_tmp, *fbo_buffer;
+Framebuffer *fbo_back, *fbo_front, *fbo_screen;
+Framebuffer *fbo_blur_h, *fbo_blur_v;
+Framebuffer *fbo_tmp, *fbo_buffer;
 
 void Render::TraceQuad()
 {
@@ -851,7 +851,7 @@ void Render::TraceQuad()
     glDrawArrays(GL_QUADS, 0, 4);
 }
 
-void Render::ShaderSimple(FrameBuffer *fbo_output, int n)
+void Render::ShaderSimple(Framebuffer *fbo_output, int n)
 {
     shader_simple->Bind();
     shader_simple->SetUniform(shader_simple_texture, fbo_output->GetTexture(), n);
@@ -865,13 +865,13 @@ int Render::InitDraw(void)
     glEnable(GL_CULL_FACE);   // disable cull face
     glCullFace(GL_BACK);      // don't draw front face
     /* initialise framebuffer objects */
-    fbo_back = new FrameBuffer(screen_size);
-    fbo_screen = new FrameBuffer(screen_size);
-    fbo_front = new FrameBuffer(screen_size);
-    fbo_buffer = new FrameBuffer(screen_size);
-    fbo_blur_h = new FrameBuffer(screen_size);
-    fbo_blur_v = new FrameBuffer(screen_size);
-    fbo_tmp = new FrameBuffer(screen_size);
+    fbo_back = new Framebuffer(screen_size);
+    fbo_screen = new Framebuffer(screen_size);
+    fbo_front = new Framebuffer(screen_size);
+    fbo_buffer = new Framebuffer(screen_size);
+    fbo_blur_h = new Framebuffer(screen_size);
+    fbo_blur_v = new Framebuffer(screen_size);
+    fbo_tmp = new Framebuffer(screen_size);
     // shader simple
     shader_simple = Shader::Create(LOLFX_RESOURCE_NAME(simple));
     shader_simple_texture = shader_simple->GetUniformLocation("texture");

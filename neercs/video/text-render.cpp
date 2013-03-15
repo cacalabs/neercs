@@ -87,7 +87,7 @@ void TextRender::CreateBuffers()
     m_vbo3->Unlock();
 #endif
 
-    m_fbo = new FrameBuffer(m_fbo_size);
+    m_fbo = new Framebuffer(m_fbo_size);
 }
 
 void TextRender::Render()
