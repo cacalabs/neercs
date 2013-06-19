@@ -143,34 +143,38 @@ void TextRender::Render()
     m_vbo2->Unlock();
 
     m_fbo->Bind();
-    glViewport(0, 0, m_fbo_size.x, m_fbo_size.y);
-    glDisable(GL_DEPTH_TEST);
+    {
+        RenderContext rc;
+        rc.SetDepthTest(false);
+
+        glViewport(0, 0, m_fbo_size.x, m_fbo_size.y);
 #if !defined HAVE_GLES_2X
-    glEnable(GL_POINT_SPRITE);
-    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glDisable(GL_POINT_SMOOTH);
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+        glEnable(GL_POINT_SPRITE);
+        //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        glDisable(GL_POINT_SMOOTH);
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 #endif
-    m_shader->Bind();
-    m_font->Bind();
-    m_shader->SetUniform(m_texture, 0);
-    m_shader->SetUniform(m_transform, xform);
-    m_shader->SetUniform(m_datasize, vec2(m_canvas_size.x,
+        m_shader->Bind();
+        m_font->Bind();
+        m_shader->SetUniform(m_texture, 0);
+        m_shader->SetUniform(m_transform, xform);
+        m_shader->SetUniform(m_datasize, vec2(m_canvas_size.x,
                                           max(m_font_size.x, m_font_size.y)));
-    m_vdecl->SetStream(m_vbo1, m_color);
-    m_vdecl->SetStream(m_vbo2, m_char);
+        m_vdecl->SetStream(m_vbo1, m_color);
+        m_vdecl->SetStream(m_vbo2, m_char);
 #if !HAVE_SHADER_4
-    m_vdecl->SetStream(m_vbo3, m_vertexid);
+        m_vdecl->SetStream(m_vbo3, m_vertexid);
 #endif
-    m_vdecl->Bind();
-    m_vdecl->DrawElements(MeshPrimitive::Points, 0, m_cells);
-    m_vdecl->Unbind();
-    m_font->Unbind();
-    m_shader->Unbind();
+        m_vdecl->Bind();
+        m_vdecl->DrawElements(MeshPrimitive::Points, 0, m_cells);
+        m_vdecl->Unbind();
+        m_font->Unbind();
+        m_shader->Unbind();
 #if !defined HAVE_GLES_2X
-    glDisable(GL_POINT_SPRITE);
+        glDisable(GL_POINT_SPRITE);
 #endif
+    }
     m_fbo->Unbind();
 }
 
@@ -181,7 +185,9 @@ void TextRender::Blit(ivec2 pos, ivec2 size)
     ShaderTexture t = m_fbo->GetTexture();
     uint64_t const &x = *(uint64_t const *)&t;
 
-    glDisable(GL_BLEND);
+    RenderContext rc;
+    rc.SetAlphaBlend(false);
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, (int)x);
     glColor3f(1.0f, 1.0f, 1.0f);

@@ -1450,8 +1450,11 @@ void Render::Draw2D()
     glViewport(0, 0, screen_size.x, screen_size.y);
 
     /* Clear the back buffer */
+
+    RenderContext rc;
+    rc.SetAlphaBlend(true);
+
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
 
     Video::SetClearColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -1475,8 +1478,9 @@ void Render::Draw3D()
     if (!m_shader)
         return;
 
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    RenderContext rc;
+    rc.SetAlphaBlend(false);
+    rc.SetDepthTest(false);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(4, GL_FLOAT, 0, fs_quad_vtx);
