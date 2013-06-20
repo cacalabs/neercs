@@ -1457,8 +1457,8 @@ void Render::Draw2D()
     glEnable(GL_TEXTURE_2D);
     glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
 
-    Video::SetClearColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    Video::SetClearDepth(1.0f); // set depth buffer
+    rc.SetClearColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    rc.SetClearDepth(1.0f); // set depth buffer
     Video::Clear(ClearMask::Color | ClearMask::Depth);
 
     m_txt_screen->Blit(border, canvas_size);
