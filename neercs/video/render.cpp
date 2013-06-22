@@ -1453,7 +1453,7 @@ void Render::Draw2D()
 
     RenderContext rc;
     rc.SetAlphaBlend(true);
-    rc.SetBlendFunc(BlendFactor::SrcColor, BlendFactor::DstAlpha);
+    rc.SetBlendFunc(BlendFunc::SrcColor, BlendFunc::DstAlpha);
 
     glEnable(GL_TEXTURE_2D);
 
@@ -1480,7 +1480,7 @@ void Render::Draw3D()
 
     RenderContext rc;
     rc.SetAlphaBlend(false);
-    rc.SetDepthTest(false);
+    rc.SetDepthFunc(DepthFunc::Disabled);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(4, GL_FLOAT, 0, fs_quad_vtx);

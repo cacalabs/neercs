@@ -145,7 +145,7 @@ void TextRender::Render()
     m_fbo->Bind();
     {
         RenderContext rc;
-        rc.SetDepthTest(false);
+        rc.SetDepthFunc(DepthFunc::Disabled);
 
         glViewport(0, 0, m_fbo_size.x, m_fbo_size.y);
 #if !defined HAVE_GLES_2X
