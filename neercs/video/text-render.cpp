@@ -186,7 +186,7 @@ void TextRender::Blit(ivec2 pos, ivec2 size)
     uint64_t const &x = *(uint64_t const *)&t;
 
     RenderContext rc;
-    rc.SetAlphaBlend(false);
+    rc.SetBlendFunc(BlendFunc::Disabled, BlendFunc::Disabled);
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, (int)x);

@@ -862,8 +862,7 @@ void Render::ShaderSimple(Framebuffer *fbo_output, int n)
 int Render::InitDraw(void)
 {
     glDepthMask(GL_TRUE);     // do not write z-buffer
-    glEnable(GL_CULL_FACE);   // disable cull face
-    glCullFace(GL_BACK);      // don't draw front face
+
     /* initialise framebuffer objects */
     fbo_back = new Framebuffer(screen_size);
     fbo_screen = new Framebuffer(screen_size);
@@ -1452,7 +1451,6 @@ void Render::Draw2D()
     /* Clear the back buffer */
 
     RenderContext rc;
-    rc.SetAlphaBlend(true);
     rc.SetBlendFunc(BlendFunc::SrcColor, BlendFunc::DstAlpha);
 
     glEnable(GL_TEXTURE_2D);
@@ -1479,7 +1477,7 @@ void Render::Draw3D()
         return;
 
     RenderContext rc;
-    rc.SetAlphaBlend(false);
+    rc.SetBlendFunc(BlendFunc::Disabled, BlendFunc::Disabled);
     rc.SetDepthFunc(DepthFunc::Disabled);
 
     glEnableClientState(GL_VERTEX_ARRAY);
