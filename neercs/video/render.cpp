@@ -1453,9 +1453,9 @@ void Render::Draw2D()
 
     RenderContext rc;
     rc.SetAlphaBlend(true);
+    rc.SetBlendFunc(BlendFactor::SrcColor, BlendFactor::DstAlpha);
 
     glEnable(GL_TEXTURE_2D);
-    glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
 
     rc.SetClearColor(vec4(0.0f, 0.0f, 0.0f, 1.0f));
     rc.SetClearDepth(1.0f); // set depth buffer
