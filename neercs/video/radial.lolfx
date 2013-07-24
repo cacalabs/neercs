@@ -1,48 +1,1 @@
-[vert.glsl]
-
-#version 120
-
-varying vec2 pass_TexCoord;
-
-void main()
-{
-    gl_Position = gl_Vertex;
-    pass_TexCoord = vec2(0.5, 0.5) + 0.5 * gl_Vertex.xy;
-}
-
-[frag.glsl]
-
-#version 120
-
-varying vec2 pass_TexCoord;
-
-uniform sampler2D texture;
-uniform vec2 screen_size;
-uniform vec4 radial;
-
-vec3 deform(in vec2 p)
-    {
-    float zoom = 0.5;
-    vec2 uv = p * zoom - 0.5;
-    return texture2D(texture, uv).xyz;
-    }
-
-void main(void)
-{
-    vec2 p = -1.0 + 2.0 * pass_TexCoord;
-    vec2 s = p;
-    vec3 source=deform(s);
-
-    vec3 color = vec3(1.0,1.0,1.0);
-
-    vec2 d = -p / float(radial.z * radial.x);
-    float w = 1.0;
-    for(int i = 0; i < radial.z; i++)
-        {
-        vec3 c = deform(s);
-        color += c * w;
-        w *= radial.y;
-        s += d;
-        }
-    gl_FragColor = vec4(source + color * radial.w, 1.0);
-}
+[vert.glsl]#version 120varying vec2 pass_TexCoord;void main(){    gl_Position = gl_Vertex;    pass_TexCoord = vec2(0.5, 0.5) + 0.5 * gl_Vertex.xy;}[frag.glsl]#version 120varying vec2 pass_TexCoord;uniform sampler2D texture;uniform vec2 screen_size;uniform vec4 radial;vec3 deform(in vec2 p)    {    float zoom = 0.5;    vec2 uv = p * zoom - 0.5;    return texture2D(texture, uv).xyz;    }void main(void){    vec2 p = -1.0 + 2.0 * pass_TexCoord;    vec2 s = p;    vec3 source=deform(s);    vec3 color = vec3(1.0,1.0,1.0);    vec2 d = -p / float(radial.z * radial.x);    float w = 1.0;    for(int i = 0; i < radial.z; i++)        {        vec3 c = deform(s);        color += c * w;        w *= radial.y;        s += d;        }    gl_FragColor = vec4(source + color * radial.w, 1.0);}

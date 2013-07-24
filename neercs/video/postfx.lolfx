@@ -1,110 +1,1 @@
-[vert.glsl]
-
-#version 120
-
-void main()
-{
-    gl_Position = gl_Vertex;
-}
-
-[frag.glsl]
-
-#version 120
-
-uniform sampler2D texture;
-uniform vec2 screen_size;
-uniform vec2 ratio_2d;
-uniform float time;
-uniform vec2 deform;
-uniform vec4 ghost1;
-uniform vec4 ghost2;
-uniform vec4 glass;
-uniform vec3 gradient;
-uniform vec3 gradient_color;
-uniform float vignetting;
-uniform float aberration;
-uniform vec4 moire_h;
-uniform vec4 moire_v;
-uniform vec4 scanline_h;
-uniform vec4 scanline_v;
-uniform vec3 corner;
-uniform float sync;
-uniform float beat;
-
-const float PI=3.14159265358979323846;
-vec2 angle=screen_size*PI;
-
-vec2 screen(in vec2 p,in float bend,in float radius)
-{
-    float d=bend+sync*0.0625+beat*0.0375;
-    return p*(1.5-(radius*cos(p.x*d)+radius*cos(p.y*d)))-0.5;
-}
-
-vec3 get_color(in sampler2D tex,in vec2 p)
-{
-    return texture2D(tex,clamp(p,-1.0,0.0)).xyz;
-}
-
-float letterbox(in vec2 p,in float w,in float radius,in float smooth)
-{
-    return 1.0-smoothstep(smooth,1.0,length(max(abs(p*w+w/2.0)-vec2(radius),0.0))+radius);
-}
-
-void main(void)
-{
-    vec2 q=gl_FragCoord.xy/screen_size.xy;
-    vec2 p=-1.0+2.0*gl_FragCoord.xy/screen_size.xy;
-    p.y+=0.025*sync;
-    vec2 z=screen(p,deform.x,deform.y);
-    vec2 z1=screen(p,deform.x,deform.y+ghost1.z);
-    vec2 z2=screen(p,deform.x,deform.y+ghost2.z);
-    vec2 z3=screen(p,glass.w,deform.y+glass.x-glass.y);
-    vec2 z4=screen(p,glass.w,deform.y+glass.x+glass.y);
-    float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);
-
-    vec3 source=get_color(texture,z);
-    vec3 g1=get_color(texture,z1-ghost1.xy);
-    vec3 g2=get_color(texture,z2-ghost2.xy);
-    vec3 g3=get_color(texture,z3);
-    vec3 g4=get_color(texture,z4);
-
-    vec3 c=source+g1*ghost1.w+g2*ghost2.w;                   // mix
-
-    float v=aberration/float(screen_size.x/ratio_2d.x);      //+aberration/float(screen_size.x)*(2.0-mask);
-    vec3 ca1=get_color(texture,vec2(z.x-v,z.y));
-    vec3 ca2=get_color(texture,vec2(z.x+v,z.y));
-    c+=vec3(ca1.x,c.y,ca2.z);                                // chromatic aberration
-
-    vec3 c1=vec3(gradient_color.x,gradient_color.y,gradient_color.z);
-    vec3 c2=vec3(gradient_color.x,gradient_color.y,gradient_color.z)/4;
-    vec3 c3=vec3(1.0,1.0,1.0);
-    vec3 c4=vec3(gradient_color.z,gradient_color.y,gradient_color.x);
-    vec3 c5=vec3(gradient_color.z,gradient_color.y,gradient_color.x)/4;
-    vec3 r;
-    float r_p=gradient.x;
-    float r_h=gradient.y;
-    float r_h2=gradient.y/2;
-    float k=z.y+1.0;
-
-    if (k <= r_p - r_h2)
-        r = mix(c1,c2,k*(1/(r_p-r_h2)));
-    else if (k <= r_p)
-        r = mix(c2,c3,(k-(r_p-r_h2))*(1/r_h2));
-    else if (k < r_p + r_h)
-        r = mix(c3,c4,(k-r_p)*(1/r_h));
-    else
-        r = mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));
-
-    //c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z)/ratio_2d.y)*sin(0.5+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h
-    //c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z)/ratio_2d.x)*sin(0.5+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v
-
-    c*=moire_h.x+moire_h.y*sin(z.y*float(angle.y*moire_h.z)/ratio_2d.y)*sin(PI+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h
-    c*=moire_v.x+moire_v.y*sin(z.x*float(angle.x*moire_v.z)/ratio_2d.x)*sin(PI+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v
-    c*=scanline_h.x+scanline_h.y*cos(z.y*float(angle.y*scanline_h.z+scanline_h.w)/ratio_2d.y); // scanline h
-    c*=scanline_v.x+scanline_v.y*cos(z.x*float(angle.x*scanline_v.z+scanline_v.w)/ratio_2d.x); // scanline v
-    c+=r*gradient.z;                                         // gradient
-    c*=mix(1.0,mask,vignetting);                             // vignetting
-    c*=letterbox(z,corner.x+2.0,corner.y,corner.z);          // corner
-    c+=(g3+g4)*glass.z;                                      // glass
-    gl_FragColor=vec4(c,1.0);
-}
+[vert.glsl]#version 120void main(){    gl_Position = gl_Vertex;}[frag.glsl]#version 120uniform sampler2D texture;uniform vec2 screen_size;uniform vec2 ratio_2d;uniform float time;uniform vec2 deform;uniform vec4 ghost1;uniform vec4 ghost2;uniform vec4 glass;uniform vec3 gradient;uniform vec3 gradient_color;uniform float vignetting;uniform float aberration;uniform vec4 moire_h;uniform vec4 moire_v;uniform vec4 scanline_h;uniform vec4 scanline_v;uniform vec3 corner;uniform float sync;uniform float beat;const float PI=3.14159265358979323846;vec2 angle=screen_size*PI;vec2 screen(in vec2 p,in float bend,in float radius){    float d=bend+sync*0.0625+beat*0.0375;    return p*(1.5-(radius*cos(p.x*d)+radius*cos(p.y*d)))-0.5;}vec3 get_color(in sampler2D tex,in vec2 p){    return texture2D(tex,clamp(p,-1.0,0.0)).xyz;}float letterbox(in vec2 p,in float w,in float radius,in float smooth){    return 1.0-smoothstep(smooth,1.0,length(max(abs(p*w+w/2.0)-vec2(radius),0.0))+radius);}void main(void){    vec2 q=gl_FragCoord.xy/screen_size.xy;    vec2 p=-1.0+2.0*gl_FragCoord.xy/screen_size.xy;    p.y+=0.025*sync;    vec2 z=screen(p,deform.x,deform.y);    vec2 z1=screen(p,deform.x,deform.y+ghost1.z);    vec2 z2=screen(p,deform.x,deform.y+ghost2.z);    vec2 z3=screen(p,glass.w,deform.y+glass.x-glass.y);    vec2 z4=screen(p,glass.w,deform.y+glass.x+glass.y);    float mask=q.x*(6.0-q.x*6.0)*q.y*(6.0-q.y*6.0);    vec3 source=get_color(texture,z);    vec3 g1=get_color(texture,z1-ghost1.xy);    vec3 g2=get_color(texture,z2-ghost2.xy);    vec3 g3=get_color(texture,z3);    vec3 g4=get_color(texture,z4);    vec3 c=source+g1*ghost1.w+g2*ghost2.w;                   // mix    float v=aberration/float(screen_size.x/ratio_2d.x);      //+aberration/float(screen_size.x)*(2.0-mask);    vec3 ca1=get_color(texture,vec2(z.x-v,z.y));    vec3 ca2=get_color(texture,vec2(z.x+v,z.y));    c+=vec3(ca1.x,c.y,ca2.z);                                // chromatic aberration    vec3 c1=vec3(gradient_color.x,gradient_color.y,gradient_color.z);    vec3 c2=vec3(gradient_color.x,gradient_color.y,gradient_color.z)/4;    vec3 c3=vec3(1.0,1.0,1.0);    vec3 c4=vec3(gradient_color.z,gradient_color.y,gradient_color.x);    vec3 c5=vec3(gradient_color.z,gradient_color.y,gradient_color.x)/4;    vec3 r;    float r_p=gradient.x;    float r_h=gradient.y;    float r_h2=gradient.y/2;    float k=z.y+1.0;    if (k <= r_p - r_h2)        r = mix(c1,c2,k*(1/(r_p-r_h2)));    else if (k <= r_p)        r = mix(c2,c3,(k-(r_p-r_h2))*(1/r_h2));    else if (k < r_p + r_h)        r = mix(c3,c4,(k-r_p)*(1/r_h));    else        r = mix(c4,c5,k*((k-(r_p+r_h))/(r_p-r_h)));    //c*=moire_h.x+moire_h.y*sin(z.y*float(screen_size.y*moire_h.z)/ratio_2d.y)*sin(0.5+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h    //c*=moire_v.x+moire_v.y*sin(z.x*float(screen_size.x*moire_v.z)/ratio_2d.x)*sin(0.5+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v    c*=moire_h.x+moire_h.y*sin(z.y*float(angle.y*moire_h.z)/ratio_2d.y)*sin(PI+z.x*float(screen_size.x*moire_h.w)/ratio_2d.x); // moire h    c*=moire_v.x+moire_v.y*sin(z.x*float(angle.x*moire_v.z)/ratio_2d.x)*sin(PI+z.y*float(screen_size.y*moire_v.w)/ratio_2d.y); // moire v    c*=scanline_h.x+scanline_h.y*cos(z.y*float(angle.y*scanline_h.z+scanline_h.w)/ratio_2d.y); // scanline h    c*=scanline_v.x+scanline_v.y*cos(z.x*float(angle.x*scanline_v.z+scanline_v.w)/ratio_2d.x); // scanline v    c+=r*gradient.z;                                         // gradient    c*=mix(1.0,mask,vignetting);                             // vignetting    c*=letterbox(z,corner.x+2.0,corner.y,corner.z);          // corner    c+=(g3+g4)*glass.z;                                      // glass    gl_FragColor=vec4(c,1.0);}
