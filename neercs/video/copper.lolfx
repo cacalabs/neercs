@@ -1,1 +1,42 @@
-[vert.glsl]#version 120varying vec2 pass_TexCoord;void main(){    gl_Position = gl_Vertex;    pass_TexCoord = vec2(0.5, 0.5) + 0.5 * gl_Vertex.xy;}[frag.glsl]#version 120varying vec2 pass_TexCoord;uniform sampler2D texture;uniform vec2 screen_size;uniform float time;uniform vec4 copper;uniform vec3 mask_color;void main(void){    vec2 p = pass_TexCoord;    vec3 source = texture2D(texture, p).xyz;    vec3 color = vec3(0.5);    color.x += 0.5 * cos(p.y*float(screen_size.y / copper.w) + time);    color.z += 0.5 * sin(p.y*float(screen_size.y / copper.w) + time);    color *= copper.x + copper.y * cos(p.y * float(screen_size.x / copper.z));// - time);    color.x = float(int(color.x * 8.0) * 32) / 256.0;    color.y = float(int(color.y * 8.0) * 32) / 256.0;    color.z = float(int(color.z * 8.0) * 32) / 256.0;gl_FragColor = vec4((abs(source.x - mask_color.x) < 0.025 && abs(source.y - mask_color.y) < 0.025 && abs(source.z - mask_color.z) < 0.025) ? color : source, 1.0);}
+[vert.glsl]
+
+#version 120
+
+varying vec2 pass_TexCoord;
+
+void main()
+{
+    gl_Position = gl_Vertex;
+    pass_TexCoord = vec2(0.5, 0.5) + 0.5 * gl_Vertex.xy;
+}
+
+[frag.glsl]
+
+#version 120
+
+varying vec2 pass_TexCoord;
+
+uniform sampler2D texture;
+uniform vec2 screen_size;
+uniform float time;
+uniform vec4 copper;
+uniform vec3 mask_color;
+
+void main(void)
+{
+    vec2 p = pass_TexCoord;
+    vec3 source = texture2D(texture, p).xyz;
+
+    vec3 color = vec3(0.5);
+
+    color.x += 0.5 * cos(p.y*float(screen_size.y / copper.w) + time);
+    color.z += 0.5 * sin(p.y*float(screen_size.y / copper.w) + time);
+
+    color *= copper.x + copper.y * cos(p.y * float(screen_size.x / copper.z));// - time);
+
+    color.x = float(int(color.x * 8.0) * 32) / 256.0;
+    color.y = float(int(color.y * 8.0) * 32) / 256.0;
+    color.z = float(int(color.z * 8.0) * 32) / 256.0;
+
+gl_FragColor = vec4((abs(source.x - mask_color.x) < 0.025 && abs(source.y - mask_color.y) < 0.025 && abs(source.z - mask_color.z) < 0.025) ? color : source, 1.0);
+}

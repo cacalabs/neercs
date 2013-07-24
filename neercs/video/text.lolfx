@@ -1,1 +1,104 @@
-[vert.glsl]#version 130#define HAVE_SHADER_4 1#if HAVE_SHADER_4in uint in_Char, in_Attr;#elseattribute vec4 in_Char, in_Attr;attribute float in_VertexID;#   define out varying#endifout vec4 pass_Foreground;out vec4 pass_Background;out vec2 pass_UV;uniform vec2 u_DataSize;uniform mat4 u_Transform;void main(){#if HAVE_SHADER_4    float u = float(in_Char & 0xfu) / 32.0 + 0.0;    float v = float((in_Char >> 4u) & 0xfu) / 32.0 + 0.5;#else    vec4 tmp_Char = in_Char * 255.0;    float u = mod(tmp_Char.x, 16.0) / 32.0 + 0.0;    float v = floor(tmp_Char.x / 16.0) / 32.0 + 0.5;#endif    pass_UV = vec2(u, v);#if HAVE_SHADER_4    float A = float(in_Attr >> 29u) / 7.0;    float B = float((in_Attr >> 25u) & 0xfu) / 15.0;    float C = float((in_Attr >> 21u) & 0xfu) / 15.0;    float D = float((in_Attr >> 18u) & 0x7u) / 7.0;    float E = float((in_Attr >> 15u) & 0x7u) / 7.0;    float F = float((in_Attr >> 11u) & 0xfu) / 15.0;    float G = float((in_Attr >> 7u) & 0xfu) / 15.0;    float H = float((in_Attr >> 4u) & 0x7u) / 7.0;#else    vec4 tmp_Attr = in_Attr * 255.0;    float A = floor(tmp_Attr.w / 32.0) / 7.0;    float B = mod(floor(tmp_Attr.w / 2.0), 16.0) / 15.0;    float C = (mod(tmp_Attr.w, 2.0) * 8.0 + floor(tmp_Attr.z / 32.0)) / 15.0;    float D = mod(floor(tmp_Attr.z / 4.0), 8.0) / 7.0;    float E = (mod(tmp_Attr.z, 4.0) * 2.0 + floor(tmp_Attr.y / 128.0)) / 7.0;    float F = mod(floor(tmp_Attr.y / 8.0), 16.0) / 15.0;    float G = (mod(tmp_Attr.y, 8.0) * 2.0 + floor(tmp_Attr.x / 128.0)) / 15.0;    float H = mod(floor(tmp_Attr.x / 16.0), 8.0) / 7.0;#endif    pass_Background = vec4(B + 0.0625, C + 0.125, D + 0.125, 1.0 - A);    pass_Foreground = vec4(F, G, H, 1.0 - E);    if (B + C + D < 0.01) A = 1.0;    if (F + G + H < 0.01) E = 1.0;    // This only works with glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);    gl_PointSize = u_DataSize[1];#if HAVE_SHADER_4    vec2 coord = vec2(gl_VertexID % int(u_DataSize[0]),                      gl_VertexID / int(u_DataSize[0]));#else    vec2 coord = vec2(mod(in_VertexID, u_DataSize[0]),                      floor(in_VertexID / u_DataSize[0]));#endif    gl_Position = u_Transform * vec4(coord, 0.0, 1.0);}[frag.glsl]#version 130#define HAVE_SHADER_4 1#if HAVE_SHADER_4out vec4 out_Color;#else#   define out_Color gl_FragColor#   define in varying#   define out#endifin vec4 pass_Foreground;in vec4 pass_Background;in vec2 pass_UV;uniform sampler2D u_Texture;void main(void){    vec2 c = gl_PointCoord * (1.0 / 32.0) + pass_UV;    float t = texture2D(u_Texture, c).x;    out_Color = mix(pass_Background, pass_Foreground, t);}
+[vert.glsl]
+
+#version 130
+
+#define HAVE_SHADER_4 1
+
+#if HAVE_SHADER_4
+in uint in_Char, in_Attr;
+#else
+attribute vec4 in_Char, in_Attr;
+attribute float in_VertexID;
+#   define out varying
+#endif
+
+out vec4 pass_Foreground;
+out vec4 pass_Background;
+out vec2 pass_UV;
+
+uniform vec2 u_DataSize;
+uniform mat4 u_Transform;
+
+void main()
+{
+#if HAVE_SHADER_4
+    float u = float(in_Char & 0xfu) / 32.0 + 0.0;
+    float v = float((in_Char >> 4u) & 0xfu) / 32.0 + 0.5;
+#else
+    vec4 tmp_Char = in_Char * 255.0;
+
+    float u = mod(tmp_Char.x, 16.0) / 32.0 + 0.0;
+    float v = floor(tmp_Char.x / 16.0) / 32.0 + 0.5;
+#endif
+    pass_UV = vec2(u, v);
+
+#if HAVE_SHADER_4
+    float A = float(in_Attr >> 29u) / 7.0;
+    float B = float((in_Attr >> 25u) & 0xfu) / 15.0;
+    float C = float((in_Attr >> 21u) & 0xfu) / 15.0;
+    float D = float((in_Attr >> 18u) & 0x7u) / 7.0;
+
+    float E = float((in_Attr >> 15u) & 0x7u) / 7.0;
+    float F = float((in_Attr >> 11u) & 0xfu) / 15.0;
+    float G = float((in_Attr >> 7u) & 0xfu) / 15.0;
+    float H = float((in_Attr >> 4u) & 0x7u) / 7.0;
+#else
+    vec4 tmp_Attr = in_Attr * 255.0;
+
+    float A = floor(tmp_Attr.w / 32.0) / 7.0;
+    float B = mod(floor(tmp_Attr.w / 2.0), 16.0) / 15.0;
+    float C = (mod(tmp_Attr.w, 2.0) * 8.0 + floor(tmp_Attr.z / 32.0)) / 15.0;
+    float D = mod(floor(tmp_Attr.z / 4.0), 8.0) / 7.0;
+
+    float E = (mod(tmp_Attr.z, 4.0) * 2.0 + floor(tmp_Attr.y / 128.0)) / 7.0;
+    float F = mod(floor(tmp_Attr.y / 8.0), 16.0) / 15.0;
+    float G = (mod(tmp_Attr.y, 8.0) * 2.0 + floor(tmp_Attr.x / 128.0)) / 15.0;
+    float H = mod(floor(tmp_Attr.x / 16.0), 8.0) / 7.0;
+#endif
+
+    pass_Background = vec4(B + 0.0625, C + 0.125, D + 0.125, 1.0 - A);
+    pass_Foreground = vec4(F, G, H, 1.0 - E);
+    if (B + C + D < 0.01) A = 1.0;
+    if (F + G + H < 0.01) E = 1.0;
+
+    // This only works with glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    gl_PointSize = u_DataSize[1];
+
+#if HAVE_SHADER_4
+    vec2 coord = vec2(gl_VertexID % int(u_DataSize[0]),
+                      gl_VertexID / int(u_DataSize[0]));
+#else
+    vec2 coord = vec2(mod(in_VertexID, u_DataSize[0]),
+                      floor(in_VertexID / u_DataSize[0]));
+#endif
+
+    gl_Position = u_Transform * vec4(coord, 0.0, 1.0);
+}
+
+[frag.glsl]
+
+#version 130
+
+#define HAVE_SHADER_4 1
+
+#if HAVE_SHADER_4
+out vec4 out_Color;
+#else
+#   define out_Color gl_FragColor
+#   define in varying
+#   define out
+#endif
+
+in vec4 pass_Foreground;
+in vec4 pass_Background;
+in vec2 pass_UV;
+
+uniform sampler2D u_Texture;
+
+void main(void)
+{
+    vec2 c = gl_PointCoord * (1.0 / 32.0) + pass_UV;
+    float t = texture2D(u_Texture, c).x;
+    out_Color = mix(pass_Background, pass_Foreground, t);
+}
+
