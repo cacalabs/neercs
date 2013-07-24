@@ -22,7 +22,7 @@ protected:
 
 private:
     int CreateGLWindow();
-    int InitDraw();
+    int InitDrawResources();
     void ShaderSimple(Framebuffer *fbo_output, int n);
     void TraceQuad();
     void Pause();

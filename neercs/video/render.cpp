@@ -859,7 +859,7 @@ void Render::ShaderSimple(Framebuffer *fbo_output, int n)
     shader_simple->Unbind();
 }
 
-int Render::InitDraw(void)
+int Render::InitDrawResources(void)
 {
     glDepthMask(GL_TRUE);     // do not write z-buffer
 
@@ -955,7 +955,7 @@ int Render::CreateGLWindow()
 {
     InitShaderVar();
     UpdateSize();
-    InitDraw();
+    InitDrawResources();
     return true;
 }
 
