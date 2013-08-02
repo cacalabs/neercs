@@ -861,8 +861,6 @@ void Render::ShaderSimple(Framebuffer *fbo_output, int n)
 
 int Render::InitDrawResources(void)
 {
-    glDepthMask(GL_TRUE);     // do not write z-buffer
-
     /* initialise framebuffer objects */
     fbo_back = new Framebuffer(screen_size);
     fbo_screen = new Framebuffer(screen_size);
@@ -1479,6 +1477,7 @@ void Render::Draw3D()
     RenderContext rc;
     rc.SetBlendFunc(BlendFunc::Disabled, BlendFunc::Disabled);
     rc.SetDepthFunc(DepthFunc::Disabled);
+    rc.SetDepthMask(DepthFunc::Disabled);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(4, GL_FLOAT, 0, fs_quad_vtx);
@@ -1725,3 +1724,4 @@ Render::~Render()
     if (m_fps_debug)
         Ticker::Unref(m_fps_debug);
 }
+

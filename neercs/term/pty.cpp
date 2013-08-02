@@ -178,8 +178,7 @@ size_t Pty::ReadData(char *data, size_t maxlen)
                 else
                     sent += nr;
 
-                if (sent >= 0)
-                    return sent;
+                return sent;
             }
         }
     }
