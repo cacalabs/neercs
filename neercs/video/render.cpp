@@ -1477,7 +1477,7 @@ void Render::Draw3D()
     RenderContext rc;
     rc.SetBlendFunc(BlendFunc::Disabled, BlendFunc::Disabled);
     rc.SetDepthFunc(DepthFunc::Disabled);
-    rc.SetDepthMask(DepthFunc::Disabled);
+    rc.SetDepthMask(DepthMask::Disabled);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(4, GL_FLOAT, 0, fs_quad_vtx);
