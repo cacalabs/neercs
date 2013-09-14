@@ -5,10 +5,10 @@
 #define HAVE_SHADER_4 1
 
 #if HAVE_SHADER_4
-in uint in_Char, in_Attr;
+in uint in_Color0, in_Color1;
 #else
-attribute vec4 in_Char, in_Attr;
-attribute float in_VertexID;
+attribute vec4 in_Color0, in_Color1;
+attribute float in_Position;
 #   define out varying
 #endif
 
@@ -21,6 +21,15 @@ uniform mat4 u_Transform;
 
 void main()
 {
+#if HAVE_SHADER_4
+	uint in_Attr = in_Color0;
+    uint in_Char = in_Color1;
+#else
+	vec4 in_Attr = in_Color0;
+    vec4 in_Char = in_Color1;
+    float in_VertexID = in_Position;
+#endif
+
 #if HAVE_SHADER_4
     float u = float(in_Char & 0xfu) / 32.0 + 0.0;
     float v = float((in_Char >> 4u) & 0xfu) / 32.0 + 0.5;

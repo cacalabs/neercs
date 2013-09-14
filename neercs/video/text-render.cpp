@@ -47,10 +47,8 @@ void TextRender::Init()
                          ivec2(256, 256), ivec2(1));
 
     m_shader = Shader::Create(LOLFX_RESOURCE_NAME(text));
-    m_color = m_shader->GetAttribLocation("in_Attr",
-                                          VertexUsage::Color, 0);
-    m_char = m_shader->GetAttribLocation("in_Char",
-                                         VertexUsage::Color, 1);
+    m_color = m_shader->GetAttribLocation(VertexUsage::Color, 0);
+    m_char = m_shader->GetAttribLocation(VertexUsage::Color, 1);
 #if !HAVE_SHADER_4
     m_vertexid = m_shader->GetAttribLocation("in_VertexID",
                                              VertexUsage::Position, 0);
