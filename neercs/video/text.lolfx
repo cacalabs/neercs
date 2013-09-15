@@ -22,10 +22,10 @@ uniform mat4 u_Transform;
 void main()
 {
 #if HAVE_SHADER_4
-	uint in_Attr = in_Color0;
+    uint in_Attr = in_Color0;
     uint in_Char = in_Color1;
 #else
-	vec4 in_Attr = in_Color0;
+    vec4 in_Attr = in_Color0;
     vec4 in_Char = in_Color1;
     float in_VertexID = in_Position;
 #endif
