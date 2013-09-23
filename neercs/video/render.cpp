@@ -1076,6 +1076,7 @@ void Render::Pause()
 void Render::TickDraw(float seconds)
 {
     /* keyboard manager */
+#if 0
     if (Input::WasPressed(Key::F1))
     {
         g_setup = !g_setup;
@@ -1371,6 +1372,7 @@ void Render::TickDraw(float seconds)
         //flash_flag = true;
         //flash_angle = main_angle;
     }
+#endif
 
     Entity::TickDraw(seconds);
 

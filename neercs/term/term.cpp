@@ -42,6 +42,7 @@ void Term::TickGame(float seconds)
     Entity::TickGame(seconds);
 
 #if defined HAVE_PTY_H || defined HAVE_UTIL_H || defined HAVE_LIBUTIL_H
+#if 0
     if (!g_setup)
     {
         bool have_ctrl = Input::GetStatus(Key::LeftCtrl)
@@ -108,6 +109,7 @@ void Term::TickGame(float seconds)
                     m_pty->WriteData(lut[i].str, lut[i].len);
         }
     }
+#endif
 
     m_time += seconds;
 
@@ -147,8 +149,10 @@ void Term::TickGame(float seconds)
     }
 
     /* Some fancy shit if we press F3 */
+#if 0
     if (Input::WasPressed(Key::F3))
         m_debug = !m_debug;
+#endif
 
     if (m_debug)
     {
