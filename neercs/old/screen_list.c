@@ -135,8 +135,8 @@ struct screen_list *create_screen_list(void)
     {
         fprintf(stderr, "Can't allocate memory at %s:%d\n", __FUNCTION__,
                 __LINE__);
-        free(screen_list);
         free(screen_list->screen);
+        free(screen_list);
         return NULL;
     }
     screen_list->recurrent_list->count = 0;
