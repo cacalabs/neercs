@@ -9,9 +9,10 @@
 #endif
 
 #include <time.h>
-#include <caca.h>
 
 #include "core.h"
+
+#include <caca.h>
 
 using namespace std;
 using namespace lol;

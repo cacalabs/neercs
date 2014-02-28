@@ -18,9 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <caca.h>
 
 #include "core.h"
+
+#include <caca.h>
 
 using namespace lol;
 
