@@ -180,7 +180,7 @@ void TextRender::Blit(ivec2 pos, ivec2 size)
 {
     /* FIXME: this is ugly! But we will get rid of it when we
      * do the Direct3D port, so don't worry too much. */
-    ShaderTexture t = m_fbo->GetTexture();
+    TextureUniform t = m_fbo->GetTextureUniform();
     uint64_t const &x = *(uint64_t const *)&t;
 
     RenderContext rc;
