@@ -841,34 +841,46 @@ ShaderUniform shader_radial_texture,
               shader_radial_screen_size,
               shader_radial_radial;
 
-Framebuffer *fbo_back, *fbo_front, *fbo_screen;
-Framebuffer *fbo_blur_h, *fbo_blur_v;
-Framebuffer *fbo_tmp, *fbo_buffer;
-
 void Render::TraceQuad()
 {
-    glLoadIdentity();
-    glDrawArrays(GL_QUADS, 0, 4);
+    m_vdecl->Bind();
+    m_vdecl->DrawElements(MeshPrimitive::Triangles, 0, 6);
+    m_vdecl->Unbind();
 }
 
 void Render::ShaderSimple(Framebuffer *fbo_output, int n)
 {
     shader_simple->Bind();
     shader_simple->SetUniform(shader_simple_texture, fbo_output->GetTextureUniform(), n);
+    m_vdecl->SetStream(m_vbo, shader_simple->GetAttribLocation(VertexUsage::Position, 0));
     TraceQuad();
     shader_simple->Unbind();
 }
 
 int Render::InitDrawResources(void)
 {
-    /* initialise framebuffer objects */
-    fbo_back = new Framebuffer(screen_size);
-    fbo_screen = new Framebuffer(screen_size);
-    fbo_front = new Framebuffer(screen_size);
-    fbo_buffer = new Framebuffer(screen_size);
-    fbo_blur_h = new Framebuffer(screen_size);
-    fbo_blur_v = new Framebuffer(screen_size);
-    fbo_tmp = new Framebuffer(screen_size);
+    /* Initialise framebuffer objects */
+    m_fbos.back = new Framebuffer(screen_size);
+    m_fbos.screen = new Framebuffer(screen_size);
+    m_fbos.front = new Framebuffer(screen_size);
+    m_fbos.buffer = new Framebuffer(screen_size);
+    m_fbos.blur_h = new Framebuffer(screen_size);
+    m_fbos.blur_v = new Framebuffer(screen_size);
+    m_fbos.tmp = new Framebuffer(screen_size);
+
+    /* Initialise vertex declaration */
+    m_vdecl = new VertexDeclaration(VertexStream<vec2>(VertexUsage::Position));
+    Array<vec2> vertices;
+    vertices << vec2(-1, 1);
+    vertices << vec2(-1, -1);
+    vertices << vec2(1, -1);
+    vertices << vec2(1, -1);
+    vertices << vec2(1, 1);
+    vertices << vec2(-1, 1);
+    m_vbo = new VertexBuffer(vertices.Bytes());
+    memcpy(m_vbo->Lock(0, 0), vertices.Data(), vertices.Bytes());
+    m_vbo->Unlock();
+
     // shader simple
     shader_simple = Shader::Create(LOLFX_RESOURCE_NAME(simple));
     shader_simple_texture = shader_simple->GetUniformLocation("texture");
@@ -949,33 +961,26 @@ int Render::InitDrawResources(void)
     return true;
 }
 
-int Render::CreateGLWindow()
-{
-    InitShaderVar();
-    UpdateSize();
-    InitDrawResources();
-    return true;
-}
-
 Render::Render(caca_canvas_t *caca)
   : m_cv_screen(caca),
     m_cv_setup(caca_create_canvas(1, 1)),
     m_fps_debug(0),
     m_ready(false),
-    m_pause(false),
-    m_shader(true),
-    m_shader_remanence(true),
-    m_shader_glow(true),
-    m_shader_blur(true),
-    m_shader_postfx(true),
-    m_shader_copper(true),
-    m_shader_color(true),
-    m_shader_noise(true),
-    m_shader_mirror(true),
-    m_shader_radial(true)
+    m_pause(false)
 {
     m_txt_screen = new TextRender(m_cv_screen, font_size);
     m_txt_setup = new TextRender(m_cv_setup, font_size);
+
+    m_flags.shader = false;
+    m_flags.remanence = true;
+    m_flags.glow = true;
+    m_flags.blur = true;
+    m_flags.postfx = true;
+    m_flags.copper = true;
+    m_flags.color = true;
+    m_flags.noise = true;
+    m_flags.mirror = true;
+    m_flags.radial = true;
 }
 
 void Render::TickGame(float seconds)
@@ -1096,15 +1101,15 @@ void Render::TickDraw(float seconds)
     }
     if (Input::WasPressed(Key::F2))
     {
-        m_shader_remanence = !m_shader_remanence;
-        m_shader_glow = !m_shader_glow;
-        m_shader_blur = !m_shader_blur;
-        m_shader_postfx = !m_shader_postfx;
-        //m_shader_copper = !m_shader_copper;
-        m_shader_color = !m_shader_color;
-        m_shader_noise = !m_shader_noise;
-        m_shader_mirror = !m_shader_mirror;
-        m_shader_radial = !m_shader_radial;
+        m_flags.remanence = !m_flags.remanence;
+        m_flags.glow = !m_flags.glow;
+        m_flags.blur = !m_flags.blur;
+        m_flags.postfx = !m_flags.postfx;
+        //m_flags.copper = !m_flags.copper;
+        m_flags.color = !m_flags.color;
+        m_flags.noise = !m_flags.noise;
+        m_flags.mirror = !m_flags.mirror;
+        m_flags.radial = !m_flags.radial;
     }
     if (Input::WasPressed(Key::F4))
     {
@@ -1378,7 +1383,10 @@ void Render::TickDraw(float seconds)
 
     if (!m_ready)
     {
-        CreateGLWindow();
+        InitShaderVar();
+        UpdateSize();
+        InitDrawResources();
+
         m_txt_screen->Init();
         m_txt_setup->Init();
         m_ready = true;
@@ -1443,8 +1451,8 @@ void Render::Draw2D()
     if (g_setup)
         m_txt_setup->Render();
 
-    if (m_shader)
-        fbo_back->Bind();
+    if (m_flags.shader)
+        m_fbos.back->Bind();
 
     glViewport(0, 0, screen_size.x, screen_size.y);
 
@@ -1463,6 +1471,9 @@ void Render::Draw2D()
     if (g_setup)
         m_txt_setup->Blit((screen_size - setup_canvas_size) / 2, setup_canvas_size);
 
+    if (m_flags.shader)
+        m_fbos.back->Unbind();
+
     glMatrixMode(GL_PROJECTION);
     mat4 m = mat4::ortho(0, screen_size.x, screen_size.y, 0, -1.f, 1.f);
     glLoadMatrixf(&m[0][0]);
@@ -1473,7 +1484,7 @@ void Render::Draw2D()
 
 void Render::Draw3D()
 {
-    if (!m_shader)
+    if (!m_flags.shader)
         return;
 
     RenderContext rc;
@@ -1484,173 +1495,185 @@ void Render::Draw3D()
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(4, GL_FLOAT, 0, fs_quad_vtx);
 
-    if (m_shader_copper)
+    if (m_flags.copper)
     {
         // shader copper
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_copper->Bind();
-        shader_copper->SetUniform(shader_copper_texture, fbo_back->GetTextureUniform(), 0);
+        shader_copper->SetUniform(shader_copper_texture, m_fbos.back->GetTextureUniform(), 0);
         shader_copper->SetUniform(shader_copper_screen_size, (vec2)screen_size);
         shader_copper->SetUniform(shader_copper_time, fx_angle);
         shader_copper->SetUniform(shader_copper_copper, vec4(copper_copper.x, copper_copper.y, copper_copper.z * 16.0f, copper_copper.w * 16.0f));
         shader_copper->SetUniform(shader_copper_mask_color, copper_mask_color);
+        m_vdecl->SetStream(m_vbo, shader_copper->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_color->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader simple
-        fbo_back->Bind();
-        ShaderSimple(fbo_tmp, 0);
-        fbo_back->Unbind();
+        m_fbos.back->Bind();
+        ShaderSimple(m_fbos.tmp, 0);
+        m_fbos.back->Unbind();
     }
 
-    if (m_shader_remanence)
+    if (m_flags.remanence)
     {
         // shader remanence
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_remanence->Bind();
-        shader_remanence->SetUniform(shader_remanence_source, fbo_back->GetTextureUniform(), 0);
-        shader_remanence->SetUniform(shader_remanence_buffer, fbo_buffer->GetTextureUniform(), 1);
+        shader_remanence->SetUniform(shader_remanence_source, m_fbos.back->GetTextureUniform(), 0);
+        shader_remanence->SetUniform(shader_remanence_buffer, m_fbos.buffer->GetTextureUniform(), 1);
         shader_remanence->SetUniform(shader_remanence_mix, remanence);
+        m_vdecl->SetStream(m_vbo, shader_remanence->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_remanence->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader simple
-        fbo_back->Bind();
-        ShaderSimple(fbo_tmp, 0);
-        fbo_back->Unbind();
+        m_fbos.back->Bind();
+        ShaderSimple(m_fbos.tmp, 0);
+        m_fbos.back->Unbind();
         // save previous fbo
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_remanence->Bind();
-        shader_remanence->SetUniform(shader_remanence_source, fbo_screen->GetTextureUniform(), 0);
-        shader_remanence->SetUniform(shader_remanence_buffer, fbo_buffer->GetTextureUniform(), 1);
+        shader_remanence->SetUniform(shader_remanence_source, m_fbos.screen->GetTextureUniform(), 0);
+        shader_remanence->SetUniform(shader_remanence_buffer, m_fbos.buffer->GetTextureUniform(), 1);
         shader_remanence->SetUniform(shader_remanence_mix, buffer);
+        m_vdecl->SetStream(m_vbo, shader_remanence->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_remanence->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader simple
-        fbo_buffer->Bind();
-        ShaderSimple(fbo_tmp, 0);
-        fbo_buffer->Unbind();
+        m_fbos.buffer->Bind();
+        ShaderSimple(m_fbos.tmp, 0);
+        m_fbos.buffer->Unbind();
     }
 
     // shader glow
-    if (m_shader_glow)
+    if (m_flags.glow)
     {
         // shader blur horizontal
-        fbo_blur_h->Bind();
+        m_fbos.blur_h->Bind();
         shader_blur_h->Bind();
-        shader_blur_h->SetUniform(shader_blur_h_texture, fbo_back->GetTextureUniform(), 0);
+        shader_blur_h->SetUniform(shader_blur_h_texture, m_fbos.back->GetTextureUniform(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, glow_large / (float)screen_size.x);
+        m_vdecl->SetStream(m_vbo, shader_blur_h->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_blur_h->Unbind();
-        fbo_blur_h->Unbind();
+        m_fbos.blur_h->Unbind();
         // shader blur vertical
-        fbo_blur_v->Bind();
+        m_fbos.blur_v->Bind();
         shader_blur_v->Bind();
-        shader_blur_v->SetUniform(shader_blur_v_texture, fbo_blur_h->GetTextureUniform(), 0);
+        shader_blur_v->SetUniform(shader_blur_v_texture, m_fbos.blur_h->GetTextureUniform(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, glow_large / (float)screen_size.y);
+        m_vdecl->SetStream(m_vbo, shader_blur_v->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_blur_v->Unbind();
-        fbo_blur_v->Unbind();
+        m_fbos.blur_v->Unbind();
         // shader blur horizontal
-        fbo_blur_h->Bind();
+        m_fbos.blur_h->Bind();
         shader_blur_h->Bind();
-        shader_blur_h->SetUniform(shader_blur_h_texture, fbo_blur_v->GetTextureUniform(), 0);
+        shader_blur_h->SetUniform(shader_blur_h_texture, m_fbos.blur_v->GetTextureUniform(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, glow_small / (float)screen_size.x);
+        m_vdecl->SetStream(m_vbo, shader_blur_h->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_blur_h->Unbind();
-        fbo_blur_h->Unbind();
+        m_fbos.blur_h->Unbind();
         // shader blur vertical
-        fbo_blur_v->Bind();
+        m_fbos.blur_v->Bind();
         shader_blur_v->Bind();
-        shader_blur_v->SetUniform(shader_blur_v_texture, fbo_blur_h->GetTextureUniform(), 0);
+        shader_blur_v->SetUniform(shader_blur_v_texture, m_fbos.blur_h->GetTextureUniform(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, glow_small / (float)screen_size.y);
+        m_vdecl->SetStream(m_vbo, shader_blur_v->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_blur_v->Unbind();
-        fbo_blur_v->Unbind();
+        m_fbos.blur_v->Unbind();
         // shader glow
-        fbo_screen->Bind();
+        m_fbos.screen->Bind();
         shader_glow->Bind();
-        shader_glow->SetUniform(shader_glow_glow, fbo_blur_v->GetTextureUniform(), 0);
-        shader_glow->SetUniform(shader_glow_source, fbo_back->GetTextureUniform(), 1);
+        shader_glow->SetUniform(shader_glow_glow, m_fbos.blur_v->GetTextureUniform(), 0);
+        shader_glow->SetUniform(shader_glow_source, m_fbos.back->GetTextureUniform(), 1);
         shader_glow->SetUniform(shader_glow_mix, glow_mix);
+        m_vdecl->SetStream(m_vbo, shader_glow->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_glow->Unbind();
-        fbo_screen->Unbind();
+        m_fbos.screen->Unbind();
     }
     else
     {
         // shader simple
-        fbo_screen->Bind();
-        ShaderSimple(fbo_back, 0);
-        fbo_screen->Unbind();
+        m_fbos.screen->Bind();
+        ShaderSimple(m_fbos.back, 0);
+        m_fbos.screen->Unbind();
     }
 
-    if (m_shader_color)
+    if (m_flags.color)
     {
         // shader color
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_color->Bind();
-        shader_color->SetUniform(shader_color_texture, fbo_screen->GetTextureUniform(), 0);
+        shader_color->SetUniform(shader_color_texture, m_fbos.screen->GetTextureUniform(), 0);
         shader_color->SetUniform(shader_color_screen_size, (vec2)screen_size);
         shader_color->SetUniform(shader_color_filter, color_filter);
         shader_color->SetUniform(shader_color_color, color_color);
         shader_color->SetUniform(shader_color_flash, flash_value);
+        m_vdecl->SetStream(m_vbo, shader_color->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_color->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader simple
-        fbo_screen->Bind();
-        ShaderSimple(fbo_tmp, 0);
-        fbo_screen->Unbind();
+        m_fbos.screen->Bind();
+        ShaderSimple(m_fbos.tmp, 0);
+        m_fbos.screen->Unbind();
     }
 
-    if (m_shader_noise)
+    if (m_flags.noise)
     {
         // shader noise
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_noise->Bind();
-        shader_noise->SetUniform(shader_noise_texture, fbo_screen->GetTextureUniform(), 0);
+        shader_noise->SetUniform(shader_noise_texture, m_fbos.screen->GetTextureUniform(), 0);
         shader_noise->SetUniform(shader_noise_screen_size, (vec2)screen_size);
         shader_noise->SetUniform(shader_noise_time, fx_angle);
         shader_noise->SetUniform(shader_noise_offset, noise_offset);
         shader_noise->SetUniform(shader_noise_noise, noise_noise);
         shader_noise->SetUniform(shader_noise_retrace, noise_retrace);
+        m_vdecl->SetStream(m_vbo, shader_noise->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_noise->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader simple
-        fbo_screen->Bind();
-        ShaderSimple(fbo_tmp, 0);
-        fbo_screen->Unbind();
+        m_fbos.screen->Bind();
+        ShaderSimple(m_fbos.tmp, 0);
+        m_fbos.screen->Unbind();
     }
 
-    if (m_shader_blur)
+    if (m_flags.blur)
     {
         // shader blur horizontal
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_blur_h->Bind();
-        shader_blur_h->SetUniform(shader_blur_h_texture, fbo_screen->GetTextureUniform(), 0);
+        shader_blur_h->SetUniform(shader_blur_h_texture, m_fbos.screen->GetTextureUniform(), 0);
         shader_blur_h->SetUniform(shader_blur_h_radius, blur / (float)screen_size.x);
+        m_vdecl->SetStream(m_vbo, shader_blur_h->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_blur_h->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader blur vertical
-        fbo_screen->Bind();
+        m_fbos.screen->Bind();
         shader_blur_v->Bind();
-        shader_blur_v->SetUniform(shader_blur_v_texture, fbo_tmp->GetTextureUniform(), 0);
+        shader_blur_v->SetUniform(shader_blur_v_texture, m_fbos.tmp->GetTextureUniform(), 0);
         shader_blur_v->SetUniform(shader_blur_v_radius, blur / (float)screen_size.y);
+        m_vdecl->SetStream(m_vbo, shader_blur_v->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_blur_v->Unbind();
-        fbo_screen->Unbind();
+        m_fbos.screen->Unbind();
     }
 
-    if (m_shader_postfx)
+    if (m_flags.postfx)
     {
         // shader postfx
-        fbo_front->Bind();
+        m_fbos.front->Bind();
         shader_postfx->Bind();
-        shader_postfx->SetUniform(shader_postfx_texture, fbo_screen->GetTextureUniform(), 0);
+        shader_postfx->SetUniform(shader_postfx_texture, m_fbos.screen->GetTextureUniform(), 0);
         shader_postfx->SetUniform(shader_postfx_screen_size, (vec2)screen_size);
         shader_postfx->SetUniform(shader_postfx_ratio_2d, (vec2)ratio_2d * 0.5f);
         shader_postfx->SetUniform(shader_postfx_time, fx_angle);
@@ -1669,54 +1692,57 @@ void Render::Draw3D()
         shader_postfx->SetUniform(shader_postfx_corner, postfx_corner);
         shader_postfx->SetUniform(shader_postfx_sync, (float)fabs(sync_value * cosf((main_angle - sync_angle) * 6.0f)));
         shader_postfx->SetUniform(shader_postfx_beat, (float)fabs(beat_value * cosf((main_angle - beat_angle) * 6.0f)));
+        m_vdecl->SetStream(m_vbo, shader_postfx->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_postfx->Unbind();
-        fbo_front->Unbind();
+        m_fbos.front->Unbind();
     }
     else
     {
         // shader simple
-        fbo_front->Bind();
-        ShaderSimple(fbo_screen, 0);
-        fbo_front->Unbind();
+        m_fbos.front->Bind();
+        ShaderSimple(m_fbos.screen, 0);
+        m_fbos.front->Unbind();
     }
 
-    if (m_shader_mirror)
+    if (m_flags.mirror)
     {
         // shader mirror
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_mirror->Bind();
-        shader_mirror->SetUniform(shader_mirror_texture, fbo_front->GetTextureUniform(), 0);
+        shader_mirror->SetUniform(shader_mirror_texture, m_fbos.front->GetTextureUniform(), 0);
         shader_mirror->SetUniform(shader_mirror_screen_size, (vec2)screen_size);
         shader_mirror->SetUniform(shader_mirror_mirror, vec4(mirror.x * 0.1f, mirror.y * 0.1f, mirror.z, mirror.w));
+        m_vdecl->SetStream(m_vbo, shader_mirror->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_mirror->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader simple
-        fbo_front->Bind();
-        ShaderSimple(fbo_tmp, 0);
-        fbo_front->Unbind();
+        m_fbos.front->Bind();
+        ShaderSimple(m_fbos.tmp, 0);
+        m_fbos.front->Unbind();
     }
 
-    if (m_shader_radial)
+    if (m_flags.radial)
     {
         // shader radial blur
-        fbo_tmp->Bind();
+        m_fbos.tmp->Bind();
         shader_radial->Bind();
-        shader_radial->SetUniform(shader_radial_texture, fbo_front->GetTextureUniform(), 0);
+        shader_radial->SetUniform(shader_radial_texture, m_fbos.front->GetTextureUniform(), 0);
         shader_radial->SetUniform(shader_radial_screen_size, (vec2)screen_size);
         shader_radial->SetUniform(shader_radial_radial, vec4(radial.x, radial.y, radial.z, radial.w * 0.1f));
+        m_vdecl->SetStream(m_vbo, shader_radial->GetAttribLocation(VertexUsage::Position, 0));
         TraceQuad();
         shader_radial->Unbind();
-        fbo_tmp->Unbind();
+        m_fbos.tmp->Unbind();
         // shader simple
-        fbo_front->Bind();
-        ShaderSimple(fbo_tmp, 0);
-        fbo_front->Unbind();
+        m_fbos.front->Bind();
+        ShaderSimple(m_fbos.tmp, 0);
+        m_fbos.front->Unbind();
     }
 
     // shader simple
-    ShaderSimple(fbo_front, 0);
+    ShaderSimple(m_fbos.front, 0);
 
     glDisableClientState(GL_VERTEX_ARRAY);
 }

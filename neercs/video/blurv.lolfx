@@ -2,12 +2,13 @@
 
 #version 120
 
+attribute vec4 in_Position;
 varying vec2 pass_TexCoord;
 
 void main()
 {
-    gl_Position = gl_Vertex;
-    pass_TexCoord = vec2(0.5, 0.5) + 0.5 * gl_Vertex.xy;
+    gl_Position = in_Position;
+    pass_TexCoord = vec2(0.5, 0.5) + 0.5 * in_Position.xy;
 }
 
 [frag.glsl]

@@ -21,7 +21,6 @@ protected:
     void Draw3D();
 
 private:
-    int CreateGLWindow();
     int InitDrawResources();
     void ShaderSimple(Framebuffer *fbo_output, int n);
     void TraceQuad();
@@ -33,21 +32,27 @@ private:
 
     caca_canvas_t *m_cv_screen, *m_cv_setup;
     class TextRender *m_txt_screen, *m_txt_setup;
+    VertexDeclaration *m_vdecl;
+    VertexBuffer *m_vbo;
 
     Entity *m_fps_debug;
 
+    struct
+    {
+        Framebuffer *back, *screen, *front, *buffer,
+                    *blur_h, *blur_v, *tmp;
+    }
+    m_fbos;
+
     bool m_ready;
     bool m_pause;
-    bool m_shader;
-    bool m_shader_remanence;
-    bool m_shader_glow;
-    bool m_shader_blur;
-    bool m_shader_postfx;
-    bool m_shader_copper;
-    bool m_shader_color;
-    bool m_shader_noise;
-    bool m_shader_mirror;
-    bool m_shader_radial;
+
+    struct
+    {
+        bool shader, remanence, glow, blur, postfx,
+             copper, color, noise, mirror, radial;
+    }
+    m_flags;
 };
 
 #endif // __VIDEO_RENDER_H__
