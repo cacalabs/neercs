@@ -15,7 +15,7 @@ public:
 
 protected:
     virtual void TickGame(float seconds);
-    virtual void TickDraw(float seconds);
+    virtual void TickDraw(float seconds, Scene &scene);
 
     void Draw2D();
     void Draw3D();

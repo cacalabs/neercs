@@ -165,9 +165,9 @@ void Term::TickGame(float seconds)
 #endif
 }
 
-void Term::TickDraw(float seconds)
+void Term::TickDraw(float seconds, Scene &scene)
 {
-    Entity::TickDraw(seconds);
+    Entity::TickDraw(seconds, scene);
 }
 
 Term::~Term()

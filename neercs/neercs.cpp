@@ -39,9 +39,9 @@ void Neercs::TickGame(float seconds)
     WorldEntity::TickGame(seconds);
 }
 
-void Neercs::TickDraw(float seconds)
+void Neercs::TickDraw(float seconds, Scene &scene)
 {
-    WorldEntity::TickDraw(seconds);
+    WorldEntity::TickDraw(seconds, scene);
 }
 
 Neercs::~Neercs()

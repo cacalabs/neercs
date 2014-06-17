@@ -1078,7 +1078,7 @@ void Render::Pause()
     m_pause=!m_pause;
 }
 
-void Render::TickDraw(float seconds)
+void Render::TickDraw(float seconds, Scene &scene)
 {
     /* keyboard manager */
 #if 0
@@ -1379,7 +1379,7 @@ void Render::TickDraw(float seconds)
     }
 #endif
 
-    Entity::TickDraw(seconds);
+    Entity::TickDraw(seconds, scene);
 
     if (!m_ready)
     {
