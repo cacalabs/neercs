@@ -870,7 +870,7 @@ int Render::InitDrawResources(void)
 
     /* Initialise vertex declaration */
     m_vdecl = new VertexDeclaration(VertexStream<vec2>(VertexUsage::Position));
-    Array<vec2> vertices;
+    array<vec2> vertices;
     vertices << vec2(-1, 1);
     vertices << vec2(-1, -1);
     vertices << vec2(1, -1);
