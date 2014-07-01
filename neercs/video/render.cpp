@@ -12,7 +12,7 @@
 #include <ctime>
 #include <string>
 
-#include "core.h"
+#include <lol/main.h>
 #include "lolgl.h"
 #include "loldebug.h"
 

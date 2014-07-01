@@ -10,7 +10,7 @@
 
 #include <time.h>
 
-#include "core.h"
+#include <lol/main.h>
 
 #include <caca.h>
 
