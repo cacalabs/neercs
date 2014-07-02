@@ -16,7 +16,6 @@
 #include "lolgl.h"
 #include "loldebug.h"
 
-using namespace std;
 using namespace lol;
 
 #include "../neercs.h"
@@ -712,8 +711,8 @@ float theme_var[]={
 void Render::InitShaderVar()
 {
     int k = theme_i * setup_option_n * 9 + 1; /* main */
-    ratio_2d = vec2(theme_var[k], theme_var[k + 1]); k += 2;
-    border = vec2(theme_var[k], theme_var[k + 1]); k += 2;
+    ratio_2d = ivec2(theme_var[k], theme_var[k + 1]); k += 2;
+    border = ivec2(theme_var[k], theme_var[k + 1]); k += 2;
     k += 5; /* remanence */
     buffer = vec2(theme_var[k], theme_var[k + 1]); k += 2;
     remanence = vec2(theme_var[k], theme_var[k + 1]); k += 2;
