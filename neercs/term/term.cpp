@@ -8,7 +8,6 @@
 
 #include <lol/main.h>
 
-using namespace std;
 using namespace lol;
 
 #include "../neercs.h"

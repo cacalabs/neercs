@@ -14,7 +14,6 @@
 
 #include <caca.h>
 
-using namespace std;
 using namespace lol;
 
 #include "neercs.h"
