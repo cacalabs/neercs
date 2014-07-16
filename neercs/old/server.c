@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -113,7 +114,7 @@ static int request_refresh(struct screen_list *screen_list)
     if (screen_list->comm.socket[SOCK_CLIENT])
     {
         size_t bufsize, towrite;
-        ssize_t written, ret;
+        ptrdiff_t written, ret;
         socklen_t optlen = sizeof(bufsize);
         size_t bytes;
         void *buf;
@@ -149,7 +150,7 @@ static int request_refresh(struct screen_list *screen_list)
             fcntl(screen_list->comm.socket[SOCK_CLIENT], F_SETFL, 0);
             while (towrite > 0)
             {
-                ssize_t n;
+                ptrdiff_t n;
                 debug("Wrote %d, %d remaining", written, towrite);
                 n = send_to_client((char *)buf + written,
                                    towrite > bufsize ? bufsize : towrite,
@@ -197,7 +198,7 @@ static int server_iteration(struct screen_list *screen_list)
     int eof = 0, refresh;
 
     int quit = 0;
-    ssize_t n;
+    ptrdiff_t n;
     char buf[128];
 
     /* Read program output */

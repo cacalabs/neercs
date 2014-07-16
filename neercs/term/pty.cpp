@@ -169,7 +169,7 @@ size_t Pty::ReadData(char *data, size_t maxlen)
         {
             if (FD_ISSET((int)m_fd, &fdset))
             {
-                ssize_t nr = read((int)m_fd, data, maxlen);
+                ptrdiff_t nr = read((int)m_fd, data, maxlen);
 
                 /* Data available but zero-length read: EOF */
                 if (nr <= 0)

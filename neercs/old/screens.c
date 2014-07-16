@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -294,7 +295,7 @@ int update_screens_contents(struct screen_list *screen_list)
 
             for (;;)
             {
-                ssize_t nr;
+                ptrdiff_t nr;
 
                 screen_list->screen[i]->buf =
                     realloc(screen_list->screen[i]->buf,

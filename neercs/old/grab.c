@@ -26,6 +26,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -235,7 +236,7 @@ static int list_process(struct process **process_list)
         for (j = 0; j < pglob2.gl_pathc; j++)
         {
             char path[4096];
-            ssize_t l = readlink(pglob2.gl_pathv[j], path, sizeof(path));
+            ptrdiff_t l = readlink(pglob2.gl_pathv[j], path, sizeof(path));
             if (l <= 0)
                 continue;
             path[l] = '\0';

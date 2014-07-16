@@ -60,7 +60,7 @@ int client_step(void)
     if (ret > 0)
     {
         char buf[BUFSIZ];
-        ssize_t bytes = socket_read(insock, buf, BUFSIZ);
+        ptrdiff_t bytes = socket_read(insock, buf, BUFSIZ);
         if (bytes <= 0)
             return 1;
 

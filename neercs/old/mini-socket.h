@@ -19,6 +19,6 @@ typedef struct nrx_socket nrx_socket_t;
 nrx_socket_t * socket_open(char const *path, int server);
 int socket_select(nrx_socket_t *sock, int usecs);
 int socket_puts(nrx_socket_t *sock, char const *str);
-ssize_t socket_read(nrx_socket_t *sock, void *buf, size_t count);
+ptrdiff_t socket_read(nrx_socket_t *sock, void *buf, size_t count);
 void socket_close(nrx_socket_t *socket);
 

@@ -331,10 +331,10 @@ int mytrace_exec(struct mytrace *t, char const *command)
     char *env, *p;
     long p2, envaddr, argvaddr, envptraddr;
     char envpath[PATH_MAX + 1];
-    ssize_t envsize = 16 * 1024;
+    ptrdiff_t envsize = 16 * 1024;
     int ret, fd, l, l2;
     char *nullp = NULL;
-    ssize_t r;
+    ptrdiff_t r;
 
     ptrace(PTRACE_SETOPTIONS, t->pid, NULL, PTRACE_O_TRACEEXEC);
 

@@ -278,7 +278,7 @@ fprintf(stderr, "pid %i sending %i bytes on %s: %s\n", getpid(), (int)strlen(str
     return ret;
 }
 
-ssize_t socket_read(nrx_socket_t *sock, void *buf, size_t count)
+ptrdiff_t socket_read(nrx_socket_t *sock, void *buf, size_t count)
 {
     int ret;
     ret = read(sock->fd, buf, count);

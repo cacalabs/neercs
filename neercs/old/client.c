@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -122,7 +123,7 @@ int send_event(caca_event_t ev, struct screen_list *screen_list)
     }
     if (bytes)
     {
-        ssize_t r;
+        ptrdiff_t r;
         buf[bytes] = '\0';
         debug("Sending '%s', %d bytes", buf, bytes);
         r = write(screen_list->comm.socket[SOCK_SERVER], buf, bytes+1);
@@ -163,7 +164,7 @@ int mainloop_tick(char **pbuf, struct screen_list *screen_list)
 {
     caca_event_t ev;
     int ret = 0;
-    ssize_t n;
+    ptrdiff_t n;
     if (!screen_list)
         return 0;
     if (!*pbuf)
@@ -188,7 +189,7 @@ int mainloop_tick(char **pbuf, struct screen_list *screen_list)
         else if (!strncmp("UPDATE ", *pbuf, 7))
         {
             int x, y;
-            ssize_t l2 = 0, lb = 0;
+            ptrdiff_t l2 = 0, lb = 0;
             char *buf2;
             size_t l = 0;
             /* FIXME check the length before calling atoi */

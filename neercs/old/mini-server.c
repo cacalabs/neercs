@@ -33,7 +33,7 @@ while (!insock)
 int server_step(void)
 {
     char buf[BUFSIZ];
-    ssize_t bytes;
+    ptrdiff_t bytes;
     int ret;
 
     if (outsock)
