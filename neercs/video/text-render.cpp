@@ -2,7 +2,7 @@
 // Neercs
 //
 
-#if defined HAVE_CONFIG_H
+#if HAVE_CONFIG_H
 #   include "config.h"
 #endif
 
@@ -12,7 +12,7 @@
 #include <ctime>
 #include <string>
 
-#include <lol/main.h>
+#include <lol/engine.h>
 #include "lolgl.h"
 
 using namespace lol;
