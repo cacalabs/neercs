@@ -2,8 +2,7 @@
 // Neercs
 //
 
-#if !defined __TERM_TERM_H__
-#define __TERM_TERM_H__
+#pragma once
 
 #include "term/pty.h"
 
@@ -128,6 +127,4 @@ private:
     float m_time;
     bool m_debug;
 };
-
-#endif // __TERM_TERM_H__
 

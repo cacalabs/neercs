@@ -2,8 +2,7 @@
 // Neercs
 //
 
-#if !defined __VIDEO_RENDER_H__
-#define __VIDEO_RENDER_H__
+#pragma once
 
 class Render : public WorldEntity
 {
@@ -55,4 +54,3 @@ private:
     m_flags;
 };
 
-#endif // __VIDEO_RENDER_H__

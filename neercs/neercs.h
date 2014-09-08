@@ -4,8 +4,7 @@
 // Copyright: (c) 2012 Sam Hocevar <sam@hocevar.net>
 //
 
-#if !defined __NEERCS_H__
-#define __NEERCS_H__
+#pragma once
 
 #include <caca.h>
 
@@ -35,6 +34,4 @@ private:
 
     bool m_ready;
 };
-
-#endif // __NEERCS_H__
 

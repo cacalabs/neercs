@@ -11,8 +11,7 @@
  *  http://www.wtfpl.net/ for more details.
  */
 
-#ifndef _NEERCS_H_
-#define _NEERCS_H_
+#pragma once
 
 #include <stdint.h>
 #include <caca.h>
@@ -427,4 +426,4 @@ static inline void debug(const char *format, ...)
 #else
 #   define debug(format, ...) do {} while(0)
 #endif
-#endif /* _NEERCS_H_ */
+

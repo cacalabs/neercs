@@ -2,8 +2,7 @@
 // Neercs
 //
 
-#if !defined __TERM_PTY_H__
-#define __TERM_PTY_H__
+#pragma once
 
 class Pty
 {
@@ -29,6 +28,4 @@ private:
     size_t m_unread_len;
     ivec2 m_size;
 };
-
-#endif // __TERM_PTY_H__
 

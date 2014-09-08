@@ -2,8 +2,7 @@
 // Neercs
 //
 
-#if !defined __TEXT_RENDER_H__
-#define __TEXT_RENDER_H__
+#pragma once
 
 class TextRender
 {
@@ -30,6 +29,4 @@ private:
 
     Framebuffer *m_fbo;
 };
-
-#endif // __TEXT_RENDER_H__
 
