@@ -1464,7 +1464,7 @@ void Render::Draw2D()
 
     glEnable(GL_TEXTURE_2D);
 
-    g_renderer->Clear(ClearMask::Color | ClearMask::Depth);
+    Renderer::Get()->Clear(ClearMask::Color | ClearMask::Depth);
 
     m_txt_screen->Blit(border, canvas_size);
     if (g_setup)
