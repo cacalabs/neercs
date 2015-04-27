@@ -876,8 +876,8 @@ int Render::InitDrawResources(void)
     vertices << vec2(1, -1);
     vertices << vec2(1, 1);
     vertices << vec2(-1, 1);
-    m_vbo = new VertexBuffer(vertices.Bytes());
-    memcpy(m_vbo->Lock(0, 0), vertices.Data(), vertices.Bytes());
+    m_vbo = new VertexBuffer(vertices.bytes());
+    memcpy(m_vbo->Lock(0, 0), vertices.data(), vertices.bytes());
     m_vbo->Unlock();
 
     // shader simple
