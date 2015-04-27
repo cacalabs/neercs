@@ -1,7 +1,7 @@
-/*
- *  neercs        console-based window manager
- *  Copyright (c) 2006-2013 Sam Hocevar <sam@hocevar.net>
- *                All Rights Reserved
+﻿/*
+ *  neercs — console-based window manager
+ *
+ *  Copyright © 2006—2015 Sam Hocevar <sam@hocevar.net>
  *
  *  This program is free software. It comes without any warranty, to
  *  the extent permitted by applicable law. You can redistribute it
@@ -161,7 +161,7 @@ size_t Pty::ReadData(char *data, size_t maxlen)
 
         if (ret < 0)
         {
-            Log::Error("cannot read from PTY\n");
+            msg::error("cannot read from PTY\n");
             m_eof = true;
             return 0;
         }

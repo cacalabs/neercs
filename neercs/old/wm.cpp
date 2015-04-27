@@ -1,8 +1,8 @@
-/*
- *  neercs        console-based window manager
- *  Copyright (c) 2006-2010 Sam Hocevar <sam@hocevar.net>
- *                2008-2010 Jean-Yves Lamoureux <jylam@lnxscene.org>
- *                All Rights Reserved
+﻿/*
+ *  neercs — console-based window manager
+ *
+ *  Copyright © 2006—2015 Sam Hocevar <sam@hocevar.net>
+ *            © 2008—2010 Jean-Yves Lamoureux <jylam@lnxscene.org>
  *
  *  This program is free software. It comes without any warranty, to
  *  the extent permitted by applicable law. You can redistribute it
@@ -64,8 +64,8 @@ void resize_screen(struct screen *s, int w, int h)
 
 void update_windows_props(struct screen_list *screen_list)
 {
-    debug("%s, %d screens, type %d\n", __FUNCTION__, screen_list->count,
-          screen_list->wm_type);
+    msg::debug("%s, %d screens, type %d\n", __FUNCTION__, screen_list->count,
+               screen_list->wm_type);
 
     if (!screen_list->count)
         return;

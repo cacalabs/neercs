@@ -1,8 +1,8 @@
-/*
- *  neercs        console-based window manager
- *  Copyright (c) 2006-2010 Sam Hocevar <sam@hocevar.net>
- *                2008-2010 Jean-Yves Lamoureux <jylam@lnxscene.org>
- *                All Rights Reserved
+﻿/*
+ *  neercs — console-based window manager
+ *
+ *  Copyright © 2006—2015 Sam Hocevar <sam@hocevar.net>
+ *            © 2008—2010 Jean-Yves Lamoureux <jylam@lnxscene.org>
  *
  *  This program is free software. It comes without any warranty, to
  *  the extent permitted by applicable law. You can redistribute it
@@ -411,7 +411,9 @@ int  python_command_handle_key(struct screen_list *screen_list, unsigned int c);
 void draw_python_command(struct screen_list *screen_list);
 #endif
 
-#if defined DEBUG
+#if __cplusplus
+    /* do nothing */
+#elif defined DEBUG
 #   include <stdio.h>
 #   include <stdarg.h>
 static inline void debug(const char *format, ...)

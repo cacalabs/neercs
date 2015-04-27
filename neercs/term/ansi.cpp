@@ -1,9 +1,9 @@
-/*
- *  neercs        console-based window manager
- *  Copyright (c) 2006-2010 Sam Hocevar <sam@hocevar.net>
- *                2008-2010 Jean-Yves Lamoureux <jylam@lnxscene.org>
- *                2008-2010 Pascal Terjan <pterjan@linuxfr.org>
- *                All Rights Reserved
+﻿/*
+ *  neercs — console-based window manager
+ *
+ *  Copyright © 2006—2015 Sam Hocevar <sam@hocevar.net>
+ *            © 2008—2010 Jean-Yves Lamoureux <jylam@lnxscene.org>
+ *            © 2008—2010 Pascal Terjan <pterjan@linuxfr.org>
  *
  *  This program is free software. It comes without any warranty, to
  *  the extent permitted by applicable law. You can redistribute it
@@ -260,7 +260,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
     int x = 0, y = 0, save_x = 0, save_y = 0;
     char b[100];
 
-    debug("ansi : import_term\n");
+    msg::debug("ansi : import_term\n");
 
     width = caca_get_canvas_width(m_caca);
     height = caca_get_canvas_height(m_caca);
@@ -418,7 +418,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
         }
         else if (buffer[i] == '\033' && buffer[i + 1] == '#')
         {
-            debug("ansi private '#' sequence\n");
+            msg::debug("ansi private '#' sequence\n");
 
             switch (buffer[i + 2])
             {
@@ -438,7 +438,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                 break;
 
             default:
-                debug("Unknow private sequence 'ESC#%c'\n", buffer[i + 2]);
+                msg::debug("Unknow private sequence 'ESC#%c'\n", buffer[i + 2]);
                 continue;
             }
 
@@ -452,9 +452,9 @@ size_t Term::ReadAnsi(void const *data, size_t size)
 
             if (buffer[i + 2] == '?')
             {
-                debug("CSI? %c%c%c%c%c\n",
-                      buffer[i + 3], buffer[i + 4], buffer[i + 5],
-                      buffer[i + 6], buffer[i + 7]);
+                msg::debug("CSI? %c%c%c%c%c\n",
+                           buffer[i + 3], buffer[i + 4], buffer[i + 5],
+                           buffer[i + 6], buffer[i + 7]);
             }
 
             /* Compute offsets to parameter bytes, intermediate bytes and to
@@ -508,8 +508,8 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             if (i + final >= size
                 || buffer[i + final] < 0x40 || buffer[i + final] > 0x7e)
             {
-                debug("ansi Invalid Final Byte (%d %c)\n", buffer[i + final],
-                      buffer[i + final]);
+                msg::debug("ansi Invalid Final Byte (%d %c)\n",
+                           buffer[i + final], buffer[i + final]);
                 break;          /* Invalid Final Byte */
             }
 
@@ -519,8 +519,8 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             if (param < inter && buffer[i + param] >= 0x3c)
             {
                 /* Private sequence, only parse what we know */
-                debug("ansi import: private sequence \"^[[%.*s\"",
-                      final - param + 1, buffer + i + param);
+                msg::debug("ansi import: private sequence \"^[[%.*s\"",
+                           final - param + 1, buffer + i + param);
                 /* FIXME better parsing */
                 if (buffer[i + 2] == '?')
                 {
@@ -535,7 +535,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                             arg[a] = buffer[i + 3 + p];
                             arg[a + 1] = 0;
                             a++;
-                            debug("private a now '%s'\n", arg);
+                            msg::debug("private a now '%s'\n", arg);
                         }
                         else
                         {
@@ -546,7 +546,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
 
                     c = buffer[i + 3 + (end - arg)];
 
-                    debug("ansi private mouse : command %c, arg %d", c, Pm);
+                    msg::debug("ansi private mouse: command %c arg %d", c, Pm);
                     if (c == 'h')       /* DECSET DEC Private Mode Set */
                     {
 
@@ -554,24 +554,24 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                         {
                             /* FIXME Handle different modes */
                         case 9:
-                            debug("mouse : X10 mode\n");
+                            msg::debug("mouse : X10 mode\n");
                             m_report_mouse = MOUSE_X10;
                             break;
                         case 1000:     /* Send Mouse X & Y on button press
                                            and release.  */
-                                debug("mouse : VT200 mode\n");
+                                msg::debug("mouse : VT200 mode\n");
                             m_report_mouse = MOUSE_VT200;
                             break;
                         case 1001:     /* Use Hilite Mouse Tracking.  */
-                                debug("mouse : VT200_HIGHLIGHT mode\n");
+                                msg::debug("mouse : VT200_HIGHLIGHT mode\n");
                             m_report_mouse = MOUSE_VT200_HIGHLIGHT;
                             break;
                         case 1002:     /* Use Cell Motion Mouse Tracking. */
-                                debug("mouse : BTN mode\n");
+                                msg::debug("mouse : BTN mode\n");
                             m_report_mouse = MOUSE_BTN_EVENT;
                             break;
                         case 1003:     /* Use All Motion Mouse Tracking.  */
-                                debug("mouse : ANY mode\n");
+                                msg::debug("mouse : ANY mode\n");
                             m_report_mouse = MOUSE_ANY_EVENT;
                             break;
                         default:
@@ -591,7 +591,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                         case 1002:     /* Use Cell Motion Mouse Tracking. */
                         case 1003:     /* Use All Motion Mouse Tracking.  */
                             m_report_mouse = MOUSE_NONE;
-                            debug("ansi private mouse : NOT reporting mouse");
+                            msg::debug("ansi private mouse : NOT reporting mouse");
                             break;
                         default:
                             break;
@@ -622,7 +622,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             /* Interpret final byte. The code representations are given in
                ECMA-48 5.4: Control sequences, and the code definitions are
                given in ECMA-48 8.3: Definition of control functions. */
-            debug("ansi import: command '%c'", buffer[i + final]);
+            msg::debug("ansi import: command '%c'", buffer[i + final]);
             switch (buffer[i + final])
             {
             case 'A':          /* CUU (0x41) - Cursor Up */
@@ -647,7 +647,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             case 'H':          /* CUP (0x48) - Cursor Position */
                 x = (argc > 1 && argv[1] > 0) ? argv[1] - 1 : 0;
                 y = (argc > 0 && argv[0] > 0) ? argv[0] - 1 : 0;
-                debug("ansi CUP : Cursor at %dx%d\n", x, y);
+                msg::debug("ansi CUP : Cursor at %dx%d\n", x, y);
                 break;
             case 'J':          /* ED (0x4a) - Erase In Page */
                 savedattr = caca_get_attr(m_caca, -1, -1);
@@ -670,7 +670,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                 caca_set_attr(m_caca, savedattr);
                 break;
             case 'K':          /* EL (0x4b) - Erase In Line */
-                debug("ansi EL : cursor at %dx%d\n", x, y);
+                msg::debug("ansi EL : cursor at %dx%d\n", x, y);
                 if (!argc || argv[0] == 0)
                 {
                     caca_draw_line(m_caca, x, y, width, y, ' ');
@@ -737,8 +737,8 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                    processor option (GPO) 5 GPO and STP 6 GPO and AVO 7 GPO,
                    STP, and AVO */
                 /* Warning, argument is Pn */
-                debug("ansi Got command c, argc %d, argv[0] (%d)\n", argc,
-                      argv[0], argv[0]);
+                msg::debug("ansi Got command c, argc %d, argv[0] (%d)\n",
+                           argc, argv[0], argv[0]);
                 if (!argc || argv[0] == 0)
                 {
                     SendAnsi("\x1b[?1;0c");
@@ -769,7 +769,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                         SendAnsi("\x1b[?\x1;\x7c");
                         break;
                     default:
-                        debug("Unsupported DA option '%d'\n", argv[0]);
+                        msg::debug("Unsupported DA option '%d'\n", argv[0]);
                         break;
                     }
                 }
@@ -786,18 +786,18 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             case 'r':          /* FIXME */
                 if (argc == 2)  /* DCSTBM - Set top and bottom margin */
                 {
-                    debug("DCSTBM %d %d", argv[0], argv[1]);
+                    msg::debug("DCSTBM %d %d", argv[0], argv[1]);
                     top = argv[0];
                     bottom = argv[1];
                 }
                 else
-                    debug("ansi import: command r with %d params", argc);
+                    msg::debug("ansi import: command r with %d params", argc);
                 break;
             case 'h':          /* SM (0x68) - FIXME */
-                debug("ansi import: set mode %i", argc ? (int)argv[0] : -1);
+                msg::debug("ansi import: set mode %i", argc ? (int)argv[0] : -1);
                 break;
             case 'l':          /* RM (0x6c) - FIXME */
-                debug("ansi import: reset mode %i", argc ? (int)argv[0] : -1);
+                msg::debug("ansi import: reset mode %i", argc ? (int)argv[0] : -1);
                 break;
             case 'm':          /* SGR (0x6d) - Select Graphic Rendition */
                 if (argc)
@@ -806,7 +806,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                     ReadGrcm(1, &dummy);
                 break;
             case 'n':
-                debug("ansi command n, argc %d, argv[0] %d\n", argc, argv[0]);
+                msg::debug("ansi command n, argc %d, argv[0] %d\n", argc, argv[0]);
                 if (!argc)
                     break;
 
@@ -833,7 +833,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                 y = save_y;
                 break;
             default:
-                debug("ansi import: unknown command \"^[%.*s\"",
+                msg::debug("ansi import: unknown command \"^[%.*s\"",
                       final - param + 1, buffer + i + param);
                 break;
             }
@@ -872,7 +872,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             memcpy(string, buffer + i + (semicolon + 1),
                    final - (semicolon + 1));
             string[final - (semicolon + 1)] = '\0';
-            debug("ansi import: got OSC command %i string '%s'", command,
+            msg::debug("ansi import: got OSC command %i string '%s'", command,
                   string);
             if (command == 0 || command == 2)
             {
@@ -983,7 +983,7 @@ size_t Term::SendAnsi(char const *str)
     size_t ret = strlen(str);
 
     /* FIXME TODO: not implemented */
-    Log::Debug("Sending %d-character ANSI sequence\n", (int)ret);
+    msg::debug("Sending %d-character ANSI sequence\n", (int)ret);
 
     return ret;
 }
@@ -1118,7 +1118,7 @@ void Term::ReadGrcm(unsigned int argc, unsigned int const *argv)
                 m_proportional = 0;
                 break;
             default:
-                debug("ansi import: unknown sgr %i", argv[j]);
+                msg::debug("ansi import: unknown sgr %i", argv[j]);
                 break;
             }
     }
