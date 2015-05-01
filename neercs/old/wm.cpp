@@ -10,7 +10,6 @@
  *  to Public License, Version 2, as published by the WTFPL Task Force.
  *  See http://www.wtfpl.net/ for more details.
  */
- */
 
 #if HAVE_CONFIG_H
 #   include "config.h"
