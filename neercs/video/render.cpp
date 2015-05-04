@@ -85,7 +85,7 @@ float beat_angle = 0;      // angle
 float beat_value = 0;      // value
 float beat_speed = 2.0f;   // speed
 /* common variable */
-float value, angle, radius, scale, speed;
+float g_angle;
 /* text variable */
 ivec2 map_size(256,256);   // texture map size
 ivec2 canvas_char(0,0);    // canvas char number
@@ -1399,9 +1399,9 @@ void Render::TickDraw(float seconds, Scene &scene)
     }
     if (sync_flag)
     {
-        angle = (main_angle - sync_angle) * sync_speed;
-        sync_value = 1.0f - sinf(angle);
-        if (angle > 90.0f * PID)
+        g_angle = (main_angle - sync_angle) * sync_speed;
+        sync_value = 1.0f - sinf(g_angle);
+        if (g_angle > 90.0f * PID)
         {
             sync_value = 0;
             sync_flag = false;
@@ -1409,9 +1409,9 @@ void Render::TickDraw(float seconds, Scene &scene)
     }
     if (beat_flag)
     {
-        angle = (main_angle - beat_angle) * beat_speed;
-        beat_value = 1.0f - sinf(angle);
-        if (angle > 90.0f * PID)
+        g_angle = (main_angle - beat_angle) * beat_speed;
+        beat_value = 1.0f - sinf(g_angle);
+        if (g_angle > 90.0f * PID)
         {
             beat_value = 0;
             beat_flag = false;
@@ -1419,9 +1419,9 @@ void Render::TickDraw(float seconds, Scene &scene)
     }
     if (flash_flag)
     {
-        angle = (main_angle - flash_angle) * flash_speed;
-        flash_value = 1.0f - sinf(angle);
-        if (angle > 90.0f * PID)
+        g_angle = (main_angle - flash_angle) * flash_speed;
+        flash_value = 1.0f - sinf(g_angle);
+        if (g_angle > 90.0f * PID)
         {
             flash_value = 0;
             flash_flag = false;
@@ -1429,9 +1429,9 @@ void Render::TickDraw(float seconds, Scene &scene)
     }
     if (fade_flag)
     {
-        angle = (main_angle - fade_angle) * fade_speed;
-        fade_value = 1.0f - sinf(angle);
-        if (angle > 90.0f * PID)
+        g_angle = (main_angle - fade_angle) * fade_speed;
+        fade_value = 1.0f - sinf(g_angle);
+        if (g_angle > 90.0f * PID)
         {
             fade_value = 0;
             fade_flag = false;
