@@ -4,7 +4,7 @@
  *  Copyright © 2006—2015 Sam Hocevar <sam@hocevar.net>
  *            © 2008—2010 Jean-Yves Lamoureux <jylam@lnxscene.org>
  *
- *  This program is free software. It comes without any warranty, to
+ *  neercs is free software. It comes without any warranty, to
  *  the extent permitted by applicable law. You can redistribute it
  *  and/or modify it under the terms of the Do What the Fuck You Want
  *  to Public License, Version 2, as published by the WTFPL Task Force.
@@ -448,9 +448,7 @@ void wm_refresh_cube(struct screen_list *screen_list)
             float cube_projected[12][2];
             float fov = 0.5f;
             float angle =
-                90.0f * ((float)cur_time / (float)screen_list->cube.duration);
-
-            angle *= (F_PI / 180.0f);
+                radians(90.0f) * ((float)cur_time / (float)screen_list->cube.duration);
 
             if (screen_list->cube.side == 1)
                 angle = -angle;
