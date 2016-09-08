@@ -150,7 +150,7 @@ int parse_conf_line(char *buf, int size, struct screen_list *screen_list)
     char *line = NULL;
     int l = 0;
     int in_quote = 0, end_spaces = 0;
-    static struct option *prev = NULL;
+    static struct option_t *prev = NULL;
 
     if (size <= 0)
         return -1;
@@ -221,7 +221,7 @@ int parse_conf_line(char *buf, int size, struct screen_list *screen_list)
     }
     else
     {
-        struct option *option = malloc(sizeof(struct option));
+        struct option_t *option = malloc(sizeof(struct option_t));
         if (!option)
         {
             fprintf(stderr, "Can't allocate memory at %s:%d\n",
@@ -247,7 +247,7 @@ int parse_conf_line(char *buf, int size, struct screen_list *screen_list)
     return s;
 }
 
-int get_key_value(char *line, struct option *option)
+int get_key_value(char *line, struct option_t *option)
 {
     unsigned int i, o = 0, b = 0, end_spaces = 0;
     char *cur = NULL;
@@ -350,7 +350,7 @@ struct config_line *get_config(const char *name)
 int fill_config(struct screen_list *screen_list)
 {
     int i = 0;
-    struct option *option = screen_list->config;
+    struct option_t *option = screen_list->config;
 
     while (option)
     {

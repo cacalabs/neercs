@@ -242,7 +242,7 @@ struct screen_list
     long long unsigned int last_switch; /* Cube */
 
     struct screen **screen;      /* Windows */
-    struct option *config;       /* Option parsing and configuration */
+    struct option_t *config;       /* Option parsing and configuration */
     struct sys sys;              /* System stuff */
 
     struct recurrent_list *recurrent_list;  /* Recurrents functions */
@@ -256,12 +256,12 @@ struct screen_list
 };
 
 /* Configuration */
-struct option
+struct option_t
 {
     char *key;
     char *value;
 
-    struct option *next;
+    struct option_t *next;
 };
 struct config_line
 {
@@ -398,7 +398,7 @@ int remove_recurrent(struct recurrent_list *list, int n);
 /* Configuration file */
 int read_configuration_file(char *filename, struct screen_list *screen_list);
 int parse_conf_line(char *buf, int size, struct screen_list *screen_list);
-int get_key_value(char *line, struct option *option);
+int get_key_value(char *line, struct option_t *option);
 int fill_config(struct screen_list *screen_list);
 struct config_line *get_config(const char *name);
 struct config_line *get_config_option(void);

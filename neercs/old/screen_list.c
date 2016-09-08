@@ -147,7 +147,7 @@ struct screen_list *create_screen_list(void)
 void free_screen_list(struct screen_list *screen_list)
 {
     int i;
-    struct option *option;
+    struct option_t *option;
 
     if (screen_list->dp)
         caca_free_display(screen_list->dp);
@@ -190,7 +190,7 @@ void free_screen_list(struct screen_list *screen_list)
 
     while (option)
     {
-        struct option *kromeugnon = option;
+        struct option_t *kromeugnon = option;
         option = option->next;
         if (kromeugnon->key)
             free(kromeugnon->key);
