@@ -519,7 +519,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             if (param < inter && buffer[i + param] >= 0x3c)
             {
                 /* Private sequence, only parse what we know */
-                msg::debug("ansi import: private sequence \"^[[%.*s\"",
+                msg::debug("ansi import: private sequence \"^[[%.*s\"\n",
                            final - param + 1, buffer + i + param);
                 /* FIXME better parsing */
                 if (buffer[i + 2] == '?')
@@ -546,7 +546,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
 
                     c = buffer[i + 3 + (end - arg)];
 
-                    msg::debug("ansi private mouse: command %c arg %d", c, Pm);
+                    msg::debug("ansi private mouse: command %c arg %d\n", c, Pm);
                     if (c == 'h')       /* DECSET DEC Private Mode Set */
                     {
 
@@ -591,7 +591,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                         case 1002:     /* Use Cell Motion Mouse Tracking. */
                         case 1003:     /* Use All Motion Mouse Tracking.  */
                             m_report_mouse = MOUSE_NONE;
-                            msg::debug("ansi private mouse : NOT reporting mouse");
+                            msg::debug("ansi private mouse : NOT reporting mouse\n");
                             break;
                         default:
                             break;
@@ -622,7 +622,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             /* Interpret final byte. The code representations are given in
                ECMA-48 5.4: Control sequences, and the code definitions are
                given in ECMA-48 8.3: Definition of control functions. */
-            msg::debug("ansi import: command '%c'", buffer[i + final]);
+            msg::debug("ansi import: command '%c'\n", buffer[i + final]);
             switch (buffer[i + final])
             {
             case 'A':          /* CUU (0x41) - Cursor Up */
@@ -786,18 +786,18 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             case 'r':          /* FIXME */
                 if (argc == 2)  /* DCSTBM - Set top and bottom margin */
                 {
-                    msg::debug("DCSTBM %d %d", argv[0], argv[1]);
+                    msg::debug("DCSTBM %d %d\n", argv[0], argv[1]);
                     top = argv[0];
                     bottom = argv[1];
                 }
                 else
-                    msg::debug("ansi import: command r with %d params", argc);
+                    msg::debug("ansi import: command r with %d params\n", argc);
                 break;
             case 'h':          /* SM (0x68) - FIXME */
-                msg::debug("ansi import: set mode %i", argc ? (int)argv[0] : -1);
+                msg::debug("ansi import: set mode %i\n", argc ? (int)argv[0] : -1);
                 break;
             case 'l':          /* RM (0x6c) - FIXME */
-                msg::debug("ansi import: reset mode %i", argc ? (int)argv[0] : -1);
+                msg::debug("ansi import: reset mode %i\n", argc ? (int)argv[0] : -1);
                 break;
             case 'm':          /* SGR (0x6d) - Select Graphic Rendition */
                 if (argc)
@@ -833,7 +833,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
                 y = save_y;
                 break;
             default:
-                msg::debug("ansi import: unknown command \"^[%.*s\"",
+                msg::debug("ansi import: unknown command \"^[%.*s\"\n",
                       final - param + 1, buffer + i + param);
                 break;
             }
@@ -872,7 +872,7 @@ size_t Term::ReadAnsi(void const *data, size_t size)
             memcpy(string, buffer + i + (semicolon + 1),
                    final - (semicolon + 1));
             string[final - (semicolon + 1)] = '\0';
-            msg::debug("ansi import: got OSC command %i string '%s'", command,
+            msg::debug("ansi import: got OSC command %i string '%s'\n", command,
                   string);
             if (command == 0 || command == 2)
             {
@@ -1118,7 +1118,7 @@ void Term::ReadGrcm(unsigned int argc, unsigned int const *argv)
                 m_proportional = 0;
                 break;
             default:
-                msg::debug("ansi import: unknown sgr %i", argv[j]);
+                msg::debug("ansi import: unknown sgr %i\n", argv[j]);
                 break;
             }
     }
