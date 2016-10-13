@@ -18,6 +18,13 @@ AC_PROG_CXX
 AM_PROG_LIBTOOL
 AC_LIBTOOL_CXX
 
+AC_CONFIG_HEADER(config.h)
+
+AC_CONFIG_FILES(
+ [Makefile
+  neercs/Makefile
+])
+
 dnl
 dnl  Inherit all Lol Engine checks
 dnl
@@ -50,11 +57,6 @@ AC_SUBST(PAM_LIBS)
 dnl
 dnl  Perform the actual commands
 dnl
-
-AC_CONFIG_FILES(
- [Makefile
-  neercs/Makefile
-])
 
 AC_OUTPUT
 

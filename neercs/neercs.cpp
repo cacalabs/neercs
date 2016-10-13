@@ -51,7 +51,7 @@ Neercs::~Neercs()
 
 int main(int argc, char **argv)
 {
-    System::Init(argc, argv);
+    sys::init(argc, argv);
 
     Application app("Neercs", ivec2(800, 600), 60.0f);
 
